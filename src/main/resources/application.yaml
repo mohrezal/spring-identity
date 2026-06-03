@@ -1,3 +1,58 @@
+server:
+  port: 8080
+
 spring:
   application:
-    name: spring-identity
+    name: identity
+  datasource:
+    url: jdbc:postgresql://${APP_DATABASE_HOST}:${APP_DATABASE_PORT}/${APP_DATABASE_NAME}
+    username: ${APP_DATABASE_USER}
+    password: ${APP_DATABASE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      minimum-idle: 5
+      maximum-pool-size: 20
+      connection-timeout: 30000
+      max-lifetime: 1800000
+      idle-timeout: 600000
+      leak-detection-threshold: 60000
+  jpa:
+    open-in-view: false
+    show-sql: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  liquibase:
+    enabled: true
+    change-log: classpath:/db/changelog/db.changelog-master.yaml
+  data:
+    redis:
+      host: ${APP_REDIS_HOST}
+      port: ${APP_REDIS_PORT}
+      password: ${APP_REDIS_PASSWORD}
+      lettuce:
+        pool:
+          max-active: 16
+          max-idle: 8
+          min-idle: 2
+  rabbitmq:
+    host: ${APP_RABBITMQ_HOST}
+    port: ${APP_RABBITMQ_PORT}
+    username: ${APP_RABBITMQ_USER}
+    password: ${APP_RABBITMQ_PASSWORD}
+    listener:
+      simple:
+        acknowledge-mode: auto
+        retry:
+          enabled: false
+
+app:
+  security:
+    secret: ${APP_SECURITY_SECRET}
+    access-token-ttl: ${APP_SECURITY_ACCESS_TOKEN_TTL}
+    refresh-token-ttl: ${APP_SECURITY_REFRESH_TOKEN_TTL}
+    verification-token-ttl: ${APP_SECURITY_VERIFICATION_TOKEN_TTL}
+    password-reset-token-ttl: ${APP_SECURITY_PASSWORD_RESET_TOKEN_TTL}
