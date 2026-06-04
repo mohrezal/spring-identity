@@ -51,6 +51,15 @@ spring:
         retry:
           enabled: false
 
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+    operations-sorter: method
+    tags-sorter: alpha
+    filter: true
+
 app:
   security:
     secret: ${APP_SECURITY_SECRET}
