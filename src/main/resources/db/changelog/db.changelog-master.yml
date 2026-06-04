@@ -1,0 +1,5 @@
+databaseChangeLog:
+  - include:
+      file: migrations/1780560899_init_user_management_schema.sql
+      relativeToChangelogFile: true
+      context: schema

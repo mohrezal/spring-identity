@@ -1,0 +1,60 @@
+services:
+  db:
+    image: postgres:18-alpine
+    container_name: identity_db
+    ports:
+      - "${APP_DATABASE_PORT}:5432"
+    environment:
+      POSTGRES_DB: ${APP_DATABASE_NAME}
+      POSTGRES_USER: ${APP_DATABASE_USER}
+      POSTGRES_PASSWORD: ${APP_DATABASE_PASSWORD}
+    volumes:
+      - database-data:/var/lib/postgresql
+    networks:
+      - identity-network
+  redis:
+    image: redis:7-alpine
+    container_name: identity-redis
+    ports:
+      - "${APP_REDIS_PORT}:6379"
+    environment:
+      - APP_REDIS_PASSWORD=${APP_REDIS_PASSWORD:?APP_REDIS_PASSWORD is required}
+    command:
+      [
+        "sh",
+        "-c",
+        "exec redis-server --appendonly yes --requirepass \"APP_REDIS_PASSWORD\"",
+      ]
+    volumes:
+      - redis-data:/data
+    networks:
+      - identity-network
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "redis-cli -a \"APP_REDIS_PASSWORD\" ping | grep -q PONG",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+  rabbitmq:
+    image: rabbitmq:4.2.3-management
+    container_name: identity_rabbitmq
+    ports:
+      - "${APP_RABBITMQ_PORT}:5672"
+      - "${APP_RABBITMQ_CLIENT_PORT}:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: ${APP_RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${APP_RABBITMQ_PASSWORD}
+    networks:
+      - identity-network
+    restart: unless-stopped
+networks:
+  identity-network:
+    driver: bridge
+
+volumes:
+  database-data:
+  redis-data:
