@@ -1,0 +1,28 @@
+#!/bin/sh
+
+STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM)
+
+echo "Auto-formatting code..."
+mvn spotless:apply
+
+if [ $? -ne 0 ]; then
+    echo ""
+    echo "Auto-formatting failed!"
+    exit 1
+fi
+
+if [ -n "$STAGED_FILES" ]; then
+    echo "$STAGED_FILES" | xargs git add
+fi
+
+echo "Running pre-commit checks..."
+mvn spotless:check checkstyle:check
+
+if [ $? -ne 0 ]; then
+    echo ""
+    echo "Pre-commit checks failed!"
+    exit 1
+fi
+
+echo "All checks passed!"
+exit 0
