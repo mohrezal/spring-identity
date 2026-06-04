@@ -14,7 +14,7 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    private static final String[] SWAGGER_WHITELIST = {
+    private static final String[] PUBLIC_SWAGGER_PATHS = {
         "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html"
     };
 
@@ -23,7 +23,7 @@ public class SecurityConfig {
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(
                         auth ->
-                                auth.requestMatchers(SWAGGER_WHITELIST)
+                                auth.requestMatchers(PUBLIC_SWAGGER_PATHS)
                                         .permitAll()
                                         .anyRequest()
                                         .authenticated())
