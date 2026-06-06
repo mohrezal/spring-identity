@@ -1,3 +1,6 @@
 package com.github.mohrezal.identity.domain.user.command.param;
 
-public record RegisterCommandParams() {}
+import com.github.mohrezal.identity.domain.user.dto.RegisterRequest;
+
+public record RegisterCommandParams(
+        RegisterRequest request, String ipAddress, String userAgent, String redirectUrl) {}

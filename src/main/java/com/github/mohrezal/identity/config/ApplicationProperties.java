@@ -17,5 +17,6 @@ public record ApplicationProperties(@Valid Security security) {
             @NotNull Duration accessTokenTtl,
             @NotNull Duration refreshTokenTtl,
             @NotNull Duration verificationTokenTtl,
-            @NotNull Duration passwordResetTokenTtl) {}
+            @NotNull Duration passwordResetTokenTtl,
+            @NotNull String allowedOrigin) {}
 }
