@@ -1,10 +1,10 @@
 package com.github.mohrezal.identity.shared.exception.type;
 
-import com.github.mohrezal.identity.shared.exception.ErrorCode;
+import com.github.mohrezal.identity.shared.enums.AppMessage;
 
 public class InvalidRedirectUrlException extends BadRequestException {
 
     public InvalidRedirectUrlException() {
-        super(ErrorCode.INVALID_REDIRECT_URL);
+        super(AppMessage.INVALID_REDIRECT_URL);
     }
 }

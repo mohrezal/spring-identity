@@ -1,5 +1,6 @@
 package com.github.mohrezal.identity.shared.exception;
 
+import com.github.mohrezal.identity.shared.enums.AppMessage;
 import com.github.mohrezal.identity.shared.exception.type.BadRequestException;
 import com.github.mohrezal.identity.shared.exception.type.BaseException;
 import com.github.mohrezal.identity.shared.exception.type.ConflictException;
@@ -50,14 +51,14 @@ public class SharedExceptionHandler extends AbstractExceptionHandler {
     public ResponseEntity<ErrorResponse> handleBadCredentialsException(
             BadCredentialsException exception, WebRequest request) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(buildBody(ErrorCode.AUTH_INVALID_CREDENTIALS, null, request));
+                .body(buildBody(AppMessage.AUTH_INVALID_CREDENTIALS, null, request));
     }
 
     @ExceptionHandler(AuthorizationDeniedException.class)
     public ResponseEntity<ErrorResponse> handleAuthorizationDeniedException(
             AuthorizationDeniedException exception, WebRequest request) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .body(buildBody(ErrorCode.FORBIDDEN, null, request));
+                .body(buildBody(AppMessage.FORBIDDEN, null, request));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -70,7 +71,7 @@ public class SharedExceptionHandler extends AbstractExceptionHandler {
                 .forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
 
         return ResponseEntity.status(exception.getStatusCode())
-                .body(buildBody(ErrorCode.VALIDATION_FAILED, errors, request));
+                .body(buildBody(AppMessage.VALIDATION_FAILED, errors, request));
     }
 
     @ExceptionHandler(HandlerMethodValidationException.class)
@@ -92,13 +93,13 @@ public class SharedExceptionHandler extends AbstractExceptionHandler {
                         });
 
         return ResponseEntity.status(exception.getStatusCode())
-                .body(buildBody(ErrorCode.VALIDATION_FAILED, errors, request));
+                .body(buildBody(AppMessage.VALIDATION_FAILED, errors, request));
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleException(Exception exception, WebRequest request) {
         log.error("Unhandled exception", exception);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(buildBody(ErrorCode.UNEXPECTED, null, request));
+                .body(buildBody(AppMessage.UNEXPECTED, null, request));
     }
 }

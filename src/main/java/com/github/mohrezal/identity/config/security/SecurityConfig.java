@@ -1,6 +1,7 @@
 package com.github.mohrezal.identity.config.security;
 
 import com.github.mohrezal.identity.config.ApplicationProperties;
+import com.github.mohrezal.identity.config.RouteConstants;
 import com.github.mohrezal.identity.domain.auth.exception.type.AuthInvalidCredentialsException;
 import com.github.mohrezal.identity.domain.user.repository.UserRepository;
 import jakarta.servlet.http.HttpServletResponse;
@@ -34,6 +35,10 @@ public class SecurityConfig {
 
     private static final String[] PUBLIC_GET_PATH = {
         "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html"
+    };
+
+    private static final String[] PUBLIC_POST_PATH = {
+        RouteConstants.build(RouteConstants.Auth.BASE, RouteConstants.Auth.REGISTER)
     };
 
     @Bean
@@ -70,6 +75,8 @@ public class SecurityConfig {
                                 auth.requestMatchers(HttpMethod.OPTIONS, "/**")
                                         .permitAll()
                                         .requestMatchers(HttpMethod.GET, PUBLIC_GET_PATH)
+                                        .permitAll()
+                                        .requestMatchers(HttpMethod.POST, PUBLIC_POST_PATH)
                                         .permitAll()
                                         .anyRequest()
                                         .authenticated());

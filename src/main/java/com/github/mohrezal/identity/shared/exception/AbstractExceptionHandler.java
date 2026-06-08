@@ -1,5 +1,6 @@
 package com.github.mohrezal.identity.shared.exception;
 
+import com.github.mohrezal.identity.shared.enums.AppMessage;
 import com.github.mohrezal.identity.shared.exception.type.BaseException;
 import java.time.Instant;
 import java.util.Map;
@@ -24,27 +25,27 @@ public abstract class AbstractExceptionHandler {
         if (exception.getStatusCode().is5xxServerError()) {
             log.error(
                     "Handled exception - code={} status={} context={}",
-                    exception.getErrorCode(),
+                    exception.getAppMessage(),
                     exception.getStatusCode().value(),
                     exception.getContext(),
                     exception);
         } else {
             log.warn(
                     "Handled exception - code={} status={} context={}",
-                    exception.getErrorCode(),
+                    exception.getAppMessage(),
                     exception.getStatusCode().value(),
                     exception.getContext());
         }
 
         return ResponseEntity.status(exception.getStatusCode())
-                .body(buildBody(exception.getErrorCode(), null, request));
+                .body(buildBody(exception.getAppMessage(), null, request));
     }
 
     protected ErrorResponse buildBody(
-            ErrorCode errorCode, Map<String, String> errors, WebRequest request) {
+            AppMessage appMessage, Map<String, String> errors, WebRequest request) {
         return new ErrorResponse(
-                errorCode.name(),
-                resolveMessage(errorCode.messageKey()),
+                appMessage.name(),
+                resolveMessage(appMessage.messageKey()),
                 errors,
                 Instant.now(),
                 resolvePath(request));

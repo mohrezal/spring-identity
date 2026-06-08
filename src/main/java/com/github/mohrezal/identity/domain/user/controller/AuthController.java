@@ -8,6 +8,7 @@ import com.github.mohrezal.identity.shared.service.ClientIpService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.MessageSource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +27,8 @@ public class AuthController {
 
     private final ClientIpService clientIpService;
 
+    private final MessageSource messageSource;
+
     @PostMapping(RouteConstants.Auth.REGISTER)
     public ResponseEntity<?> register(
             @Valid @RequestBody RegisterRequest body,
@@ -38,7 +41,8 @@ public class AuthController {
                         request.getHeader(HttpHeaders.USER_AGENT),
                         redirectUrl);
 
-        var command = registerCommand.execute(params);
+        registerCommand.execute(params);
+
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

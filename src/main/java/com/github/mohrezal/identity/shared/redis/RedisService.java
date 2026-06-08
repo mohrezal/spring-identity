@@ -1,6 +1,6 @@
 package com.github.mohrezal.identity.shared.redis;
 
-import com.github.mohrezal.identity.shared.constant.RedisKey;
+import com.github.mohrezal.identity.shared.enums.RedisKey;
 import java.time.Duration;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;

@@ -1,4 +1,4 @@
-package com.github.mohrezal.identity.shared.constant;
+package com.github.mohrezal.identity.shared.enums;
 
 public enum RedisKey {
     EMAIL_VERIFICATION_TOKEN("user:email:verification:%s");
