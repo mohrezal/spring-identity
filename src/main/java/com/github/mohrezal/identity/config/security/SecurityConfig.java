@@ -1,6 +1,7 @@
 package com.github.mohrezal.identity.config.security;
 
 import com.github.mohrezal.identity.config.ApplicationProperties;
+import com.github.mohrezal.identity.domain.auth.exception.type.AuthInvalidCredentialsException;
 import com.github.mohrezal.identity.domain.user.repository.UserRepository;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.Arrays;
@@ -17,7 +18,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -95,8 +95,7 @@ public class SecurityConfig {
         return username ->
                 userRepository
                         .findByEmail(username)
-                        .orElseThrow(
-                                () -> new UsernameNotFoundException("Invalid email or password"));
+                        .orElseThrow(AuthInvalidCredentialsException::new);
     }
 
     @Bean
