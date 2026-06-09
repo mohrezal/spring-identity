@@ -5,6 +5,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.MapsId;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.util.UUID;
@@ -23,10 +24,11 @@ public class UserCredential extends TimestampedModel {
     @Column(name = "user_id")
     private UUID userId;
 
-    @OneToOne
-    @JoinColumn(name = "user_id", nullable = false, unique = true)
-    private User user;
-
     @Column(name = "hashed_password", nullable = false, length = 500)
     private String hashedPassword;
+
+    @OneToOne
+    @MapsId
+    @JoinColumn(name = "user_id", nullable = false, unique = true)
+    private User user;
 }

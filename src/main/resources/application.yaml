@@ -59,6 +59,10 @@ springdoc:
     operations-sorter: method
     tags-sorter: alpha
     filter: true
+    csrf:
+      enabled: true
+      cookie-name: XSRF-TOKEN
+      header-name: X-XSRF-TOKEN
 
 app:
   security:
@@ -68,3 +72,8 @@ app:
     verification-token-ttl: ${APP_SECURITY_VERIFICATION_TOKEN_TTL}
     password-reset-token-ttl: ${APP_SECURITY_PASSWORD_RESET_TOKEN_TTL}
     allowed-origin: ${APP_SECURITY_ALLOWED_ORIGIN}
+    csrf:
+      cookie:
+        path: /
+        secure: false
+        sameSite: Lax

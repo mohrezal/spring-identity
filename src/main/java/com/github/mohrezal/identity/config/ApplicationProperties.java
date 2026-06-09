@@ -18,5 +18,14 @@ public record ApplicationProperties(@Valid Security security) {
             @NotNull Duration refreshTokenTtl,
             @NotNull Duration verificationTokenTtl,
             @NotNull Duration passwordResetTokenTtl,
-            @NotNull String allowedOrigin) {}
+            @NotNull String allowedOrigin,
+            @Valid Csrf csrf) {}
+
+    @Validated
+    public record Csrf(@Valid Cookie cookie) {
+
+        @Validated
+        public record Cookie(
+                @NotBlank String path, @NotNull Boolean secure, @NotBlank String sameSite) {}
+    }
 }

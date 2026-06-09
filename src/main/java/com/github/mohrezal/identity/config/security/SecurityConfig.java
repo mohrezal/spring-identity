@@ -7,6 +7,7 @@ import com.github.mohrezal.identity.domain.user.repository.UserRepository;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.Arrays;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
@@ -28,30 +29,32 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+@RequiredArgsConstructor
 @Configuration(proxyBeanMethods = false)
 @EnableWebSecurity
 @EnableMethodSecurity(securedEnabled = true, jsr250Enabled = true)
 public class SecurityConfig {
-
+    private final ApplicationProperties applicationProperties;
     private static final String[] PUBLIC_GET_PATH = {
-        "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html"
+        "/v3/api-docs/**",
+        "/swagger-ui/**",
+        "/swagger-ui.html",
+        RouteConstants.build(RouteConstants.Auth.BASE, RouteConstants.Auth.CSRF)
     };
 
     private static final String[] PUBLIC_POST_PATH = {
-        RouteConstants.build(RouteConstants.Auth.BASE, RouteConstants.Auth.REGISTER)
+        RouteConstants.build(RouteConstants.User.BASE, RouteConstants.User.REGISTER)
     };
 
     @Bean
     SecurityFilterChain securityFilterChain(
             HttpSecurity http,
             CorsConfigurationSource corsConfigurationSource,
-            JwtAuthenticationFilter jwtAuthenticationFilter)
+            JwtAuthenticationFilter jwtAuthenticationFilter,
+            CookieCsrfTokenRepository csrfTokenRepository)
             throws Exception {
         http.cors(cors -> cors.configurationSource(corsConfigurationSource))
-                .csrf(
-                        csrf ->
-                                csrf.csrfTokenRepository(
-                                        CookieCsrfTokenRepository.withHttpOnlyFalse()))
+                .csrf(csrf -> csrf.spa().csrfTokenRepository(csrfTokenRepository))
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
                 .logout(AbstractHttpConfigurer::disable)
@@ -122,6 +125,7 @@ public class SecurityConfig {
                 List.of(
                         HttpHeaders.CONTENT_TYPE,
                         HttpHeaders.ACCEPT,
+                        HttpHeaders.ACCEPT_LANGUAGE,
                         "X-XSRF-TOKEN",
                         "X-Request-Id"));
         configuration.setExposedHeaders(List.of(HttpHeaders.LOCATION, "X-Request-Id"));
@@ -131,6 +135,20 @@ public class SecurityConfig {
         var source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
+    }
+
+    @Bean
+    public CookieCsrfTokenRepository csrfTokenRepository() {
+        var csrfCookie = applicationProperties.security().csrf().cookie();
+        CookieCsrfTokenRepository repository = CookieCsrfTokenRepository.withHttpOnlyFalse();
+        repository.setCookiePath(csrfCookie.path());
+        repository.setCookieCustomizer(
+                cookie -> {
+                    cookie.path(csrfCookie.path())
+                            .secure(csrfCookie.secure())
+                            .sameSite(csrfCookie.sameSite());
+                });
+        return repository;
     }
 
     private static List<String> parseAllowedOrigins(String allowedOrigin) {

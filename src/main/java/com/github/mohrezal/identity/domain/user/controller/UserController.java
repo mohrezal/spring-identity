@@ -4,11 +4,11 @@ import com.github.mohrezal.identity.config.RouteConstants;
 import com.github.mohrezal.identity.domain.user.command.RegisterCommand;
 import com.github.mohrezal.identity.domain.user.command.param.RegisterCommandParams;
 import com.github.mohrezal.identity.domain.user.dto.RegisterRequest;
+import com.github.mohrezal.identity.domain.user.dto.RegisterResponse;
 import com.github.mohrezal.identity.shared.service.ClientIpService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.MessageSource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,18 +19,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(RouteConstants.Auth.BASE)
+@RequestMapping(RouteConstants.User.BASE)
 @RequiredArgsConstructor
-public class AuthController {
+public class UserController {
 
     private final RegisterCommand registerCommand;
 
     private final ClientIpService clientIpService;
 
-    private final MessageSource messageSource;
-
-    @PostMapping(RouteConstants.Auth.REGISTER)
-    public ResponseEntity<?> register(
+    @PostMapping(RouteConstants.User.REGISTER)
+    public ResponseEntity<RegisterResponse> register(
             @Valid @RequestBody RegisterRequest body,
             @RequestParam("redirectUrl") String redirectUrl,
             HttpServletRequest request) {
@@ -41,8 +39,8 @@ public class AuthController {
                         request.getHeader(HttpHeaders.USER_AGENT),
                         redirectUrl);
 
-        registerCommand.execute(params);
+        var response = registerCommand.execute(params);
 
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 }
