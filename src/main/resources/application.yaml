@@ -71,7 +71,7 @@ app:
     refresh-token-ttl: ${APP_SECURITY_REFRESH_TOKEN_TTL}
     verification-token-ttl: ${APP_SECURITY_VERIFICATION_TOKEN_TTL}
     password-reset-token-ttl: ${APP_SECURITY_PASSWORD_RESET_TOKEN_TTL}
-    allowed-origin: ${APP_SECURITY_ALLOWED_ORIGIN}
+    allowed-origins: ${APP_SECURITY_ALLOWED_ORIGIN}
     csrf:
       cookie:
         path: /

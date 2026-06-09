@@ -5,7 +5,6 @@ import com.github.mohrezal.identity.config.RouteConstants;
 import com.github.mohrezal.identity.domain.auth.exception.type.AuthInvalidCredentialsException;
 import com.github.mohrezal.identity.domain.user.repository.UserRepository;
 import jakarta.servlet.http.HttpServletResponse;
-import java.util.Arrays;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -35,11 +34,13 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @EnableMethodSecurity(securedEnabled = true, jsr250Enabled = true)
 public class SecurityConfig {
     private final ApplicationProperties applicationProperties;
+
     private static final String[] PUBLIC_GET_PATH = {
         "/v3/api-docs/**",
         "/swagger-ui/**",
         "/swagger-ui.html",
-        RouteConstants.build(RouteConstants.Auth.BASE, RouteConstants.Auth.CSRF)
+        RouteConstants.build(RouteConstants.Auth.BASE, RouteConstants.Auth.CSRF),
+        RouteConstants.build(RouteConstants.Auth.BASE, RouteConstants.Auth.VERIFY_EMAIL)
     };
 
     private static final String[] PUBLIC_POST_PATH = {
@@ -47,7 +48,7 @@ public class SecurityConfig {
     };
 
     @Bean
-    SecurityFilterChain securityFilterChain(
+    public SecurityFilterChain securityFilterChain(
             HttpSecurity http,
             CorsConfigurationSource corsConfigurationSource,
             JwtAuthenticationFilter jwtAuthenticationFilter,
@@ -90,18 +91,18 @@ public class SecurityConfig {
     }
 
     @Bean
-    PasswordEncoder passwordEncoder() {
+    public PasswordEncoder passwordEncoder() {
         return Argon2PasswordEncoder.defaultsForSpringSecurity_v5_8();
     }
 
     @Bean
-    AuthenticationManager authenticationManager(
+    public AuthenticationManager authenticationManager(
             AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
     @Bean
-    UserDetailsService userDetailsService(UserRepository userRepository) {
+    public UserDetailsService userDetailsService(UserRepository userRepository) {
         return username ->
                 userRepository
                         .findByEmail(username)
@@ -109,10 +110,10 @@ public class SecurityConfig {
     }
 
     @Bean
-    CorsConfigurationSource corsConfigurationSource(ApplicationProperties applicationProperties) {
+    public CorsConfigurationSource corsConfigurationSource(
+            ApplicationProperties applicationProperties) {
         var configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(
-                parseAllowedOrigins(applicationProperties.security().allowedOrigin()));
+        configuration.setAllowedOrigins(applicationProperties.security().allowedOrigins());
         configuration.setAllowedMethods(
                 List.of(
                         HttpMethod.GET.name(),
@@ -149,13 +150,5 @@ public class SecurityConfig {
                             .sameSite(csrfCookie.sameSite());
                 });
         return repository;
-    }
-
-    private static List<String> parseAllowedOrigins(String allowedOrigin) {
-        return Arrays.stream(allowedOrigin.split(","))
-                .map(String::trim)
-                .filter(origin -> !origin.isBlank())
-                .distinct()
-                .toList();
     }
 }

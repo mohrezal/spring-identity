@@ -13,6 +13,7 @@ import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.security.core.GrantedAuthority;
@@ -33,6 +34,7 @@ public class User extends BaseModel implements UserDetails {
     @Column(name = "last_name", nullable = true)
     private String lastName;
 
+    @Setter
     @Column(name = "email_verified_at", nullable = false)
     private OffsetDateTime emailVerifiedAt;
 

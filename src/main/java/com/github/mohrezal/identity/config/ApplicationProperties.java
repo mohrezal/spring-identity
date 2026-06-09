@@ -3,7 +3,9 @@ package com.github.mohrezal.identity.config;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import java.time.Duration;
+import java.util.List;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.validation.annotation.Validated;
 
@@ -18,7 +20,7 @@ public record ApplicationProperties(@Valid Security security) {
             @NotNull Duration refreshTokenTtl,
             @NotNull Duration verificationTokenTtl,
             @NotNull Duration passwordResetTokenTtl,
-            @NotNull String allowedOrigin,
+            @NotNull @Size(min = 1) List<String> allowedOrigins,
             @Valid Csrf csrf) {}
 
     @Validated

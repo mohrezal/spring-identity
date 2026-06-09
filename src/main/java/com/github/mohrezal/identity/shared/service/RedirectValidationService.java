@@ -26,10 +26,12 @@ public class RedirectValidationService {
                 return false;
             }
 
+            if (uri.getUserInfo() != null) return false;
+
             var origin = uri.getScheme() + "://" + uri.getHost();
             if (uri.getPort() != -1) origin += ":" + uri.getPort();
 
-            return applicationProperties.security().allowedOrigin().contains(origin);
+            return applicationProperties.security().allowedOrigins().contains(origin);
 
         } catch (URISyntaxException e) {
             log.warn("Invalid redirect URL: {}", redirectUrl);
