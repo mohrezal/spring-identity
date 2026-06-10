@@ -48,7 +48,8 @@ public class SecurityConfig {
         RouteConstants.build(RouteConstants.User.BASE, RouteConstants.User.REGISTER),
         RouteConstants.build(
                 RouteConstants.Auth.BASE, RouteConstants.Auth.RESEND_EMAIL_VERIFICATION),
-        RouteConstants.build(RouteConstants.Auth.BASE, RouteConstants.Auth.LOGIN)
+        RouteConstants.build(RouteConstants.Auth.BASE, RouteConstants.Auth.LOGIN),
+        RouteConstants.build(RouteConstants.Auth.BASE, RouteConstants.Auth.REFRESH)
     };
 
     @Bean
