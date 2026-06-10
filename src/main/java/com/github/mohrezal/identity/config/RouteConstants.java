@@ -19,5 +19,8 @@ public final class RouteConstants {
         public static final String RESEND_EMAIL_VERIFICATION = "resend-email-verification";
         public static final String LOGIN = "login";
         public static final String REFRESH = "refresh";
+
+        public static final String OAUTH_BASE = BASE + "/o";
+        public static final String OAUTH_GOOGLE = "google";
     }
 }

@@ -17,6 +17,7 @@ import com.github.mohrezal.identity.domain.user.dto.UserSummary;
 import com.github.mohrezal.identity.shared.constant.CookieConstant;
 import com.github.mohrezal.identity.shared.service.ClientIpService;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.net.URI;
@@ -37,6 +38,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping(RouteConstants.Auth.BASE)
 @RequiredArgsConstructor
+@Tag(name = "Authentication")
 public class AuthController {
 
     private final VerifyEmailCommand verifyEmailCommand;
