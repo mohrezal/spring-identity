@@ -1,5 +1,6 @@
 package com.github.mohrezal.identity.domain.auth.exception;
 
+import com.github.mohrezal.identity.domain.auth.exception.type.AuthEmailAlreadyVerifiedException;
 import com.github.mohrezal.identity.domain.auth.exception.type.AuthInvalidCredentialsException;
 import com.github.mohrezal.identity.domain.auth.exception.type.AuthInvalidRefreshTokenException;
 import com.github.mohrezal.identity.domain.auth.exception.type.AuthRefreshTokenNotFoundException;
@@ -25,7 +26,8 @@ public class AuthExceptionHandler extends AbstractExceptionHandler {
     @ExceptionHandler({
         AuthInvalidCredentialsException.class,
         AuthInvalidRefreshTokenException.class,
-        AuthRefreshTokenNotFoundException.class
+        AuthRefreshTokenNotFoundException.class,
+        AuthEmailAlreadyVerifiedException.class
     })
     public ResponseEntity<ErrorResponse> handleAuthException(
             BaseException exception, WebRequest request) {

@@ -1,6 +1,7 @@
 package com.github.mohrezal.identity.domain.auth.command;
 
 import com.github.mohrezal.identity.domain.auth.command.param.VerifyEmailCommandParams;
+import com.github.mohrezal.identity.domain.auth.exception.type.AuthEmailAlreadyVerifiedException;
 import com.github.mohrezal.identity.domain.auth.exception.type.AuthEmailVerificationTokenNotFoundException;
 import com.github.mohrezal.identity.domain.user.exception.type.UserNotFoundException;
 import com.github.mohrezal.identity.domain.user.repository.UserRepository;
@@ -40,6 +41,9 @@ public class VerifyEmailCommand implements Command<VerifyEmailCommandParams, Voi
                         .get(RedisKey.EMAIL_VERIFICATION_TOKEN, params.token().toString())
                         .orElseThrow(AuthEmailVerificationTokenNotFoundException::new);
         var user = userRepository.findByEmail(email).orElseThrow(UserNotFoundException::new);
+        if (user.getEmailVerifiedAt() != null) {
+            throw new AuthEmailAlreadyVerifiedException();
+        }
         user.setEmailVerifiedAt(OffsetDateTime.now());
         userRepository.save(user);
         redisService.delete(RedisKey.EMAIL_VERIFICATION_TOKEN, params.token().toString());

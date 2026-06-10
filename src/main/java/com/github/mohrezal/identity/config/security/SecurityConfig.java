@@ -34,26 +34,26 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @EnableMethodSecurity(securedEnabled = true, jsr250Enabled = true)
 public class SecurityConfig {
     private final ApplicationProperties applicationProperties;
+    private final CorsConfigurationSource corsConfigurationSource;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final CookieCsrfTokenRepository csrfTokenRepository;
 
     private static final String[] PUBLIC_GET_PATH = {
         "/v3/api-docs/**",
         "/swagger-ui/**",
         "/swagger-ui.html",
         RouteConstants.build(RouteConstants.Auth.BASE, RouteConstants.Auth.CSRF),
-        RouteConstants.build(RouteConstants.Auth.BASE, RouteConstants.Auth.VERIFY_EMAIL)
+        RouteConstants.build(RouteConstants.Auth.BASE, RouteConstants.Auth.VERIFY_EMAIL),
     };
 
     private static final String[] PUBLIC_POST_PATH = {
-        RouteConstants.build(RouteConstants.User.BASE, RouteConstants.User.REGISTER)
+        RouteConstants.build(RouteConstants.User.BASE, RouteConstants.User.REGISTER),
+        RouteConstants.build(
+                RouteConstants.Auth.BASE, RouteConstants.Auth.RESEND_EMAIL_VERIFICATION)
     };
 
     @Bean
-    public SecurityFilterChain securityFilterChain(
-            HttpSecurity http,
-            CorsConfigurationSource corsConfigurationSource,
-            JwtAuthenticationFilter jwtAuthenticationFilter,
-            CookieCsrfTokenRepository csrfTokenRepository)
-            throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .csrf(csrf -> csrf.spa().csrfTokenRepository(csrfTokenRepository))
                 .httpBasic(AbstractHttpConfigurer::disable)
@@ -83,9 +83,9 @@ public class SecurityConfig {
                                         .requestMatchers(HttpMethod.POST, PUBLIC_POST_PATH)
                                         .permitAll()
                                         .anyRequest()
-                                        .authenticated());
-
-        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                                        .authenticated())
+                .addFilterBefore(
+                        jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
