@@ -34,9 +34,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @EnableMethodSecurity(securedEnabled = true, jsr250Enabled = true)
 public class SecurityConfig {
     private final ApplicationProperties applicationProperties;
-    private final CorsConfigurationSource corsConfigurationSource;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
-    private final CookieCsrfTokenRepository csrfTokenRepository;
 
     private static final String[] PUBLIC_GET_PATH = {
         "/v3/api-docs/**",
@@ -49,11 +47,16 @@ public class SecurityConfig {
     private static final String[] PUBLIC_POST_PATH = {
         RouteConstants.build(RouteConstants.User.BASE, RouteConstants.User.REGISTER),
         RouteConstants.build(
-                RouteConstants.Auth.BASE, RouteConstants.Auth.RESEND_EMAIL_VERIFICATION)
+                RouteConstants.Auth.BASE, RouteConstants.Auth.RESEND_EMAIL_VERIFICATION),
+        RouteConstants.build(RouteConstants.Auth.BASE, RouteConstants.Auth.LOGIN)
     };
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(
+            HttpSecurity http,
+            CorsConfigurationSource corsConfigurationSource,
+            CookieCsrfTokenRepository csrfTokenRepository)
+            throws Exception {
         http.cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .csrf(csrf -> csrf.spa().csrfTokenRepository(csrfTokenRepository))
                 .httpBasic(AbstractHttpConfigurer::disable)
@@ -140,7 +143,7 @@ public class SecurityConfig {
 
     @Bean
     public CookieCsrfTokenRepository csrfTokenRepository() {
-        var csrfCookie = applicationProperties.security().csrf().cookie();
+        var csrfCookie = applicationProperties.security().cookie().csrf();
         CookieCsrfTokenRepository repository = CookieCsrfTokenRepository.withHttpOnlyFalse();
         repository.setCookiePath(csrfCookie.path());
         repository.setCookieCustomizer(

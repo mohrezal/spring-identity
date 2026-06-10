@@ -17,5 +17,7 @@ public final class RouteConstants {
         public static final String CSRF = "csrf";
         public static final String VERIFY_EMAIL = "verify-email";
         public static final String RESEND_EMAIL_VERIFICATION = "resend-email-verification";
+        public static final String LOGIN = "login";
+        public static final String REFRESH = "refresh";
     }
 }

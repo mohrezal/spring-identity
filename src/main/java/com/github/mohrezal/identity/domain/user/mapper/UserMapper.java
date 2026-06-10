@@ -1,6 +1,7 @@
 package com.github.mohrezal.identity.domain.user.mapper;
 
 import com.github.mohrezal.identity.domain.user.dto.RegisterRequest;
+import com.github.mohrezal.identity.domain.user.dto.UserSummary;
 import com.github.mohrezal.identity.domain.user.model.User;
 import com.github.mohrezal.identity.domain.user.model.UserCredential;
 import org.mapstruct.Mapper;
@@ -24,5 +25,9 @@ public interface UserMapper {
     @Mapping(target = "userId", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "user", source = "user")
+    @Mapping(target = "hashedPassword", source = "hashedPassword")
     UserCredential toCredential(User user, String hashedPassword);
+
+    UserSummary toUserSummary(User user);
 }

@@ -41,7 +41,31 @@ public class JwtTokenProvider {
         return Jwts.builder()
                 .subject(userId.toString())
                 .issuedAt(Date.from(now))
-                .expiration(Date.from(now.plus(applicationProperties.security().accessTokenTtl())))
+                .expiration(
+                        Date.from(
+                                now.plus(
+                                        applicationProperties
+                                                .security()
+                                                .cookie()
+                                                .accessToken()
+                                                .ttl())))
+                .signWith(signingKey)
+                .compact();
+    }
+
+    public String createRefreshToken(UUID userId) {
+        var now = Instant.now();
+        return Jwts.builder()
+                .subject(userId.toString())
+                .issuedAt(Date.from(now))
+                .expiration(
+                        Date.from(
+                                now.plus(
+                                        applicationProperties
+                                                .security()
+                                                .cookie()
+                                                .refreshToken()
+                                                .ttl())))
                 .signWith(signingKey)
                 .compact();
     }

@@ -67,13 +67,25 @@ springdoc:
 app:
   security:
     secret: ${APP_SECURITY_SECRET}
-    access-token-ttl: ${APP_SECURITY_ACCESS_TOKEN_TTL}
-    refresh-token-ttl: ${APP_SECURITY_REFRESH_TOKEN_TTL}
     verification-token-ttl: ${APP_SECURITY_VERIFICATION_TOKEN_TTL}
     password-reset-token-ttl: ${APP_SECURITY_PASSWORD_RESET_TOKEN_TTL}
     allowed-origins: ${APP_SECURITY_ALLOWED_ORIGIN}
-    csrf:
-      cookie:
+    cookie:
+      csrf:
         path: /
         secure: false
-        sameSite: Lax
+        same-site: Lax
+      access-token:
+        name: user_info
+        path: /
+        http-only: true
+        secure: false
+        same-site: Lax
+        ttl: ${APP_SECURITY_ACCESS_TOKEN_TTL}
+      refresh-token:
+        name: user_refresh
+        path: /
+        http-only: true
+        secure: false
+        same-site: Lax
+        ttl: ${APP_SECURITY_REFRESH_TOKEN_TTL}
