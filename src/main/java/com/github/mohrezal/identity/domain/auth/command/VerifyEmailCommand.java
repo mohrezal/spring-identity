@@ -38,7 +38,10 @@ public class VerifyEmailCommand implements Command<VerifyEmailCommandParams, Voi
         validate(params);
         var email =
                 redisService
-                        .get(RedisKey.EMAIL_VERIFICATION_TOKEN, params.token().toString())
+                        .get(
+                                RedisKey.EMAIL_VERIFICATION_TOKEN,
+                                String.class,
+                                params.token().toString())
                         .orElseThrow(AuthEmailVerificationTokenNotFoundException::new);
         var user = userRepository.findByEmail(email).orElseThrow(UserNotFoundException::new);
         if (user.getEmailVerifiedAt() != null) {

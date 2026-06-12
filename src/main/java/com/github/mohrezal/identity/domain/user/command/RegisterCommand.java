@@ -58,11 +58,7 @@ public class RegisterCommand implements Command<RegisterCommandParams, RegisterR
         var credential = userMapper.toCredential(savedUser, hashedPassword);
         userCredentialRepository.save(credential);
         var token = UUID.randomUUID().toString();
-        redisService.set(
-                RedisKey.EMAIL_VERIFICATION_TOKEN,
-                user.getEmail(),
-                RedisKey.EMAIL_VERIFICATION_TOKEN.getTtl(),
-                token);
+        redisService.set(RedisKey.EMAIL_VERIFICATION_TOKEN, user.getEmail(), token);
         var activationUrl =
                 UriComponentsBuilder.fromPath(params.redirectUrl())
                         .queryParam("token", token)

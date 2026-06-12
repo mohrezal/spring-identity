@@ -20,7 +20,8 @@ public record ApplicationProperties(@Valid Security security) {
             @NotNull Duration verificationTokenTtl,
             @NotNull Duration passwordResetTokenTtl,
             @NotNull @Size(min = 1) List<String> allowedOrigins,
-            @Valid Cookie cookie) {}
+            @Valid Cookie cookie,
+            @Valid OAuth oAuth) {}
 
     @Validated
     public record Cookie(
@@ -69,5 +70,15 @@ public record ApplicationProperties(@Valid Security security) {
                         .build();
             }
         }
+    }
+
+    @Validated
+    public record OAuth(@Valid Google google) {
+        @Validated
+        public record Google(
+                @NotBlank String clientId,
+                @NotBlank String clientSecret,
+                @NotBlank String redirectUri,
+                @NotNull @Size(min = 1) List<String> scopes) {}
     }
 }

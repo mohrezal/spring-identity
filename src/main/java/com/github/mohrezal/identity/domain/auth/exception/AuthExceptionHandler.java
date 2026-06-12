@@ -4,6 +4,8 @@ import com.github.mohrezal.identity.domain.auth.exception.type.AuthEmailAlreadyV
 import com.github.mohrezal.identity.domain.auth.exception.type.AuthInvalidCredentialsException;
 import com.github.mohrezal.identity.domain.auth.exception.type.AuthInvalidRefreshTokenException;
 import com.github.mohrezal.identity.domain.auth.exception.type.AuthRefreshTokenNotFoundException;
+import com.github.mohrezal.identity.domain.auth.exception.type.OAuthEmailConflictException;
+import com.github.mohrezal.identity.domain.auth.exception.type.OAuthProviderAlreadyLinkedException;
 import com.github.mohrezal.identity.shared.exception.AbstractExceptionHandler;
 import com.github.mohrezal.identity.shared.exception.ErrorResponse;
 import com.github.mohrezal.identity.shared.exception.type.BaseException;
@@ -27,7 +29,9 @@ public class AuthExceptionHandler extends AbstractExceptionHandler {
         AuthInvalidCredentialsException.class,
         AuthInvalidRefreshTokenException.class,
         AuthRefreshTokenNotFoundException.class,
-        AuthEmailAlreadyVerifiedException.class
+        AuthEmailAlreadyVerifiedException.class,
+        OAuthEmailConflictException.class,
+        OAuthProviderAlreadyLinkedException.class
     })
     public ResponseEntity<ErrorResponse> handleAuthException(
             BaseException exception, WebRequest request) {

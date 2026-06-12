@@ -41,7 +41,8 @@ public class SecurityConfig {
         "/swagger-ui/**",
         "/swagger-ui.html",
         RouteConstants.build(RouteConstants.Auth.BASE, RouteConstants.Auth.CSRF),
-        RouteConstants.build(RouteConstants.Auth.BASE, RouteConstants.Auth.VERIFY_EMAIL),
+        RouteConstants.Auth.OAuth.BASE + "/*/authorize",
+        RouteConstants.Auth.OAuth.BASE + "/*/callback"
     };
 
     private static final String[] PUBLIC_POST_PATH = {

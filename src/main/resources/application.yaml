@@ -89,3 +89,11 @@ app:
         secure: false
         same-site: Lax
         ttl: ${APP_SECURITY_REFRESH_TOKEN_TTL}
+    oauth:
+      google:
+        client-id: ${APP_SECURITY_OAUTH_GOOGLE_CLIENT_ID}
+        client-secret: ${APP_SECURITY_OAUTH_GOOGLE_CLIENT_SECRET}
+        redirect-uri: ${APP_SECURITY_OAUTH_GOOGLE_REDIRECT_URI}
+        scopes:
+          - email
+          - profile

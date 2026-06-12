@@ -4,8 +4,8 @@ import java.time.Duration;
 import lombok.Getter;
 
 public enum RedisKey {
-    EMAIL_VERIFICATION_TOKEN("user:email:verification:%s", Duration.ofHours(24L));
-
+    EMAIL_VERIFICATION_TOKEN("user:email:verification:%s", Duration.ofHours(24L)),
+    OAUTH_STATE("oauth:state:%s", Duration.ofMinutes(10));
     private final String pattern;
     @Getter private final Duration ttl;
 

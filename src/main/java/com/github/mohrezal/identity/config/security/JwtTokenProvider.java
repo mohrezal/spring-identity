@@ -8,6 +8,8 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
@@ -76,6 +78,18 @@ public class JwtTokenProvider {
             return Optional.ofNullable(claims.getSubject())
                     .filter(StringUtils::hasText)
                     .map(UUID::fromString);
+        } catch (JwtException | IllegalArgumentException exception) {
+            return Optional.empty();
+        }
+    }
+
+    public Optional<OffsetDateTime> extractExpiration(String token) {
+        try {
+            Claims claims = jwtParser.parseSignedClaims(token).getPayload();
+
+            return Optional.ofNullable(claims.getExpiration())
+                    .map(Date::toInstant)
+                    .map(expiration -> OffsetDateTime.ofInstant(expiration, ZoneOffset.UTC));
         } catch (JwtException | IllegalArgumentException exception) {
             return Optional.empty();
         }

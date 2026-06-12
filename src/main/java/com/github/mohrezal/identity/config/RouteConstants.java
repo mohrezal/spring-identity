@@ -20,7 +20,11 @@ public final class RouteConstants {
         public static final String LOGIN = "login";
         public static final String REFRESH = "refresh";
 
-        public static final String OAUTH_BASE = BASE + "/o";
-        public static final String OAUTH_GOOGLE = "google";
+        public static final class OAuth {
+            public static final String BASE = Auth.BASE + "/o";
+            public static final String AUTHORIZE = "{provider}/authorize";
+            public static final String LINK = "{provider}/link";
+            public static final String CALLBACK = "{provider}/callback";
+        }
     }
 }

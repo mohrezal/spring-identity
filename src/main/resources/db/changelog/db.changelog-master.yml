@@ -3,3 +3,7 @@ databaseChangeLog:
       file: migrations/1780560899_init_user_management_schema.sql
       relativeToChangelogFile: true
       context: schema
+  - include:
+      file: migrations/1781110722_add_user_oauth_connections.sql
+      relativeToChangelogFile: true
+      context: schema
