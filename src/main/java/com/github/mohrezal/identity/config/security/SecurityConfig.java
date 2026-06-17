@@ -50,7 +50,9 @@ public class SecurityConfig {
         RouteConstants.build(
                 RouteConstants.Auth.BASE, RouteConstants.Auth.RESEND_EMAIL_VERIFICATION),
         RouteConstants.build(RouteConstants.Auth.BASE, RouteConstants.Auth.LOGIN),
-        RouteConstants.build(RouteConstants.Auth.BASE, RouteConstants.Auth.REFRESH)
+        RouteConstants.build(RouteConstants.Auth.BASE, RouteConstants.Auth.REFRESH),
+        RouteConstants.build(RouteConstants.Auth.BASE, RouteConstants.Auth.FORGOT_PASSWORD),
+        RouteConstants.build(RouteConstants.Auth.BASE, RouteConstants.Auth.RESET_PASSWORD)
     };
 
     @Bean

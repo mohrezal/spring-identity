@@ -79,6 +79,23 @@ public class RabbitMQConfig {
     }
 
     @Bean
+    public Queue passwordResetEmailQueue() {
+        return QueueBuilder.durable(RabbitMQConstants.Notification.Queue.PASSWORD_RESET_EMAIL)
+                .maxPriority(RabbitMQConstants.Notification.MAX_PRIORITY)
+                .deadLetterExchange(RabbitMQConstants.DeadLetter.EXCHANGE)
+                .deadLetterRoutingKey(RabbitMQConstants.DeadLetter.RoutingKey.EMAIL)
+                .lazy()
+                .build();
+    }
+
+    @Bean
+    public Binding passwordResetEmailBinding() {
+        return BindingBuilder.bind(passwordResetEmailQueue())
+                .to(notificationExchange())
+                .with(RabbitMQConstants.Notification.RoutingKey.PASSWORD_RESET_EMAIL);
+    }
+
+    @Bean
     public DirectExchange deadLetterExchange() {
         return new DirectExchange(RabbitMQConstants.DeadLetter.EXCHANGE);
     }

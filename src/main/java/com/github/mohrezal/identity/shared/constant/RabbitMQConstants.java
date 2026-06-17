@@ -24,6 +24,8 @@ public final class RabbitMQConstants {
             public static final String OAUTH_WELCOME_EMAIL =
                     "notification.oauth.welcome.email.queue";
             public static final String OAUTH_LINK_EMAIL = "notification.oauth.link.email.queue";
+            public static final String PASSWORD_RESET_EMAIL =
+                    "notification.password.reset.email.queue";
 
             private Queue() {}
         }
@@ -36,8 +38,19 @@ public final class RabbitMQConstants {
             public static final String OAUTH_WELCOME_EMAIL =
                     "notification.oauth.welcome.email.route";
             public static final String OAUTH_LINK_EMAIL = "notification.oauth.link.email.route";
+            public static final String PASSWORD_RESET_EMAIL =
+                    "notification.password.reset.email.route";
 
             private RoutingKey() {}
+        }
+
+        public static final class Priority {
+
+            public static final int OAUTH_WELCOME_EMAIL = 3;
+            public static final int OAUTH_LINK_EMAIL = 7;
+            public static final int PASSWORD_RESET_EMAIL = 9;
+
+            private Priority() {}
         }
     }
 

@@ -3,19 +3,25 @@ package com.github.mohrezal.identity.domain.auth.controller;
 import com.github.mohrezal.identity.config.ApplicationProperties;
 import com.github.mohrezal.identity.config.RouteConstants;
 import com.github.mohrezal.identity.domain.auth.command.ChangePasswordCommand;
+import com.github.mohrezal.identity.domain.auth.command.ForgotPasswordCommand;
 import com.github.mohrezal.identity.domain.auth.command.LoginCommand;
 import com.github.mohrezal.identity.domain.auth.command.RefreshTokenCommand;
 import com.github.mohrezal.identity.domain.auth.command.ResendEmailVerificationCommand;
+import com.github.mohrezal.identity.domain.auth.command.ResetPasswordCommand;
 import com.github.mohrezal.identity.domain.auth.command.VerifyEmailCommand;
 import com.github.mohrezal.identity.domain.auth.command.param.ChangePasswordCommandParams;
+import com.github.mohrezal.identity.domain.auth.command.param.ForgotPasswordCommandParams;
 import com.github.mohrezal.identity.domain.auth.command.param.LoginCommandParams;
 import com.github.mohrezal.identity.domain.auth.command.param.RefreshTokenCommandParams;
 import com.github.mohrezal.identity.domain.auth.command.param.ResendEmailVerificationCommandParams;
+import com.github.mohrezal.identity.domain.auth.command.param.ResetPasswordCommandParams;
 import com.github.mohrezal.identity.domain.auth.command.param.VerifyEmailCommandParams;
 import com.github.mohrezal.identity.domain.auth.dto.ChangePasswordRequest;
 import com.github.mohrezal.identity.domain.auth.dto.CsrfTokenResponse;
+import com.github.mohrezal.identity.domain.auth.dto.ForgotPasswordRequest;
 import com.github.mohrezal.identity.domain.auth.dto.LoginRequest;
 import com.github.mohrezal.identity.domain.auth.dto.ResendEmailVerificationRequest;
+import com.github.mohrezal.identity.domain.auth.dto.ResetPasswordRequest;
 import com.github.mohrezal.identity.domain.user.dto.UserSummary;
 import com.github.mohrezal.identity.shared.annotation.Authenticated;
 import com.github.mohrezal.identity.shared.constant.CookieConstant;
@@ -52,6 +58,8 @@ public class AuthController {
     private final LoginCommand loginCommand;
     private final RefreshTokenCommand refreshTokenCommand;
     private final ChangePasswordCommand changePasswordCommand;
+    private final ForgotPasswordCommand forgotPasswordCommand;
+    private final ResetPasswordCommand resetPasswordCommand;
 
     private final ClientIpService clientIpService;
     private final ApplicationProperties applicationProperties;
@@ -142,6 +150,24 @@ public class AuthController {
                 .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
                 .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
                 .build();
+    }
+
+    @PostMapping(RouteConstants.Auth.FORGOT_PASSWORD)
+    public ResponseEntity<Boolean> forgotPassword(
+            @Valid @RequestBody ForgotPasswordRequest body,
+            @RequestParam(value = "redirectUrl") String redirectUrl) {
+        var params = new ForgotPasswordCommandParams(body, redirectUrl);
+        var response = forgotPasswordCommand.execute(params);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping(RouteConstants.Auth.RESET_PASSWORD)
+    public ResponseEntity<?> resetPassword(
+            @Valid @RequestBody ResetPasswordRequest body,
+            @RequestParam(value = "redirectUrl") String redirectUrl) {
+        var params = new ResetPasswordCommandParams(body, redirectUrl);
+        resetPasswordCommand.execute(params);
+        return ResponseEntity.status(HttpStatus.FOUND).location(URI.create(redirectUrl)).build();
     }
 
     @Authenticated

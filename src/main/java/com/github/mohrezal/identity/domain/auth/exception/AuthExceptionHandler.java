@@ -4,6 +4,7 @@ import com.github.mohrezal.identity.domain.auth.exception.type.AuthCurrentPasswo
 import com.github.mohrezal.identity.domain.auth.exception.type.AuthEmailAlreadyVerifiedException;
 import com.github.mohrezal.identity.domain.auth.exception.type.AuthInvalidCredentialsException;
 import com.github.mohrezal.identity.domain.auth.exception.type.AuthInvalidRefreshTokenException;
+import com.github.mohrezal.identity.domain.auth.exception.type.AuthPasswordResetTokenNotFoundException;
 import com.github.mohrezal.identity.domain.auth.exception.type.AuthRefreshTokenNotFoundException;
 import com.github.mohrezal.identity.domain.auth.exception.type.OAuthEmailConflictException;
 import com.github.mohrezal.identity.domain.auth.exception.type.OAuthProviderAlreadyLinkedException;
@@ -30,6 +31,7 @@ public class AuthExceptionHandler extends AbstractExceptionHandler {
         AuthInvalidCredentialsException.class,
         AuthCurrentPasswordMismatchException.class,
         AuthInvalidRefreshTokenException.class,
+        AuthPasswordResetTokenNotFoundException.class,
         AuthRefreshTokenNotFoundException.class,
         AuthEmailAlreadyVerifiedException.class,
         OAuthEmailConflictException.class,

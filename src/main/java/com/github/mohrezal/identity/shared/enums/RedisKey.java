@@ -5,6 +5,7 @@ import lombok.Getter;
 
 public enum RedisKey {
     EMAIL_VERIFICATION_TOKEN("user:email:verification:%s", Duration.ofHours(24L)),
+    PASSWORD_RESET_TOKEN("user:password:reset:%s", Duration.ofMinutes(30L)),
     OAUTH_STATE("oauth:state:%s", Duration.ofMinutes(10));
     private final String pattern;
     @Getter private final Duration ttl;

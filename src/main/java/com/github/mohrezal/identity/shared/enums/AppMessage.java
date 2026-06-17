@@ -15,6 +15,7 @@ public enum AppMessage {
     AUTH_INVALID_REFRESH_TOKEN("auth.error.invalid-refresh-token"),
     AUTH_REFRESH_TOKEN_NOT_FOUND("auth.error.refresh-token-not-found"),
     AUTH_EMAIL_VERIFICATION_NOT_FOUND("auth.error.email-verification-token-not-found"),
+    AUTH_PASSWORD_RESET_TOKEN_NOT_FOUND("auth.error.password-reset-token-not-found"),
     AUTH_EMAIL_ALREADY_VERIFIED("auth.error.email-already-verified"),
     OAUTH_EMAIL_CONFLICT("oauth.error.email-conflict"),
     OAUTH_PROVIDER_ALREADY_LINKED("oauth.error.provider-already-linked"),
