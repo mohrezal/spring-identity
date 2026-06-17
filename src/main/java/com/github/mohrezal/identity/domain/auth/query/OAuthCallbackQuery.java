@@ -9,6 +9,8 @@ import com.github.mohrezal.identity.domain.auth.enums.OAuthFlowType;
 import com.github.mohrezal.identity.domain.auth.exception.type.OAuthCallbackRedirectException;
 import com.github.mohrezal.identity.domain.auth.exception.type.OAuthEmailConflictException;
 import com.github.mohrezal.identity.domain.auth.exception.type.OAuthProviderAlreadyLinkedException;
+import com.github.mohrezal.identity.domain.auth.listener.message.OAuthLinkEmailMessage;
+import com.github.mohrezal.identity.domain.auth.listener.message.OAuthWelcomeEmailMessage;
 import com.github.mohrezal.identity.domain.auth.model.UserOauthConnection;
 import com.github.mohrezal.identity.domain.auth.query.param.OAuthCallbackQueryParams;
 import com.github.mohrezal.identity.domain.auth.repository.UserOauthConnectionRepository;
@@ -24,6 +26,7 @@ import com.github.mohrezal.identity.shared.redis.RedisService;
 import java.time.OffsetDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,6 +40,7 @@ public class OAuthCallbackQuery implements Query<OAuthCallbackQueryParams, OAuth
     private final UserRepository userRepository;
     private final UserOauthConnectionRepository userOauthConnectionRepository;
     private final TokenIssuanceService tokenIssuanceService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Override
     public void validate(OAuthCallbackQueryParams params) {
@@ -156,6 +160,10 @@ public class OAuthCallbackQuery implements Query<OAuthCallbackQueryParams, OAuth
                 profile.provider(),
                 savedUser.getId());
 
+        eventPublisher.publishEvent(
+                new OAuthWelcomeEmailMessage(
+                        savedUser.getId(), savedUser.getEmail(), profile.provider()));
+
         return tokenIssuanceService.issue(savedUser, ipAddress, deviceInfo);
     }
 
@@ -214,5 +222,8 @@ public class OAuthCallbackQuery implements Query<OAuthCallbackQueryParams, OAuth
                 "OAuth connection linked. provider={}, userId={}",
                 profile.provider(),
                 user.getId());
+
+        eventPublisher.publishEvent(
+                new OAuthLinkEmailMessage(user.getId(), user.getEmail(), profile.provider()));
     }
 }

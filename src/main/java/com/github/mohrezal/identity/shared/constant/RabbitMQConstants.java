@@ -21,6 +21,9 @@ public final class RabbitMQConstants {
         public static final class Queue {
 
             public static final String EMAIL = "notification.email.queue";
+            public static final String OAUTH_WELCOME_EMAIL =
+                    "notification.oauth.welcome.email.queue";
+            public static final String OAUTH_LINK_EMAIL = "notification.oauth.link.email.queue";
 
             private Queue() {}
         }
@@ -30,6 +33,9 @@ public final class RabbitMQConstants {
             public static final String EMAIL = "notification.email";
             public static final String TRANSACTIONAL_EMAIL =
                     "notification.transactional.email.route";
+            public static final String OAUTH_WELCOME_EMAIL =
+                    "notification.oauth.welcome.email.route";
+            public static final String OAUTH_LINK_EMAIL = "notification.oauth.link.email.route";
 
             private RoutingKey() {}
         }

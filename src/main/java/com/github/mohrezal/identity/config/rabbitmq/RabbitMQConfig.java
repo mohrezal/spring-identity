@@ -45,6 +45,40 @@ public class RabbitMQConfig {
     }
 
     @Bean
+    public Queue oAuthWelcomeEmailQueue() {
+        return QueueBuilder.durable(RabbitMQConstants.Notification.Queue.OAUTH_WELCOME_EMAIL)
+                .maxPriority(RabbitMQConstants.Notification.MAX_PRIORITY)
+                .deadLetterExchange(RabbitMQConstants.DeadLetter.EXCHANGE)
+                .deadLetterRoutingKey(RabbitMQConstants.DeadLetter.RoutingKey.EMAIL)
+                .lazy()
+                .build();
+    }
+
+    @Bean
+    public Binding oAuthWelcomeEmailBinding() {
+        return BindingBuilder.bind(oAuthWelcomeEmailQueue())
+                .to(notificationExchange())
+                .with(RabbitMQConstants.Notification.RoutingKey.OAUTH_WELCOME_EMAIL);
+    }
+
+    @Bean
+    public Queue oAuthLinkEmailQueue() {
+        return QueueBuilder.durable(RabbitMQConstants.Notification.Queue.OAUTH_LINK_EMAIL)
+                .maxPriority(RabbitMQConstants.Notification.MAX_PRIORITY)
+                .deadLetterExchange(RabbitMQConstants.DeadLetter.EXCHANGE)
+                .deadLetterRoutingKey(RabbitMQConstants.DeadLetter.RoutingKey.EMAIL)
+                .lazy()
+                .build();
+    }
+
+    @Bean
+    public Binding oAuthLinkEmailBinding() {
+        return BindingBuilder.bind(oAuthLinkEmailQueue())
+                .to(notificationExchange())
+                .with(RabbitMQConstants.Notification.RoutingKey.OAUTH_LINK_EMAIL);
+    }
+
+    @Bean
     public DirectExchange deadLetterExchange() {
         return new DirectExchange(RabbitMQConstants.DeadLetter.EXCHANGE);
     }
