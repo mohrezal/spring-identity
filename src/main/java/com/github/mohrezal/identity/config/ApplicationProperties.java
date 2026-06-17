@@ -69,6 +69,16 @@ public record ApplicationProperties(@Valid Security security) {
                         .maxAge(0)
                         .build();
             }
+
+            public ResponseCookie clear(String path) {
+                return ResponseCookie.from(name, "")
+                        .path(path)
+                        .httpOnly(httpOnly)
+                        .secure(secure)
+                        .sameSite(sameSite)
+                        .maxAge(0)
+                        .build();
+            }
         }
     }
 

@@ -18,6 +18,7 @@ public final class RouteConstants {
         public static final String VERIFY_EMAIL = "verify-email";
         public static final String RESEND_EMAIL_VERIFICATION = "resend-email-verification";
         public static final String LOGIN = "login";
+        public static final String LOGOUT = "logout";
         public static final String REFRESH = "refresh";
         public static final String CHANGE_PASSWORD = "change-password";
         public static final String FORGOT_PASSWORD = "forgot-password";
