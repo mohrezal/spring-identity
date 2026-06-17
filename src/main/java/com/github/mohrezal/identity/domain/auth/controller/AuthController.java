@@ -5,6 +5,7 @@ import com.github.mohrezal.identity.config.RouteConstants;
 import com.github.mohrezal.identity.domain.auth.command.ChangePasswordCommand;
 import com.github.mohrezal.identity.domain.auth.command.ForgotPasswordCommand;
 import com.github.mohrezal.identity.domain.auth.command.LoginCommand;
+import com.github.mohrezal.identity.domain.auth.command.LogoutAllCommand;
 import com.github.mohrezal.identity.domain.auth.command.LogoutCommand;
 import com.github.mohrezal.identity.domain.auth.command.RefreshTokenCommand;
 import com.github.mohrezal.identity.domain.auth.command.ResendEmailVerificationCommand;
@@ -13,6 +14,7 @@ import com.github.mohrezal.identity.domain.auth.command.VerifyEmailCommand;
 import com.github.mohrezal.identity.domain.auth.command.param.ChangePasswordCommandParams;
 import com.github.mohrezal.identity.domain.auth.command.param.ForgotPasswordCommandParams;
 import com.github.mohrezal.identity.domain.auth.command.param.LoginCommandParams;
+import com.github.mohrezal.identity.domain.auth.command.param.LogoutAllCommandParams;
 import com.github.mohrezal.identity.domain.auth.command.param.LogoutCommandParams;
 import com.github.mohrezal.identity.domain.auth.command.param.RefreshTokenCommandParams;
 import com.github.mohrezal.identity.domain.auth.command.param.ResendEmailVerificationCommandParams;
@@ -59,6 +61,7 @@ public class AuthController {
     private final ResendEmailVerificationCommand resendEmailVerificationCommand;
     private final LoginCommand loginCommand;
     private final LogoutCommand logoutCommand;
+    private final LogoutAllCommand logoutAllCommand;
     private final RefreshTokenCommand refreshTokenCommand;
     private final ChangePasswordCommand changePasswordCommand;
     private final ForgotPasswordCommand forgotPasswordCommand;
@@ -129,6 +132,28 @@ public class AuthController {
                     String rawRefreshToken) {
         var params = new LogoutCommandParams(rawRefreshToken);
         logoutCommand.execute(params);
+
+        var accessCookie = applicationProperties.security().cookie().accessToken().clear();
+        var refreshCookie =
+                applicationProperties
+                        .security()
+                        .cookie()
+                        .refreshToken()
+                        .clear(
+                                RouteConstants.build(
+                                        RouteConstants.Auth.BASE, RouteConstants.Auth.REFRESH));
+
+        return ResponseEntity.noContent()
+                .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
+                .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
+                .build();
+    }
+
+    @Authenticated
+    @PostMapping(RouteConstants.Auth.LOGOUT_ALL)
+    public ResponseEntity<?> logoutAll(@AuthenticationPrincipal UserDetails userDetails) {
+        var params = new LogoutAllCommandParams(userDetails);
+        logoutAllCommand.execute(params);
 
         var accessCookie = applicationProperties.security().cookie().accessToken().clear();
         var refreshCookie =
