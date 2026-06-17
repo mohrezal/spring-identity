@@ -2,18 +2,22 @@ package com.github.mohrezal.identity.domain.auth.controller;
 
 import com.github.mohrezal.identity.config.ApplicationProperties;
 import com.github.mohrezal.identity.config.RouteConstants;
+import com.github.mohrezal.identity.domain.auth.command.ChangePasswordCommand;
 import com.github.mohrezal.identity.domain.auth.command.LoginCommand;
 import com.github.mohrezal.identity.domain.auth.command.RefreshTokenCommand;
 import com.github.mohrezal.identity.domain.auth.command.ResendEmailVerificationCommand;
 import com.github.mohrezal.identity.domain.auth.command.VerifyEmailCommand;
+import com.github.mohrezal.identity.domain.auth.command.param.ChangePasswordCommandParams;
 import com.github.mohrezal.identity.domain.auth.command.param.LoginCommandParams;
 import com.github.mohrezal.identity.domain.auth.command.param.RefreshTokenCommandParams;
 import com.github.mohrezal.identity.domain.auth.command.param.ResendEmailVerificationCommandParams;
 import com.github.mohrezal.identity.domain.auth.command.param.VerifyEmailCommandParams;
+import com.github.mohrezal.identity.domain.auth.dto.ChangePasswordRequest;
 import com.github.mohrezal.identity.domain.auth.dto.CsrfTokenResponse;
 import com.github.mohrezal.identity.domain.auth.dto.LoginRequest;
 import com.github.mohrezal.identity.domain.auth.dto.ResendEmailVerificationRequest;
 import com.github.mohrezal.identity.domain.user.dto.UserSummary;
+import com.github.mohrezal.identity.shared.annotation.Authenticated;
 import com.github.mohrezal.identity.shared.constant.CookieConstant;
 import com.github.mohrezal.identity.shared.service.ClientIpService;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -26,6 +30,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -45,6 +51,7 @@ public class AuthController {
     private final ResendEmailVerificationCommand resendEmailVerificationCommand;
     private final LoginCommand loginCommand;
     private final RefreshTokenCommand refreshTokenCommand;
+    private final ChangePasswordCommand changePasswordCommand;
 
     private final ClientIpService clientIpService;
     private final ApplicationProperties applicationProperties;
@@ -135,5 +142,15 @@ public class AuthController {
                 .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
                 .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
                 .build();
+    }
+
+    @Authenticated
+    @PostMapping(RouteConstants.Auth.CHANGE_PASSWORD)
+    public ResponseEntity<?> changePassword(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @Valid @RequestBody ChangePasswordRequest body) {
+        var params = new ChangePasswordCommandParams(userDetails, body);
+        changePasswordCommand.execute(params);
+        return ResponseEntity.noContent().build();
     }
 }

@@ -31,4 +31,8 @@ public class UserCredential extends TimestampedModel {
     @MapsId
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;
+
+    public void changePassword(String hashedPassword) {
+        this.hashedPassword = hashedPassword;
+    }
 }

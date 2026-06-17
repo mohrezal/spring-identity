@@ -1,5 +1,6 @@
 package com.github.mohrezal.identity.domain.auth.exception;
 
+import com.github.mohrezal.identity.domain.auth.exception.type.AuthCurrentPasswordMismatchException;
 import com.github.mohrezal.identity.domain.auth.exception.type.AuthEmailAlreadyVerifiedException;
 import com.github.mohrezal.identity.domain.auth.exception.type.AuthInvalidCredentialsException;
 import com.github.mohrezal.identity.domain.auth.exception.type.AuthInvalidRefreshTokenException;
@@ -27,6 +28,7 @@ public class AuthExceptionHandler extends AbstractExceptionHandler {
 
     @ExceptionHandler({
         AuthInvalidCredentialsException.class,
+        AuthCurrentPasswordMismatchException.class,
         AuthInvalidRefreshTokenException.class,
         AuthRefreshTokenNotFoundException.class,
         AuthEmailAlreadyVerifiedException.class,

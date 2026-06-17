@@ -11,6 +11,7 @@ public enum AppMessage {
     INVALID_REDIRECT_URL("shared.error.invalid-redirect-url"),
     VALIDATION_FAILED("shared.validation.failed"),
     AUTH_INVALID_CREDENTIALS("auth.error.invalid-credentials"),
+    AUTH_CURRENT_PASSWORD_MISMATCH("auth.error.current-password-mismatch"),
     AUTH_INVALID_REFRESH_TOKEN("auth.error.invalid-refresh-token"),
     AUTH_REFRESH_TOKEN_NOT_FOUND("auth.error.refresh-token-not-found"),
     AUTH_EMAIL_VERIFICATION_NOT_FOUND("auth.error.email-verification-token-not-found"),

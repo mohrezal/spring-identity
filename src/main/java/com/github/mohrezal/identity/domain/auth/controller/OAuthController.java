@@ -9,8 +9,7 @@ import com.github.mohrezal.identity.domain.auth.query.OAuthAuthorizeQuery;
 import com.github.mohrezal.identity.domain.auth.query.OAuthCallbackQuery;
 import com.github.mohrezal.identity.domain.auth.query.param.OAuthAuthorizeQueryParams;
 import com.github.mohrezal.identity.domain.auth.query.param.OAuthCallbackQueryParams;
-import com.github.mohrezal.identity.domain.user.model.User;
-import com.github.mohrezal.identity.shared.exception.type.UnauthorizedException;
+import com.github.mohrezal.identity.shared.annotation.Authenticated;
 import com.github.mohrezal.identity.shared.service.ClientIpService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,6 +19,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -52,21 +52,18 @@ public class OAuthController {
         return ResponseEntity.status(HttpStatus.FOUND).location(URI.create(query)).build();
     }
 
+    @Authenticated
     @GetMapping(RouteConstants.Auth.OAuth.LINK)
     public ResponseEntity<?> link(
             @PathVariable String provider,
             @RequestParam("redirect_url") String redirectUrl,
-            @AuthenticationPrincipal User user) {
-        if (user == null) {
-            throw new UnauthorizedException();
-        }
-
+            @AuthenticationPrincipal UserDetails userDetails) {
         var params =
                 new OAuthAuthorizeQueryParams(
                         OAuthProviderType.fromName(provider),
                         OAuthFlowType.LINK,
                         redirectUrl,
-                        user.getId());
+                        userDetails);
         var query = authAuthorizeQuery.execute(params);
         return ResponseEntity.status(HttpStatus.FOUND).location(URI.create(query)).build();
     }
