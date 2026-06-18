@@ -25,6 +25,7 @@ public final class RouteConstants {
         public static final String CHANGE_PASSWORD = "change-password";
         public static final String FORGOT_PASSWORD = "forgot-password";
         public static final String RESET_PASSWORD = "reset-password";
+        public static final String SESSIONS = "sessions";
 
         public static final class OAuth {
             public static final String BASE = Auth.BASE + "/o";

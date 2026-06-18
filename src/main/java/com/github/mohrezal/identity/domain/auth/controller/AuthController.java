@@ -26,6 +26,9 @@ import com.github.mohrezal.identity.domain.auth.dto.ForgotPasswordRequest;
 import com.github.mohrezal.identity.domain.auth.dto.LoginRequest;
 import com.github.mohrezal.identity.domain.auth.dto.ResendEmailVerificationRequest;
 import com.github.mohrezal.identity.domain.auth.dto.ResetPasswordRequest;
+import com.github.mohrezal.identity.domain.auth.dto.SessionSummary;
+import com.github.mohrezal.identity.domain.auth.query.GetAuthSessionsQuery;
+import com.github.mohrezal.identity.domain.auth.query.param.GetAuthSessionsQueryParams;
 import com.github.mohrezal.identity.domain.user.dto.UserSummary;
 import com.github.mohrezal.identity.shared.annotation.Authenticated;
 import com.github.mohrezal.identity.shared.constant.CookieConstant;
@@ -35,6 +38,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.net.URI;
+import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -66,6 +70,7 @@ public class AuthController {
     private final ChangePasswordCommand changePasswordCommand;
     private final ForgotPasswordCommand forgotPasswordCommand;
     private final ResetPasswordCommand resetPasswordCommand;
+    private final GetAuthSessionsQuery getAuthSessionsQuery;
 
     private final ClientIpService clientIpService;
     private final ApplicationProperties applicationProperties;
@@ -220,6 +225,15 @@ public class AuthController {
         var params = new ResetPasswordCommandParams(body, redirectUrl);
         resetPasswordCommand.execute(params);
         return ResponseEntity.status(HttpStatus.FOUND).location(URI.create(redirectUrl)).build();
+    }
+
+    @Authenticated
+    @GetMapping(RouteConstants.Auth.SESSIONS)
+    public ResponseEntity<List<SessionSummary>> sessions(
+            @AuthenticationPrincipal UserDetails userDetails) {
+        var params = new GetAuthSessionsQueryParams(userDetails);
+        var response = getAuthSessionsQuery.execute(params);
+        return ResponseEntity.ok(response);
     }
 
     @Authenticated
