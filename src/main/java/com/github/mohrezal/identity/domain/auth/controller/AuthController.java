@@ -10,6 +10,7 @@ import com.github.mohrezal.identity.domain.auth.command.LogoutCommand;
 import com.github.mohrezal.identity.domain.auth.command.RefreshTokenCommand;
 import com.github.mohrezal.identity.domain.auth.command.ResendEmailVerificationCommand;
 import com.github.mohrezal.identity.domain.auth.command.ResetPasswordCommand;
+import com.github.mohrezal.identity.domain.auth.command.RevokeAuthSessionCommand;
 import com.github.mohrezal.identity.domain.auth.command.VerifyEmailCommand;
 import com.github.mohrezal.identity.domain.auth.command.param.ChangePasswordCommandParams;
 import com.github.mohrezal.identity.domain.auth.command.param.ForgotPasswordCommandParams;
@@ -19,6 +20,7 @@ import com.github.mohrezal.identity.domain.auth.command.param.LogoutCommandParam
 import com.github.mohrezal.identity.domain.auth.command.param.RefreshTokenCommandParams;
 import com.github.mohrezal.identity.domain.auth.command.param.ResendEmailVerificationCommandParams;
 import com.github.mohrezal.identity.domain.auth.command.param.ResetPasswordCommandParams;
+import com.github.mohrezal.identity.domain.auth.command.param.RevokeAuthSessionCommandParams;
 import com.github.mohrezal.identity.domain.auth.command.param.VerifyEmailCommandParams;
 import com.github.mohrezal.identity.domain.auth.dto.ChangePasswordRequest;
 import com.github.mohrezal.identity.domain.auth.dto.CsrfTokenResponse;
@@ -48,7 +50,9 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.CookieValue;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -71,6 +75,7 @@ public class AuthController {
     private final ForgotPasswordCommand forgotPasswordCommand;
     private final ResetPasswordCommand resetPasswordCommand;
     private final GetAuthSessionsQuery getAuthSessionsQuery;
+    private final RevokeAuthSessionCommand revokeAuthSessionCommand;
 
     private final ClientIpService clientIpService;
     private final ApplicationProperties applicationProperties;
@@ -234,6 +239,19 @@ public class AuthController {
         var params = new GetAuthSessionsQueryParams(userDetails);
         var response = getAuthSessionsQuery.execute(params);
         return ResponseEntity.ok(response);
+    }
+
+    @Authenticated
+    @DeleteMapping(RouteConstants.Auth.SESSIONS + "/{id}")
+    public ResponseEntity<?> revokeSession(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @PathVariable UUID id,
+            @Parameter(hidden = true)
+                    @CookieValue(name = CookieConstant.REFRESH_TOKEN, required = false)
+                    String rawRefreshToken) {
+        var params = new RevokeAuthSessionCommandParams(userDetails, id, rawRefreshToken);
+        revokeAuthSessionCommand.execute(params);
+        return ResponseEntity.noContent().build();
     }
 
     @Authenticated
