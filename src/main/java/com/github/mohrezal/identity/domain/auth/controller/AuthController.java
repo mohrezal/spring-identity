@@ -125,10 +125,7 @@ public class AuthController {
                         .security()
                         .cookie()
                         .refreshToken()
-                        .build(
-                                response.authResponse().refreshToken(),
-                                RouteConstants.build(
-                                        RouteConstants.Auth.BASE, RouteConstants.Auth.REFRESH));
+                        .build(response.authResponse().refreshToken(), RouteConstants.Auth.BASE);
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
                 .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
@@ -149,6 +146,12 @@ public class AuthController {
                         .security()
                         .cookie()
                         .refreshToken()
+                        .clear(RouteConstants.Auth.BASE);
+        var legacyRefreshCookie =
+                applicationProperties
+                        .security()
+                        .cookie()
+                        .refreshToken()
                         .clear(
                                 RouteConstants.build(
                                         RouteConstants.Auth.BASE, RouteConstants.Auth.REFRESH));
@@ -156,6 +159,7 @@ public class AuthController {
         return ResponseEntity.noContent()
                 .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
                 .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
+                .header(HttpHeaders.SET_COOKIE, legacyRefreshCookie.toString())
                 .build();
     }
 
@@ -171,6 +175,12 @@ public class AuthController {
                         .security()
                         .cookie()
                         .refreshToken()
+                        .clear(RouteConstants.Auth.BASE);
+        var legacyRefreshCookie =
+                applicationProperties
+                        .security()
+                        .cookie()
+                        .refreshToken()
                         .clear(
                                 RouteConstants.build(
                                         RouteConstants.Auth.BASE, RouteConstants.Auth.REFRESH));
@@ -178,6 +188,7 @@ public class AuthController {
         return ResponseEntity.noContent()
                 .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
                 .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
+                .header(HttpHeaders.SET_COOKIE, legacyRefreshCookie.toString())
                 .build();
     }
 
@@ -204,13 +215,19 @@ public class AuthController {
                         .security()
                         .cookie()
                         .refreshToken()
-                        .build(
-                                response.refreshToken(),
+                        .build(response.refreshToken(), RouteConstants.Auth.BASE);
+        var legacyRefreshCookie =
+                applicationProperties
+                        .security()
+                        .cookie()
+                        .refreshToken()
+                        .clear(
                                 RouteConstants.build(
                                         RouteConstants.Auth.BASE, RouteConstants.Auth.REFRESH));
         return ResponseEntity.status(HttpStatus.NO_CONTENT)
                 .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
                 .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
+                .header(HttpHeaders.SET_COOKIE, legacyRefreshCookie.toString())
                 .build();
     }
 
@@ -235,8 +252,11 @@ public class AuthController {
     @Authenticated
     @GetMapping(RouteConstants.Auth.SESSIONS)
     public ResponseEntity<List<SessionSummary>> sessions(
-            @AuthenticationPrincipal UserDetails userDetails) {
-        var params = new GetAuthSessionsQueryParams(userDetails);
+            @AuthenticationPrincipal UserDetails userDetails,
+            @Parameter(hidden = true)
+                    @CookieValue(name = CookieConstant.REFRESH_TOKEN, required = false)
+                    String rawRefreshToken) {
+        var params = new GetAuthSessionsQueryParams(userDetails, rawRefreshToken);
         var response = getAuthSessionsQuery.execute(params);
         return ResponseEntity.ok(response);
     }

@@ -103,8 +103,7 @@ public class OAuthController {
                             .refreshToken()
                             .build(
                                     response.authResponse().refreshToken(),
-                                    RouteConstants.build(
-                                            RouteConstants.Auth.BASE, RouteConstants.Auth.REFRESH));
+                                    RouteConstants.Auth.BASE);
 
             return ResponseEntity.status(HttpStatus.FOUND)
                     .header(HttpHeaders.SET_COOKIE, accessCookie.toString())

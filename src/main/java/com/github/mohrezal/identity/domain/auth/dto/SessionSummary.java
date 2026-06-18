@@ -8,4 +8,5 @@ public record SessionSummary(
         String deviceInfo,
         String ipAddress,
         OffsetDateTime createdAt,
-        OffsetDateTime expiresAt) {}
+        OffsetDateTime expiresAt,
+        boolean isCurrentSession) {}
