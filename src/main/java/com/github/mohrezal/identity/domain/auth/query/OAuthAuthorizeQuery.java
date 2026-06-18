@@ -1,7 +1,6 @@
 package com.github.mohrezal.identity.domain.auth.query;
 
 import com.github.mohrezal.identity.domain.auth.dto.OAuthAuthorizeResponse;
-import com.github.mohrezal.identity.domain.auth.dto.oauth.OAuthAuthorizationRequest;
 import com.github.mohrezal.identity.domain.auth.dto.oauth.OAuthStatePayload;
 import com.github.mohrezal.identity.domain.auth.enums.OAuthFlowType;
 import com.github.mohrezal.identity.domain.auth.query.param.OAuthAuthorizeQueryParams;
@@ -40,10 +39,8 @@ public class OAuthAuthorizeQuery
     public OAuthAuthorizeResponse execute(OAuthAuthorizeQueryParams params) {
         validate(params);
 
-        var state = hashService.generateSecureToken(TOKEN_BYTES);
-        var correlationId = hashService.generateSecureToken(TOKEN_BYTES);
-        var nonce = hashService.generateSecureToken(TOKEN_BYTES);
-        var codeVerifier = hashService.generateSecureToken(TOKEN_BYTES);
+        var state = hashService.randomBase64(TOKEN_BYTES);
+        var correlationId = hashService.randomBase64(TOKEN_BYTES);
         var payload =
                 new OAuthStatePayload(
                         params.redirectUrl(),
@@ -52,19 +49,12 @@ public class OAuthAuthorizeQuery
                         OAuthFlowType.LINK.equals(params.flowType())
                                 ? getCurrentUser(params).getId()
                                 : null,
-                        correlationId,
-                        nonce,
-                        codeVerifier);
+                        correlationId);
 
         redisService.set(RedisKey.OAUTH_STATE, payload, state);
 
-        var authorizationRequest =
-                new OAuthAuthorizationRequest(
-                        state, nonce, hashService.sha256Base64UrlEncoded(codeVerifier));
         var authorizationUrl =
-                providerRegistry
-                        .get(params.providerType())
-                        .buildAuthorizationUrl(authorizationRequest);
+                providerRegistry.get(params.providerType()).buildAuthorizationUrl(state);
 
         return new OAuthAuthorizeResponse(authorizationUrl, correlationId);
     }

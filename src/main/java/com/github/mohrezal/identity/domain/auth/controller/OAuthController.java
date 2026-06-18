@@ -3,9 +3,9 @@ package com.github.mohrezal.identity.domain.auth.controller;
 import com.github.mohrezal.identity.config.ApplicationProperties;
 import com.github.mohrezal.identity.config.RouteConstants;
 import com.github.mohrezal.identity.domain.auth.dto.OAuthConnectionSummary;
+import com.github.mohrezal.identity.domain.auth.dto.oauth.OAuthStatePayload;
 import com.github.mohrezal.identity.domain.auth.enums.OAuthFlowType;
 import com.github.mohrezal.identity.domain.auth.enums.OAuthProviderType;
-import com.github.mohrezal.identity.domain.auth.exception.type.OAuthCallbackRedirectException;
 import com.github.mohrezal.identity.domain.auth.query.GetOAuthConnectionsQuery;
 import com.github.mohrezal.identity.domain.auth.query.OAuthAuthorizeQuery;
 import com.github.mohrezal.identity.domain.auth.query.OAuthCallbackQuery;
@@ -13,12 +13,17 @@ import com.github.mohrezal.identity.domain.auth.query.param.GetOAuthConnectionsQ
 import com.github.mohrezal.identity.domain.auth.query.param.OAuthAuthorizeQueryParams;
 import com.github.mohrezal.identity.domain.auth.query.param.OAuthCallbackQueryParams;
 import com.github.mohrezal.identity.shared.annotation.Authenticated;
+import com.github.mohrezal.identity.shared.enums.RedisKey;
+import com.github.mohrezal.identity.shared.exception.type.BaseException;
+import com.github.mohrezal.identity.shared.exception.type.UnauthorizedException;
+import com.github.mohrezal.identity.shared.redis.RedisService;
 import com.github.mohrezal.identity.shared.service.ClientIpService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import java.net.URI;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,6 +40,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 @RequestMapping(RouteConstants.Auth.OAuth.BASE)
 @Tag(name = "Authentication")
 @RequiredArgsConstructor
+@Slf4j
 public class OAuthController {
 
     private final OAuthAuthorizeQuery authAuthorizeQuery;
@@ -43,6 +49,7 @@ public class OAuthController {
 
     private final ClientIpService clientIpService;
     private final ApplicationProperties applicationProperties;
+    private final RedisService redisService;
 
     @Authenticated
     @GetMapping(RouteConstants.Auth.OAuth.CONNECTIONS)
@@ -106,11 +113,20 @@ public class OAuthController {
             @RequestParam String code,
             @RequestParam String state,
             HttpServletRequest request) {
+        var payload =
+                redisService
+                        .consume(RedisKey.OAUTH_STATE, OAuthStatePayload.class, state)
+                        .orElseThrow(UnauthorizedException::new);
+
+        if (payload.redirectUrl() == null || payload.redirectUrl().isBlank()) {
+            throw new UnauthorizedException();
+        }
+
         var params =
                 new OAuthCallbackQueryParams(
                         OAuthProviderType.fromName(provider),
                         code,
-                        state,
+                        payload,
                         applicationProperties
                                 .security()
                                 .cookie()
@@ -119,6 +135,7 @@ public class OAuthController {
                         clientIpService.getClientIp(request),
                         request.getHeader(HttpHeaders.USER_AGENT));
         var clearStateCookie = applicationProperties.security().cookie().oauthState().clear();
+
         try {
             var response = oAuthCallbackQuery.execute(params);
 
@@ -150,16 +167,29 @@ public class OAuthController {
                     .header(HttpHeaders.SET_COOKIE, clearStateCookie.toString())
                     .location(URI.create(response.redirectUrl()))
                     .build();
-        } catch (OAuthCallbackRedirectException exception) {
-            var redirectUrl =
-                    UriComponentsBuilder.fromUriString(exception.redirectUrl())
-                            .replaceQueryParam("error", exception.errorCode().value())
+        } catch (Exception exception) {
+            log.warn(
+                    "OAuth callback failed. provider={}, flowType={}, redirectUrl={}",
+                    provider,
+                    payload.flowType(),
+                    payload.redirectUrl(),
+                    exception);
+
+            var statusCode = HttpStatus.INTERNAL_SERVER_ERROR.value();
+
+            if (exception instanceof BaseException baseException) {
+                statusCode = baseException.getStatusCode().value();
+            }
+
+            var location =
+                    UriComponentsBuilder.fromUriString(payload.redirectUrl())
+                            .replaceQueryParam("status", statusCode)
                             .build()
                             .toUriString();
 
             return ResponseEntity.status(HttpStatus.FOUND)
                     .header(HttpHeaders.SET_COOKIE, clearStateCookie.toString())
-                    .location(URI.create(redirectUrl))
+                    .location(URI.create(location))
                     .build();
         }
     }

@@ -4,9 +4,7 @@ import com.github.mohrezal.identity.domain.auth.dto.AuthResponse;
 import com.github.mohrezal.identity.domain.auth.dto.OAuthCallbackResponse;
 import com.github.mohrezal.identity.domain.auth.dto.oauth.OAuthStatePayload;
 import com.github.mohrezal.identity.domain.auth.dto.oauth.OAuthUserProfile;
-import com.github.mohrezal.identity.domain.auth.enums.OAuthErrorCode;
 import com.github.mohrezal.identity.domain.auth.enums.OAuthFlowType;
-import com.github.mohrezal.identity.domain.auth.exception.type.OAuthCallbackRedirectException;
 import com.github.mohrezal.identity.domain.auth.exception.type.OAuthEmailConflictException;
 import com.github.mohrezal.identity.domain.auth.listener.message.OAuthWelcomeEmailMessage;
 import com.github.mohrezal.identity.domain.auth.model.UserOauthConnection;
@@ -17,10 +15,8 @@ import com.github.mohrezal.identity.domain.auth.service.oauth.OAuthLinkService;
 import com.github.mohrezal.identity.domain.auth.service.oauth.OAuthProviderRegistry;
 import com.github.mohrezal.identity.domain.user.model.User;
 import com.github.mohrezal.identity.domain.user.repository.UserRepository;
-import com.github.mohrezal.identity.shared.enums.RedisKey;
 import com.github.mohrezal.identity.shared.exception.type.UnauthorizedException;
 import com.github.mohrezal.identity.shared.interfaces.Query;
-import com.github.mohrezal.identity.shared.redis.RedisService;
 import java.time.OffsetDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,7 +29,6 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class OAuthCallbackQuery implements Query<OAuthCallbackQueryParams, OAuthCallbackResponse> {
 
-    private final RedisService redisService;
     private final OAuthProviderRegistry providerRegistry;
     private final UserRepository userRepository;
     private final UserOauthConnectionRepository userOauthConnectionRepository;
@@ -51,7 +46,7 @@ public class OAuthCallbackQuery implements Query<OAuthCallbackQueryParams, OAuth
             throw new UnauthorizedException();
         }
 
-        if (params.state() == null || params.state().isBlank()) {
+        if (params.payload() == null) {
             throw new UnauthorizedException();
         }
     }
@@ -61,72 +56,47 @@ public class OAuthCallbackQuery implements Query<OAuthCallbackQueryParams, OAuth
     public OAuthCallbackResponse execute(OAuthCallbackQueryParams params) {
         validate(params);
 
-        var payload =
-                redisService
-                        .consume(RedisKey.OAUTH_STATE, OAuthStatePayload.class, params.state())
-                        .orElseThrow(UnauthorizedException::new);
+        var payload = params.payload();
 
         if (payload.redirectUrl() == null || payload.redirectUrl().isBlank()) {
             throw new UnauthorizedException();
         }
 
-        try {
-            if (payload.flowType() == null) {
-                throw new UnauthorizedException();
-            }
-
-            if (!params.provider().equals(payload.provider())) {
-                throw new UnauthorizedException();
-            }
-
-            if (payload.correlationId() == null
-                    || params.correlationId() == null
-                    || !payload.correlationId().equals(params.correlationId())) {
-                throw new UnauthorizedException();
-            }
-
-            if (payload.nonce() == null
-                    || payload.nonce().isBlank()
-                    || payload.codeVerifier() == null
-                    || payload.codeVerifier().isBlank()) {
-                throw new UnauthorizedException();
-            }
-
-            log.info(
-                    "OAuth callback started. provider={}, flowType={}",
-                    params.provider(),
-                    payload.flowType());
-
-            var profile =
-                    providerRegistry
-                            .get(params.provider())
-                            .profile(params.code(), payload.codeVerifier(), payload.nonce());
-            validateProfile(params, profile);
-
-            if (OAuthFlowType.LOGIN.equals(payload.flowType())) {
-                var authResponse = login(profile, params.ipAddress(), params.userAgent());
-
-                return new OAuthCallbackResponse(
-                        authResponse, payload.redirectUrl(), payload.flowType());
-            }
-
-            if (OAuthFlowType.LINK.equals(payload.flowType())) {
-                link(profile, payload);
-                return new OAuthCallbackResponse(null, payload.redirectUrl(), payload.flowType());
-            }
-
+        if (payload.flowType() == null) {
             throw new UnauthorizedException();
-        } catch (Exception exception) {
-            log.warn(
-                    "OAuth callback failed. provider={}, flowType={}, redirectUrl={}",
-                    params.provider(),
-                    payload.flowType(),
-                    payload.redirectUrl(),
-                    exception);
-
-            throw new OAuthCallbackRedirectException(
-                    payload.redirectUrl(), OAuthErrorCode.from(exception), exception);
         }
+
+        if (!params.provider().equals(payload.provider())) {
+            throw new UnauthorizedException();
+        }
+
+        if (payload.correlationId() == null
+                || params.correlationId() == null
+                || !payload.correlationId().equals(params.correlationId())) {
+            throw new UnauthorizedException();
+        }
+
+        log.info(
+                "OAuth callback started. provider={}, flowType={}",
+                params.provider(),
+                payload.flowType());
+
+        var profile = providerRegistry.get(params.provider()).profile(params.code());
+        validateProfile(params, profile);
+
+        if (OAuthFlowType.LOGIN.equals(payload.flowType())) {
+            var authResponse = login(profile, params.ipAddress(), params.userAgent());
+
+            return new OAuthCallbackResponse(
+                    authResponse, payload.redirectUrl(), payload.flowType());
+        }
+
+        if (OAuthFlowType.LINK.equals(payload.flowType())) {
+            link(profile, payload);
+            return new OAuthCallbackResponse(null, payload.redirectUrl(), payload.flowType());
+        }
+
+        throw new UnauthorizedException();
     }
 
     private void validateProfile(OAuthCallbackQueryParams params, OAuthUserProfile profile) {

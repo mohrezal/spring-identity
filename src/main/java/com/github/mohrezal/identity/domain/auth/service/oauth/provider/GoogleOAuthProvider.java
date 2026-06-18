@@ -26,10 +26,8 @@ public class GoogleOAuthProvider extends AbstractAuthorizationCodeOAuthProvider 
 
     @Override
     protected OAuthUserProfile profile(
-            OAuth2AccessTokenResponse tokenResponse,
-            ClientRegistration registration,
-            String nonce) {
-        var jwt = decodeIdToken(requireIdToken(tokenResponse), registration, nonce);
+            OAuth2AccessTokenResponse tokenResponse, ClientRegistration registration) {
+        var jwt = decodeIdToken(requireIdToken(tokenResponse), registration);
 
         if (!Boolean.TRUE.equals(jwt.getClaimAsBoolean("email_verified"))) {
             throw new UnauthorizedException();

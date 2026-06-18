@@ -31,7 +31,7 @@ public class RevokeAuthSessionCommand
                         .orElseThrow(AuthSessionNotFoundException::new);
 
         if (StringUtils.hasText(params.rawRefreshToken())) {
-            var hashedRefreshToken = hashService.sha256(params.rawRefreshToken());
+            var hashedRefreshToken = hashService.hashHex(params.rawRefreshToken());
 
             if (hashedRefreshToken.equals(targetSession.getHashedToken())) {
                 throw new AuthCannotRevokeCurrentSessionException();

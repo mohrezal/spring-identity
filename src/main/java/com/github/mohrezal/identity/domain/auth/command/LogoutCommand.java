@@ -26,7 +26,7 @@ public class LogoutCommand implements Command<LogoutCommandParams, Void> {
             return null;
         }
 
-        var hashedRefreshToken = hashService.sha256(params.rawRefreshToken());
+        var hashedRefreshToken = hashService.hashHex(params.rawRefreshToken());
         var refreshToken = refreshTokenRepository.findByHashedToken(hashedRefreshToken);
 
         if (refreshToken.isEmpty()) {

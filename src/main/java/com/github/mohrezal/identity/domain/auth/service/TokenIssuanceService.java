@@ -27,7 +27,7 @@ public class TokenIssuanceService {
         var entity =
                 RefreshToken.builder()
                         .user(user)
-                        .hashedToken(hashService.sha256(refreshToken))
+                        .hashedToken(hashService.hashHex(refreshToken))
                         .ipAddress(ipAddress)
                         .deviceInfo(deviceInfo)
                         .expiresAt(

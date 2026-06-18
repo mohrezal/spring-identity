@@ -1,6 +1,5 @@
 package com.github.mohrezal.identity.domain.auth.service.oauth;
 
-import com.github.mohrezal.identity.domain.auth.dto.oauth.OAuthAuthorizationRequest;
 import com.github.mohrezal.identity.domain.auth.dto.oauth.OAuthUserProfile;
 import com.github.mohrezal.identity.shared.exception.type.UnauthorizedException;
 import java.util.List;
@@ -12,8 +11,6 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenRespon
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationExchange;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponse;
-import org.springframework.security.oauth2.core.endpoint.PkceParameterNames;
-import org.springframework.security.oauth2.core.oidc.endpoint.OidcParameterNames;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtClaimValidator;
 import org.springframework.security.oauth2.jwt.JwtDecoders;
@@ -26,7 +23,7 @@ public abstract class AbstractAuthorizationCodeOAuthProvider implements OAuthPro
             new RestClientAuthorizationCodeTokenResponseClient();
 
     @Override
-    public String buildAuthorizationUrl(OAuthAuthorizationRequest request) {
+    public String buildAuthorizationUrl(String state) {
         var registration = clientRegistration();
         var details = registration.getProviderDetails();
 
@@ -35,31 +32,24 @@ public abstract class AbstractAuthorizationCodeOAuthProvider implements OAuthPro
                 .authorizationUri(details.getAuthorizationUri())
                 .redirectUri(registration.getRedirectUri())
                 .scopes(registration.getScopes())
-                .state(request.state())
-                .additionalParameters(
-                        parameters -> {
-                            parameters.put(OidcParameterNames.NONCE, request.nonce());
-                            parameters.put(
-                                    PkceParameterNames.CODE_CHALLENGE, request.codeChallenge());
-                            parameters.put(PkceParameterNames.CODE_CHALLENGE_METHOD, "S256");
-                        })
+                .state(state)
                 .build()
                 .getAuthorizationRequestUri();
     }
 
     @Override
-    public OAuthUserProfile profile(String code, String codeVerifier, String nonce) {
+    public OAuthUserProfile profile(String code) {
         var registration = clientRegistration();
-        var tokenResponse = exchange(code, codeVerifier, registration);
-        return profile(tokenResponse, registration, nonce);
+        var tokenResponse = exchange(code, registration);
+        return profile(tokenResponse, registration);
     }
 
     protected abstract ClientRegistration clientRegistration();
 
     protected abstract OAuthUserProfile profile(
-            OAuth2AccessTokenResponse tokenResponse, ClientRegistration registration, String nonce);
+            OAuth2AccessTokenResponse tokenResponse, ClientRegistration registration);
 
-    protected Jwt decodeIdToken(String idToken, ClientRegistration registration, String nonce) {
+    protected Jwt decodeIdToken(String idToken, ClientRegistration registration) {
         var issuerUri = registration.getProviderDetails().getIssuerUri();
 
         var decoder = (NimbusJwtDecoder) JwtDecoders.fromIssuerLocation(issuerUri);
@@ -70,11 +60,9 @@ public abstract class AbstractAuthorizationCodeOAuthProvider implements OAuthPro
                         "aud",
                         audience ->
                                 audience != null && audience.contains(registration.getClientId()));
-        var nonceValidator = new JwtClaimValidator<String>("nonce", nonce::equals);
 
         decoder.setJwtValidator(
-                new DelegatingOAuth2TokenValidator<>(
-                        issuerValidator, audienceValidator, nonceValidator));
+                new DelegatingOAuth2TokenValidator<>(issuerValidator, audienceValidator));
 
         return decoder.decode(idToken);
     }
@@ -89,8 +77,7 @@ public abstract class AbstractAuthorizationCodeOAuthProvider implements OAuthPro
         return token;
     }
 
-    private OAuth2AccessTokenResponse exchange(
-            String code, String codeVerifier, ClientRegistration registration) {
+    private OAuth2AccessTokenResponse exchange(String code, ClientRegistration registration) {
         var authorizationRequest =
                 OAuth2AuthorizationRequest.authorizationCode()
                         .clientId(registration.getClientId())
@@ -98,10 +85,6 @@ public abstract class AbstractAuthorizationCodeOAuthProvider implements OAuthPro
                         .redirectUri(registration.getRedirectUri())
                         .scopes(registration.getScopes())
                         .state("state")
-                        .attributes(
-                                attributes ->
-                                        attributes.put(
-                                                PkceParameterNames.CODE_VERIFIER, codeVerifier))
                         .build();
 
         var authorizationResponse =

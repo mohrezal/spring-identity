@@ -9,6 +9,4 @@ public record OAuthStatePayload(
         OAuthFlowType flowType,
         OAuthProviderType provider,
         UUID userId,
-        String correlationId,
-        String nonce,
-        String codeVerifier) {}
+        String correlationId) {}

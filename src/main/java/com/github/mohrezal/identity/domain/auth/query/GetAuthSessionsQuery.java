@@ -27,7 +27,7 @@ public class GetAuthSessionsQuery
         var user = getCurrentUser(params);
         var currentSessionHash =
                 StringUtils.hasText(params.rawRefreshToken())
-                        ? hashService.sha256(params.rawRefreshToken())
+                        ? hashService.hashHex(params.rawRefreshToken())
                         : null;
 
         return refreshTokenRepository.findAllByUserAndRevokedAtIsNull(user).stream()

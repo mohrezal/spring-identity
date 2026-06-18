@@ -33,7 +33,7 @@ public class RefreshTokenCommand implements Command<RefreshTokenCommandParams, A
     public AuthResponse execute(RefreshTokenCommandParams params) {
         validate(params);
 
-        var hashedRefreshToken = hashService.sha256(params.rawRefreshToken());
+        var hashedRefreshToken = hashService.hashHex(params.rawRefreshToken());
         var refreshToken =
                 refreshTokenRepository
                         .findByHashedToken(hashedRefreshToken)
