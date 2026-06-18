@@ -6,5 +6,6 @@ public record OAuthCallbackQueryParams(
         OAuthProviderType provider,
         String code,
         String state,
+        String correlationId,
         String ipAddress,
         String userAgent) {}

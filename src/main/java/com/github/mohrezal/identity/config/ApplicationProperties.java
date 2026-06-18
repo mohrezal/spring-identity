@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.time.Duration;
+import java.util.Arrays;
 import java.util.List;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.http.ResponseCookie;
@@ -25,7 +26,10 @@ public record ApplicationProperties(@Valid Security security) {
 
     @Validated
     public record Cookie(
-            @Valid Csrf csrf, @Valid TokenCookie accessToken, @Valid TokenCookie refreshToken) {
+            @Valid Csrf csrf,
+            @Valid TokenCookie accessToken,
+            @Valid TokenCookie refreshToken,
+            @Valid TokenCookie oauthState) {
 
         @Validated
         public record Csrf(
@@ -39,6 +43,18 @@ public record ApplicationProperties(@Valid Security security) {
                 @NotNull Boolean secure,
                 @NotBlank String sameSite,
                 @NotNull Duration ttl) {
+
+            public String valueFrom(jakarta.servlet.http.Cookie[] cookies) {
+                if (cookies == null || cookies.length == 0) {
+                    return null;
+                }
+
+                return Arrays.stream(cookies)
+                        .filter(cookie -> name.equals(cookie.getName()))
+                        .map(jakarta.servlet.http.Cookie::getValue)
+                        .findFirst()
+                        .orElse(null);
+            }
 
             public ResponseCookie build(String value) {
                 return ResponseCookie.from(name, value)

@@ -1,6 +1,7 @@
 package com.github.mohrezal.identity.domain.auth.enums;
 
 import com.github.mohrezal.identity.domain.auth.exception.type.OAuthEmailConflictException;
+import com.github.mohrezal.identity.domain.auth.exception.type.OAuthEmailMismatchException;
 import com.github.mohrezal.identity.domain.auth.exception.type.OAuthProviderAlreadyLinkedException;
 import com.github.mohrezal.identity.domain.user.exception.type.UserEmailAlreadyExistsException;
 import com.github.mohrezal.identity.shared.exception.type.BaseException;
@@ -31,6 +32,7 @@ public enum OAuthErrorCode {
         }
 
         if (exception instanceof OAuthEmailConflictException
+                || exception instanceof OAuthEmailMismatchException
                 || exception instanceof UserEmailAlreadyExistsException) {
             return EMAIL_CONFLICT;
         }

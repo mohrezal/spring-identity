@@ -2,6 +2,8 @@ package com.github.mohrezal.identity.domain.auth.repository;
 
 import com.github.mohrezal.identity.domain.auth.enums.OAuthProviderType;
 import com.github.mohrezal.identity.domain.auth.model.UserOauthConnection;
+import com.github.mohrezal.identity.domain.user.model.User;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,4 +17,6 @@ public interface UserOauthConnectionRepository extends JpaRepository<UserOauthCo
     boolean existsByProviderAndProviderUserId(OAuthProviderType provider, String providerUserId);
 
     boolean existsByEmailAndUser_IdNot(String email, UUID userId);
+
+    List<UserOauthConnection> findAllByUser(User user);
 }

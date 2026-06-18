@@ -5,6 +5,8 @@ import com.github.mohrezal.identity.domain.auth.dto.oauth.OAuthUserProfile;
 import com.github.mohrezal.identity.domain.auth.enums.OAuthProviderType;
 import com.github.mohrezal.identity.domain.auth.service.oauth.AbstractAuthorizationCodeOAuthProvider;
 import com.github.mohrezal.identity.shared.exception.type.UnauthorizedException;
+import java.util.LinkedHashSet;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.config.oauth2.client.CommonOAuth2Provider;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
@@ -24,8 +26,10 @@ public class GoogleOAuthProvider extends AbstractAuthorizationCodeOAuthProvider 
 
     @Override
     protected OAuthUserProfile profile(
-            OAuth2AccessTokenResponse tokenResponse, ClientRegistration registration) {
-        var jwt = decodeIdToken(requireIdToken(tokenResponse), registration);
+            OAuth2AccessTokenResponse tokenResponse,
+            ClientRegistration registration,
+            String nonce) {
+        var jwt = decodeIdToken(requireIdToken(tokenResponse), registration, nonce);
 
         if (!Boolean.TRUE.equals(jwt.getClaimAsBoolean("email_verified"))) {
             throw new UnauthorizedException();
@@ -34,6 +38,7 @@ public class GoogleOAuthProvider extends AbstractAuthorizationCodeOAuthProvider 
         return new OAuthUserProfile(
                 jwt.getSubject(),
                 jwt.getClaimAsString("email"),
+                true,
                 jwt.getClaimAsString("given_name"),
                 jwt.getClaimAsString("family_name"),
                 provider());
@@ -47,7 +52,14 @@ public class GoogleOAuthProvider extends AbstractAuthorizationCodeOAuthProvider 
                 .clientId(google.clientId())
                 .clientSecret(google.clientSecret())
                 .redirectUri(google.redirectUri())
-                .scope(google.scopes())
+                .scope(scopes(google.scopes()))
                 .build();
+    }
+
+    private List<String> scopes(List<String> configuredScopes) {
+        var scopes = new LinkedHashSet<String>();
+        scopes.add("openid");
+        scopes.addAll(configuredScopes);
+        return List.copyOf(scopes);
     }
 }

@@ -89,6 +89,13 @@ app:
         secure: false
         same-site: Lax
         ttl: ${APP_SECURITY_REFRESH_TOKEN_TTL}
+      oauth-state:
+        name: oauth_state
+        path: /api/auth/o
+        http-only: true
+        secure: false
+        same-site: Lax
+        ttl: 10m
     oauth:
       google:
         client-id: ${APP_SECURITY_OAUTH_GOOGLE_CLIENT_ID}

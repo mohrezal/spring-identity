@@ -2,11 +2,14 @@ package com.github.mohrezal.identity.domain.auth.controller;
 
 import com.github.mohrezal.identity.config.ApplicationProperties;
 import com.github.mohrezal.identity.config.RouteConstants;
+import com.github.mohrezal.identity.domain.auth.dto.OAuthConnectionSummary;
 import com.github.mohrezal.identity.domain.auth.enums.OAuthFlowType;
 import com.github.mohrezal.identity.domain.auth.enums.OAuthProviderType;
 import com.github.mohrezal.identity.domain.auth.exception.type.OAuthCallbackRedirectException;
+import com.github.mohrezal.identity.domain.auth.query.GetOAuthConnectionsQuery;
 import com.github.mohrezal.identity.domain.auth.query.OAuthAuthorizeQuery;
 import com.github.mohrezal.identity.domain.auth.query.OAuthCallbackQuery;
+import com.github.mohrezal.identity.domain.auth.query.param.GetOAuthConnectionsQueryParams;
 import com.github.mohrezal.identity.domain.auth.query.param.OAuthAuthorizeQueryParams;
 import com.github.mohrezal.identity.domain.auth.query.param.OAuthCallbackQueryParams;
 import com.github.mohrezal.identity.shared.annotation.Authenticated;
@@ -14,6 +17,7 @@ import com.github.mohrezal.identity.shared.service.ClientIpService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import java.net.URI;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -35,9 +39,19 @@ public class OAuthController {
 
     private final OAuthAuthorizeQuery authAuthorizeQuery;
     private final OAuthCallbackQuery oAuthCallbackQuery;
+    private final GetOAuthConnectionsQuery getOAuthConnectionsQuery;
 
     private final ClientIpService clientIpService;
     private final ApplicationProperties applicationProperties;
+
+    @Authenticated
+    @GetMapping(RouteConstants.Auth.OAuth.CONNECTIONS)
+    public ResponseEntity<List<OAuthConnectionSummary>> connections(
+            @AuthenticationPrincipal UserDetails userDetails) {
+        var params = new GetOAuthConnectionsQueryParams(userDetails);
+        var response = getOAuthConnectionsQuery.execute(params);
+        return ResponseEntity.ok(response);
+    }
 
     @GetMapping(RouteConstants.Auth.OAuth.AUTHORIZE)
     public ResponseEntity<?> authorize(
@@ -48,8 +62,17 @@ public class OAuthController {
                         OAuthFlowType.LOGIN,
                         redirectUrl,
                         null);
-        var query = authAuthorizeQuery.execute(params);
-        return ResponseEntity.status(HttpStatus.FOUND).location(URI.create(query)).build();
+        var response = authAuthorizeQuery.execute(params);
+        var stateCookie =
+                applicationProperties
+                        .security()
+                        .cookie()
+                        .oauthState()
+                        .build(response.correlationId());
+        return ResponseEntity.status(HttpStatus.FOUND)
+                .header(HttpHeaders.SET_COOKIE, stateCookie.toString())
+                .location(URI.create(response.authorizationUrl()))
+                .build();
     }
 
     @Authenticated
@@ -64,8 +87,17 @@ public class OAuthController {
                         OAuthFlowType.LINK,
                         redirectUrl,
                         userDetails);
-        var query = authAuthorizeQuery.execute(params);
-        return ResponseEntity.status(HttpStatus.FOUND).location(URI.create(query)).build();
+        var response = authAuthorizeQuery.execute(params);
+        var stateCookie =
+                applicationProperties
+                        .security()
+                        .cookie()
+                        .oauthState()
+                        .build(response.correlationId());
+        return ResponseEntity.status(HttpStatus.FOUND)
+                .header(HttpHeaders.SET_COOKIE, stateCookie.toString())
+                .location(URI.create(response.authorizationUrl()))
+                .build();
     }
 
     @GetMapping(RouteConstants.Auth.OAuth.CALLBACK)
@@ -79,13 +111,20 @@ public class OAuthController {
                         OAuthProviderType.fromName(provider),
                         code,
                         state,
+                        applicationProperties
+                                .security()
+                                .cookie()
+                                .oauthState()
+                                .valueFrom(request.getCookies()),
                         clientIpService.getClientIp(request),
                         request.getHeader(HttpHeaders.USER_AGENT));
+        var clearStateCookie = applicationProperties.security().cookie().oauthState().clear();
         try {
             var response = oAuthCallbackQuery.execute(params);
 
             if (OAuthFlowType.LINK.equals(response.flowType())) {
                 return ResponseEntity.status(HttpStatus.FOUND)
+                        .header(HttpHeaders.SET_COOKIE, clearStateCookie.toString())
                         .location(URI.create(response.redirectUrl()))
                         .build();
             }
@@ -108,6 +147,7 @@ public class OAuthController {
             return ResponseEntity.status(HttpStatus.FOUND)
                     .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
                     .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
+                    .header(HttpHeaders.SET_COOKIE, clearStateCookie.toString())
                     .location(URI.create(response.redirectUrl()))
                     .build();
         } catch (OAuthCallbackRedirectException exception) {
@@ -118,6 +158,7 @@ public class OAuthController {
                             .toUriString();
 
             return ResponseEntity.status(HttpStatus.FOUND)
+                    .header(HttpHeaders.SET_COOKIE, clearStateCookie.toString())
                     .location(URI.create(redirectUrl))
                     .build();
         }

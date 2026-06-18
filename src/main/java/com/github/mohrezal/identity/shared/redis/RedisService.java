@@ -59,8 +59,22 @@ public class RedisService {
     }
 
     public <T> Optional<T> consume(RedisKey redisKey, Class<T> type, String... keyValues) {
-        var value = get(redisKey, type, keyValues);
-        value.ifPresent(ignored -> delete(redisKey, keyValues));
-        return value;
+        var resolvedKey = redisKey.resolve(keyValues);
+
+        try {
+            var value = redisTemplate.opsForValue().getAndDelete(resolvedKey);
+
+            if (value == null) {
+                return Optional.empty();
+            }
+
+            if (type.isInstance(value)) {
+                return Optional.of(type.cast(value));
+            }
+
+            return Optional.of(redisObjectMapper.convertValue(value, type));
+        } catch (RedisException | DataAccessException exception) {
+            throw new RuntimeException(exception);
+        }
     }
 }

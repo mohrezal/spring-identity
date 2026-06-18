@@ -5,4 +5,10 @@ import com.github.mohrezal.identity.domain.auth.enums.OAuthProviderType;
 import java.util.UUID;
 
 public record OAuthStatePayload(
-        String redirectUrl, OAuthFlowType flowType, OAuthProviderType provider, UUID userId) {}
+        String redirectUrl,
+        OAuthFlowType flowType,
+        OAuthProviderType provider,
+        UUID userId,
+        String correlationId,
+        String nonce,
+        String codeVerifier) {}

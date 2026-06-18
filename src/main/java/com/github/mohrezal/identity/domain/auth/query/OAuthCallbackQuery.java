@@ -8,15 +8,13 @@ import com.github.mohrezal.identity.domain.auth.enums.OAuthErrorCode;
 import com.github.mohrezal.identity.domain.auth.enums.OAuthFlowType;
 import com.github.mohrezal.identity.domain.auth.exception.type.OAuthCallbackRedirectException;
 import com.github.mohrezal.identity.domain.auth.exception.type.OAuthEmailConflictException;
-import com.github.mohrezal.identity.domain.auth.exception.type.OAuthProviderAlreadyLinkedException;
-import com.github.mohrezal.identity.domain.auth.listener.message.OAuthLinkEmailMessage;
 import com.github.mohrezal.identity.domain.auth.listener.message.OAuthWelcomeEmailMessage;
 import com.github.mohrezal.identity.domain.auth.model.UserOauthConnection;
 import com.github.mohrezal.identity.domain.auth.query.param.OAuthCallbackQueryParams;
 import com.github.mohrezal.identity.domain.auth.repository.UserOauthConnectionRepository;
 import com.github.mohrezal.identity.domain.auth.service.TokenIssuanceService;
+import com.github.mohrezal.identity.domain.auth.service.oauth.OAuthLinkService;
 import com.github.mohrezal.identity.domain.auth.service.oauth.OAuthProviderRegistry;
-import com.github.mohrezal.identity.domain.user.exception.type.UserNotFoundException;
 import com.github.mohrezal.identity.domain.user.model.User;
 import com.github.mohrezal.identity.domain.user.repository.UserRepository;
 import com.github.mohrezal.identity.shared.enums.RedisKey;
@@ -40,6 +38,7 @@ public class OAuthCallbackQuery implements Query<OAuthCallbackQueryParams, OAuth
     private final UserRepository userRepository;
     private final UserOauthConnectionRepository userOauthConnectionRepository;
     private final TokenIssuanceService tokenIssuanceService;
+    private final OAuthLinkService oAuthLinkService;
     private final ApplicationEventPublisher eventPublisher;
 
     @Override
@@ -71,21 +70,38 @@ public class OAuthCallbackQuery implements Query<OAuthCallbackQueryParams, OAuth
             throw new UnauthorizedException();
         }
 
-        if (payload.flowType() == null) {
-            throw new UnauthorizedException();
-        }
-
-        if (!params.provider().equals(payload.provider())) {
-            throw new UnauthorizedException();
-        }
-
         try {
+            if (payload.flowType() == null) {
+                throw new UnauthorizedException();
+            }
+
+            if (!params.provider().equals(payload.provider())) {
+                throw new UnauthorizedException();
+            }
+
+            if (payload.correlationId() == null
+                    || params.correlationId() == null
+                    || !payload.correlationId().equals(params.correlationId())) {
+                throw new UnauthorizedException();
+            }
+
+            if (payload.nonce() == null
+                    || payload.nonce().isBlank()
+                    || payload.codeVerifier() == null
+                    || payload.codeVerifier().isBlank()) {
+                throw new UnauthorizedException();
+            }
+
             log.info(
                     "OAuth callback started. provider={}, flowType={}",
                     params.provider(),
                     payload.flowType());
 
-            var profile = providerRegistry.get(params.provider()).profile(params.code());
+            var profile =
+                    providerRegistry
+                            .get(params.provider())
+                            .profile(params.code(), payload.codeVerifier(), payload.nonce());
+            validateProfile(params, profile);
 
             if (OAuthFlowType.LOGIN.equals(payload.flowType())) {
                 var authResponse = login(profile, params.ipAddress(), params.userAgent());
@@ -110,6 +126,19 @@ public class OAuthCallbackQuery implements Query<OAuthCallbackQueryParams, OAuth
 
             throw new OAuthCallbackRedirectException(
                     payload.redirectUrl(), OAuthErrorCode.from(exception), exception);
+        }
+    }
+
+    private void validateProfile(OAuthCallbackQueryParams params, OAuthUserProfile profile) {
+        if (profile == null
+                || profile.provider() == null
+                || !params.provider().equals(profile.provider())
+                || profile.providerUserId() == null
+                || profile.providerUserId().isBlank()
+                || profile.email() == null
+                || profile.email().isBlank()
+                || !profile.emailVerified()) {
+            throw new UnauthorizedException();
         }
     }
 
@@ -172,58 +201,7 @@ public class OAuthCallbackQuery implements Query<OAuthCallbackQueryParams, OAuth
             throw new UnauthorizedException();
         }
 
-        if (userOauthConnectionRepository.existsByProviderAndProviderUserId(
-                profile.provider(), profile.providerUserId())) {
-            log.warn(
-                    "OAuth link blocked because provider account is already linked. provider={},"
-                            + " userId={}",
-                    profile.provider(),
-                    payload.userId());
-            throw new OAuthProviderAlreadyLinkedException();
-        }
-
-        var user =
-                userRepository.findById(payload.userId()).orElseThrow(UserNotFoundException::new);
-
-        userRepository
-                .findByEmail(profile.email())
-                .filter(existingUser -> !existingUser.getId().equals(user.getId()))
-                .ifPresent(
-                        existingUser -> {
-                            log.warn(
-                                    "OAuth link blocked by user email conflict. provider={},"
-                                            + " userId={}, conflictingUserId={}",
-                                    profile.provider(),
-                                    user.getId(),
-                                    existingUser.getId());
-                            throw new OAuthEmailConflictException();
-                        });
-
-        if (userOauthConnectionRepository.existsByEmailAndUser_IdNot(
-                profile.email(), user.getId())) {
-            log.warn(
-                    "OAuth link blocked by existing connection email conflict. provider={},"
-                            + " userId={}",
-                    profile.provider(),
-                    user.getId());
-            throw new OAuthEmailConflictException();
-        }
-
-        var oauthConnection =
-                UserOauthConnection.builder()
-                        .user(user)
-                        .provider(profile.provider())
-                        .providerUserId(profile.providerUserId())
-                        .email(profile.email())
-                        .build();
-
-        userOauthConnectionRepository.save(oauthConnection);
-        log.info(
-                "OAuth connection linked. provider={}, userId={}",
-                profile.provider(),
-                user.getId());
-
-        eventPublisher.publishEvent(
-                new OAuthLinkEmailMessage(user.getId(), user.getEmail(), profile.provider()));
+        oAuthLinkService.link(
+                payload.userId(), profile.provider(), profile.providerUserId(), profile.email());
     }
 }
