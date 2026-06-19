@@ -15,8 +15,10 @@ import com.github.mohrezal.identity.domain.auth.service.oauth.OAuthLinkService;
 import com.github.mohrezal.identity.domain.auth.service.oauth.OAuthProviderRegistry;
 import com.github.mohrezal.identity.domain.user.model.User;
 import com.github.mohrezal.identity.domain.user.repository.UserRepository;
+import com.github.mohrezal.identity.shared.enums.RedisKey;
 import com.github.mohrezal.identity.shared.exception.type.UnauthorizedException;
 import com.github.mohrezal.identity.shared.interfaces.Query;
+import com.github.mohrezal.identity.shared.redis.RedisService;
 import java.time.OffsetDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class OAuthCallbackQuery implements Query<OAuthCallbackQueryParams, OAuthCallbackResponse> {
 
+    private final RedisService redisService;
     private final OAuthProviderRegistry providerRegistry;
     private final UserRepository userRepository;
     private final UserOauthConnectionRepository userOauthConnectionRepository;
@@ -46,7 +49,7 @@ public class OAuthCallbackQuery implements Query<OAuthCallbackQueryParams, OAuth
             throw new UnauthorizedException();
         }
 
-        if (params.payload() == null) {
+        if (params.state() == null || params.state().isBlank()) {
             throw new UnauthorizedException();
         }
     }
@@ -56,7 +59,10 @@ public class OAuthCallbackQuery implements Query<OAuthCallbackQueryParams, OAuth
     public OAuthCallbackResponse execute(OAuthCallbackQueryParams params) {
         validate(params);
 
-        var payload = params.payload();
+        var payload =
+                redisService
+                        .consume(RedisKey.OAUTH_STATE, OAuthStatePayload.class, params.state())
+                        .orElseThrow(UnauthorizedException::new);
 
         if (payload.redirectUrl() == null || payload.redirectUrl().isBlank()) {
             throw new UnauthorizedException();
