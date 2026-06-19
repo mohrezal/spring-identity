@@ -19,4 +19,8 @@ public interface UserOauthConnectionRepository extends JpaRepository<UserOauthCo
     boolean existsByEmailAndUser_IdNot(String email, UUID userId);
 
     List<UserOauthConnection> findAllByUser(User user);
+
+    Optional<UserOauthConnection> findByIdAndUser(UUID id, User user);
+
+    long countByUser(User user);
 }

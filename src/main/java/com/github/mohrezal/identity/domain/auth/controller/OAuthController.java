@@ -2,6 +2,8 @@ package com.github.mohrezal.identity.domain.auth.controller;
 
 import com.github.mohrezal.identity.config.ApplicationProperties;
 import com.github.mohrezal.identity.config.RouteConstants;
+import com.github.mohrezal.identity.domain.auth.command.UnlinkOAuthConnectionCommand;
+import com.github.mohrezal.identity.domain.auth.command.param.UnlinkOAuthConnectionCommandParams;
 import com.github.mohrezal.identity.domain.auth.dto.OAuthConnectionSummary;
 import com.github.mohrezal.identity.domain.auth.enums.OAuthFlowType;
 import com.github.mohrezal.identity.domain.auth.enums.OAuthProviderType;
@@ -17,12 +19,14 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import java.net.URI;
 import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -38,6 +42,7 @@ public class OAuthController {
     private final OAuthAuthorizeQuery authAuthorizeQuery;
     private final OAuthCallbackQuery oAuthCallbackQuery;
     private final GetOAuthConnectionsQuery getOAuthConnectionsQuery;
+    private final UnlinkOAuthConnectionCommand unlinkOAuthConnectionCommand;
 
     private final ClientIpService clientIpService;
     private final ApplicationProperties applicationProperties;
@@ -49,6 +54,15 @@ public class OAuthController {
         var params = new GetOAuthConnectionsQueryParams(userDetails);
         var response = getOAuthConnectionsQuery.execute(params);
         return ResponseEntity.ok(response);
+    }
+
+    @Authenticated
+    @DeleteMapping(RouteConstants.Auth.OAuth.CONNECTION)
+    public ResponseEntity<Void> unlinkConnection(
+            @PathVariable UUID id, @AuthenticationPrincipal UserDetails userDetails) {
+        var params = new UnlinkOAuthConnectionCommandParams(userDetails, id);
+        unlinkOAuthConnectionCommand.execute(params);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping(RouteConstants.Auth.OAuth.AUTHORIZE)

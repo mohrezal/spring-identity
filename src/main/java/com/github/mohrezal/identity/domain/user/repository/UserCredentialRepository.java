@@ -10,4 +10,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface UserCredentialRepository extends JpaRepository<UserCredential, UUID> {
     Optional<UserCredential> findByUser(User user);
+
+    boolean existsByUser(User user);
 }

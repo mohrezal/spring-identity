@@ -24,6 +24,8 @@ public enum AppMessage {
     OAUTH_EMAIL_CONFLICT("oauth.error.email-conflict"),
     OAUTH_EMAIL_MISMATCH("oauth.error.email-mismatch"),
     OAUTH_PROVIDER_ALREADY_LINKED("oauth.error.provider-already-linked"),
+    OAUTH_CONNECTION_NOT_FOUND("oauth.error.connection-not-found"),
+    OAUTH_CANNOT_UNLINK_LAST_LOGIN_METHOD("oauth.error.cannot-unlink-last-login-method"),
     AUTH_REGISTERED("auth.success.registered"),
     USER_EMAIL_ALREADY_EXISTS("user.error.email-already-exists"),
     USER_INVALID_VERIFICATION_TOKEN("user.error.invalid-verification-token"),
