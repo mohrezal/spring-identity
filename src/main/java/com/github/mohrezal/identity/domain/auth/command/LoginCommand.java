@@ -2,6 +2,7 @@ package com.github.mohrezal.identity.domain.auth.command;
 
 import com.github.mohrezal.identity.domain.auth.command.param.LoginCommandParams;
 import com.github.mohrezal.identity.domain.auth.dto.LoginResponse;
+import com.github.mohrezal.identity.domain.auth.exception.type.AuthEmailNotVerifiedException;
 import com.github.mohrezal.identity.domain.auth.exception.type.AuthInvalidCredentialsException;
 import com.github.mohrezal.identity.domain.auth.service.TokenIssuanceService;
 import com.github.mohrezal.identity.domain.user.mapper.UserMapper;
@@ -42,6 +43,11 @@ public class LoginCommand implements Command<LoginCommandParams, LoginResponse> 
         if (!isValidPassword) {
             log.warn("Email/password login failed. userId={}", user.getId());
             throw new AuthInvalidCredentialsException();
+        }
+
+        if (!user.isEmailVerified()) {
+            log.warn("Email/password login blocked for unverified email. userId={}", user.getId());
+            throw new AuthEmailNotVerifiedException();
         }
 
         log.info("Email/password login succeeded. userId={}", user.getId());

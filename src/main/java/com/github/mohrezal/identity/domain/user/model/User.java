@@ -35,7 +35,7 @@ public class User extends BaseModel implements UserDetails {
     private String lastName;
 
     @Setter
-    @Column(name = "email_verified_at", nullable = false)
+    @Column(name = "email_verified_at", nullable = true)
     private OffsetDateTime emailVerifiedAt;
 
     @Column(name = "enabled", nullable = false)
@@ -63,6 +63,10 @@ public class User extends BaseModel implements UserDetails {
     @Override
     public String getUsername() {
         return this.email;
+    }
+
+    public boolean isEmailVerified() {
+        return this.emailVerifiedAt != null;
     }
 
     @Override
