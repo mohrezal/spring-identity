@@ -104,3 +104,30 @@ app:
         scopes:
           - email
           - profile
+  rate-limit:
+    policies:
+      - key: auth-login
+        method: POST
+        path: /api/auth/login
+        window: 5m
+        ip-limit: 50
+      - key: auth-forgot-password
+        method: POST
+        path: /api/auth/forgot-password
+        window: 15m
+        ip-limit: 20
+      - key: auth-resend-email-verification
+        method: POST
+        path: /api/auth/resend-email-verification
+        window: 15m
+        ip-limit: 20
+      - key: oauth-authorize
+        method: GET
+        path: /api/auth/o/*/authorize
+        window: 5m
+        ip-limit: 30
+      - key: oauth-link
+        method: GET
+        path: /api/auth/o/*/link
+        window: 5m
+        user-limit: 10

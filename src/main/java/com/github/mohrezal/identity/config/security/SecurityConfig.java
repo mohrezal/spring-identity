@@ -2,6 +2,7 @@ package com.github.mohrezal.identity.config.security;
 
 import com.github.mohrezal.identity.config.ApplicationProperties;
 import com.github.mohrezal.identity.config.RouteConstants;
+import com.github.mohrezal.identity.config.ratelimit.RateLimitFilter;
 import com.github.mohrezal.identity.domain.auth.exception.type.AuthInvalidCredentialsException;
 import com.github.mohrezal.identity.domain.user.repository.UserRepository;
 import jakarta.servlet.http.HttpServletResponse;
@@ -35,6 +36,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 public class SecurityConfig {
     private final ApplicationProperties applicationProperties;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final RateLimitFilter rateLimitFilter;
 
     private static final String[] PUBLIC_GET_PATH = {
         "/v3/api-docs/**",
@@ -94,7 +96,8 @@ public class SecurityConfig {
                                         .anyRequest()
                                         .authenticated())
                 .addFilterBefore(
-                        jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                        jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(rateLimitFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

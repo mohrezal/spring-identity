@@ -2,18 +2,22 @@ package com.github.mohrezal.identity.config;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseCookie;
 import org.springframework.validation.annotation.Validated;
 
 @Validated
 @ConfigurationProperties(prefix = "app")
-public record ApplicationProperties(@Valid Security security) {
+public record ApplicationProperties(
+        @NotNull @Valid Security security, @NotNull @Valid RateLimit rateLimit) {
 
     @Validated
     public record Security(
@@ -106,5 +110,18 @@ public record ApplicationProperties(@Valid Security security) {
                 @NotBlank String clientSecret,
                 @NotBlank String redirectUri,
                 @NotNull @Size(min = 1) List<String> scopes) {}
+    }
+
+    @Validated
+    public record RateLimit(@NotEmpty List<@Valid Policy> policies) {
+
+        @Validated
+        public record Policy(
+                @NotNull HttpMethod method,
+                @NotBlank String path,
+                @NotBlank String key,
+                @NotNull Duration window,
+                @Positive Integer ipLimit,
+                @Positive Integer userLimit) {}
     }
 }
