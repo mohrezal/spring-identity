@@ -1,0 +1,56 @@
+package com.github.mohrezal.identity.domain.authentication.exception;
+
+import com.github.mohrezal.identity.domain.authentication.exception.type.AuthCannotRevokeCurrentSessionException;
+import com.github.mohrezal.identity.domain.authentication.exception.type.AuthCurrentPasswordMismatchException;
+import com.github.mohrezal.identity.domain.authentication.exception.type.AuthEmailAlreadyVerifiedException;
+import com.github.mohrezal.identity.domain.authentication.exception.type.AuthEmailNotVerifiedException;
+import com.github.mohrezal.identity.domain.authentication.exception.type.AuthInvalidCredentialsException;
+import com.github.mohrezal.identity.domain.authentication.exception.type.AuthInvalidRefreshTokenException;
+import com.github.mohrezal.identity.domain.authentication.exception.type.AuthPasswordResetTokenNotFoundException;
+import com.github.mohrezal.identity.domain.authentication.exception.type.AuthRefreshTokenNotFoundException;
+import com.github.mohrezal.identity.domain.authentication.exception.type.AuthSessionNotFoundException;
+import com.github.mohrezal.identity.domain.authentication.exception.type.OAuthCannotUnlinkLastLoginMethodException;
+import com.github.mohrezal.identity.domain.authentication.exception.type.OAuthConnectionNotFoundException;
+import com.github.mohrezal.identity.domain.authentication.exception.type.OAuthEmailConflictException;
+import com.github.mohrezal.identity.domain.authentication.exception.type.OAuthEmailMismatchException;
+import com.github.mohrezal.identity.domain.authentication.exception.type.OAuthProviderAlreadyLinkedException;
+import com.github.mohrezal.identity.shared.exception.AbstractExceptionHandler;
+import com.github.mohrezal.identity.shared.exception.ErrorResponse;
+import com.github.mohrezal.identity.shared.exception.type.BaseException;
+import org.springframework.context.MessageSource;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.WebRequest;
+
+@RestControllerAdvice
+@Order(Ordered.HIGHEST_PRECEDENCE)
+public class AuthExceptionHandler extends AbstractExceptionHandler {
+
+    public AuthExceptionHandler(MessageSource messageSource) {
+        super(messageSource);
+    }
+
+    @ExceptionHandler({
+        AuthInvalidCredentialsException.class,
+        AuthCurrentPasswordMismatchException.class,
+        AuthInvalidRefreshTokenException.class,
+        AuthPasswordResetTokenNotFoundException.class,
+        AuthRefreshTokenNotFoundException.class,
+        AuthSessionNotFoundException.class,
+        AuthCannotRevokeCurrentSessionException.class,
+        AuthEmailNotVerifiedException.class,
+        AuthEmailAlreadyVerifiedException.class,
+        OAuthConnectionNotFoundException.class,
+        OAuthCannotUnlinkLastLoginMethodException.class,
+        OAuthEmailConflictException.class,
+        OAuthEmailMismatchException.class,
+        OAuthProviderAlreadyLinkedException.class
+    })
+    public ResponseEntity<ErrorResponse> handleAuthException(
+            BaseException exception, WebRequest request) {
+        return buildErrorResponse(exception, request);
+    }
+}
