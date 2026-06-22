@@ -1,6 +1,5 @@
 package com.github.mohrezal.identity.domain.authorization.repository;
 
-import com.github.mohrezal.identity.domain.authorization.enums.Permission;
 import com.github.mohrezal.identity.domain.authorization.model.Role;
 import com.github.mohrezal.identity.domain.authorization.model.UserRole;
 import com.github.mohrezal.identity.domain.user.model.User;
@@ -22,12 +21,12 @@ public interface UserRoleRepository extends JpaRepository<UserRole, UUID> {
 
     @Query(
             """
-            SELECT DISTINCT rolePermission.permission
+            SELECT DISTINCT rolePermission.permissionKey
             FROM UserRole userRole
             JOIN userRole.role role
             JOIN role.permissions rolePermission
             WHERE userRole.user.id = :userId
               AND role.enabled = true
             """)
-    List<Permission> findPermissionsByUserId(@Param("userId") UUID userId);
+    List<String> findPermissionKeysByUserId(@Param("userId") UUID userId);
 }

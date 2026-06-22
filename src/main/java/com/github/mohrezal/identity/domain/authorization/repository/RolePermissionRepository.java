@@ -1,6 +1,5 @@
 package com.github.mohrezal.identity.domain.authorization.repository;
 
-import com.github.mohrezal.identity.domain.authorization.enums.Permission;
 import com.github.mohrezal.identity.domain.authorization.model.Role;
 import com.github.mohrezal.identity.domain.authorization.model.RolePermission;
 import java.util.List;
@@ -13,5 +12,5 @@ public interface RolePermissionRepository extends JpaRepository<RolePermission, 
 
     List<RolePermission> findAllByRole(Role role);
 
-    boolean existsByRoleAndPermission(Role role, Permission permission);
+    boolean existsByRoleAndPermissionKey(Role role, String permissionKey);
 }
