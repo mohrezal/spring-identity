@@ -11,6 +11,7 @@ import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import javax.crypto.SecretKey;
@@ -38,10 +39,11 @@ public class JwtTokenProvider {
                         .build();
     }
 
-    public String createAccessToken(UUID userId) {
+    public String createAccessToken(UUID userId, List<String> permissions) {
         var now = Instant.now();
         return Jwts.builder()
                 .subject(userId.toString())
+                .claim(JwtClaim.PERMISSIONS, permissions)
                 .issuedAt(Date.from(now))
                 .expiration(
                         Date.from(
@@ -80,6 +82,24 @@ public class JwtTokenProvider {
                     .map(UUID::fromString);
         } catch (JwtException | IllegalArgumentException exception) {
             return Optional.empty();
+        }
+    }
+
+    public List<String> extractPermissionKeys(String token) {
+        try {
+            var claims = jwtParser.parseSignedClaims(token).getPayload();
+            var permissions = claims.get(JwtClaim.PERMISSIONS);
+            if (!(permissions instanceof List<?> values)) {
+                return List.of();
+            }
+
+            return values.stream()
+                    .filter(String.class::isInstance)
+                    .map(String.class::cast)
+                    .filter(StringUtils::hasText)
+                    .toList();
+        } catch (JwtException | IllegalArgumentException exception) {
+            return List.of();
         }
     }
 

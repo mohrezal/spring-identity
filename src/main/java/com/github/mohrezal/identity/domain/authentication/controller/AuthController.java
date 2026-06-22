@@ -31,6 +31,7 @@ import com.github.mohrezal.identity.domain.authentication.dto.ResetPasswordReque
 import com.github.mohrezal.identity.domain.authentication.dto.SessionSummary;
 import com.github.mohrezal.identity.domain.authentication.query.GetAuthSessionsQuery;
 import com.github.mohrezal.identity.domain.authentication.query.param.GetAuthSessionsQueryParams;
+import com.github.mohrezal.identity.domain.authorization.constant.Permissions;
 import com.github.mohrezal.identity.domain.user.dto.UserSummary;
 import com.github.mohrezal.identity.shared.annotation.Authenticated;
 import com.github.mohrezal.identity.shared.constant.CookieConstant;
@@ -46,6 +47,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.csrf.CsrfToken;
@@ -249,7 +251,7 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.FOUND).location(URI.create(redirectUrl)).build();
     }
 
-    @Authenticated
+    @PreAuthorize("hasAuthority('" + Permissions.IDENTITY_AUTH_SESSIONS_READ + "')")
     @GetMapping(RouteConstants.Auth.SESSIONS)
     public ResponseEntity<List<SessionSummary>> sessions(
             @AuthenticationPrincipal UserDetails userDetails,

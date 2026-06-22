@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
@@ -49,9 +50,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                             && user.isCredentialsNonExpired())
                     .ifPresent(
                             user -> {
+                                var authorities =
+                                        jwtTokenProvider
+                                                .extractPermissionKeys(accessToken.get())
+                                                .stream()
+                                                .map(SimpleGrantedAuthority::new)
+                                                .toList();
                                 var authentication =
                                         UsernamePasswordAuthenticationToken.authenticated(
-                                                user, null, user.getAuthorities());
+                                                user, null, authorities);
                                 authentication.setDetails(
                                         new WebAuthenticationDetailsSource().buildDetails(request));
 

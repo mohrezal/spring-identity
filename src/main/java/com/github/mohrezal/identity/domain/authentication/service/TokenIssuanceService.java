@@ -4,6 +4,7 @@ import com.github.mohrezal.identity.config.security.JwtTokenProvider;
 import com.github.mohrezal.identity.domain.authentication.dto.AuthResponse;
 import com.github.mohrezal.identity.domain.authentication.model.RefreshToken;
 import com.github.mohrezal.identity.domain.authentication.repository.RefreshTokenRepository;
+import com.github.mohrezal.identity.domain.authorization.service.UserPermissionService;
 import com.github.mohrezal.identity.domain.user.model.User;
 import com.github.mohrezal.identity.shared.exception.type.UnauthorizedException;
 import com.github.mohrezal.identity.shared.service.HashService;
@@ -19,9 +20,11 @@ public class TokenIssuanceService {
     private final JwtTokenProvider jwtTokenProvider;
     private final RefreshTokenRepository refreshTokenRepository;
     private final HashService hashService;
+    private final UserPermissionService userPermissionService;
 
     public AuthResponse issue(User user, String ipAddress, String deviceInfo) {
-        var accessToken = jwtTokenProvider.createAccessToken(user.getId());
+        var permissions = userPermissionService.getPermissionKeys(user.getId());
+        var accessToken = jwtTokenProvider.createAccessToken(user.getId(), permissions);
         var refreshToken = jwtTokenProvider.createRefreshToken(user.getId());
 
         var entity =
