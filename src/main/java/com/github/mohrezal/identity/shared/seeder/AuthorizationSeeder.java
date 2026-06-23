@@ -47,7 +47,7 @@ public class AuthorizationSeeder implements CommandLineRunner {
                 });
 
         log.info("Authorization seeding completed.");
-        SpringApplication.exit(applicationContext, () -> 0);
+        System.exit(SpringApplication.exit(applicationContext, () -> 0));
     }
 
     private Role seedOwnerRole() {
