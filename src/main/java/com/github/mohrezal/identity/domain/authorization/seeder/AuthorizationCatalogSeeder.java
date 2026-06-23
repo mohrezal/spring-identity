@@ -36,6 +36,14 @@ public class AuthorizationCatalogSeeder implements CommandLineRunner {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void run(String... args) {
+        if (permissionRepository.count() > 0) {
+            log.info(
+                    "Authorization catalog already exists. Skipping authorization catalog "
+                            + "seeding.");
+            System.exit(SpringApplication.exit(applicationContext, () -> 0));
+            return;
+        }
+
         var roles = applicationProperties.authorization().role();
 
         seedRole(roles.owner(), PermissionCatalog.ALL);
@@ -83,21 +91,11 @@ public class AuthorizationCatalogSeeder implements CommandLineRunner {
     }
 
     private Permission seedPermission(Definition definition) {
-        return permissionRepository
-                .findByKey(definition.key())
-                .map(
-                        permission -> {
-                            permission.setName(definition.name());
-                            permission.setService(definition.service());
-                            return permission;
-                        })
-                .orElseGet(
-                        () ->
-                                permissionRepository.save(
-                                        Permission.builder()
-                                                .key(definition.key())
-                                                .name(definition.name())
-                                                .service(definition.service())
-                                                .build()));
+        return permissionRepository.save(
+                Permission.builder()
+                        .key(definition.key())
+                        .name(definition.name())
+                        .service(definition.service())
+                        .build());
     }
 }
