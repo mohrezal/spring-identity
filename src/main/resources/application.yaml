@@ -65,6 +65,11 @@ springdoc:
       header-name: X-XSRF-TOKEN
 
 app:
+  seed:
+    owner:
+      email: ${APP_SEED_OWNER_EMAIL}
+      role-key: owner
+      role-name: Owner
   security:
     secret: ${APP_SECURITY_SECRET}
     verification-token-ttl: ${APP_SECURITY_VERIFICATION_TOKEN_TTL}
