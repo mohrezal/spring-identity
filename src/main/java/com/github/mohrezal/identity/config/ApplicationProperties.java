@@ -19,7 +19,8 @@ import org.springframework.validation.annotation.Validated;
 public record ApplicationProperties(
         @NotNull @Valid Security security,
         @NotNull @Valid RateLimit rateLimit,
-        @NotNull @Valid Seed seed) {
+        @NotNull @Valid Authorization authorization,
+        @NotNull @Valid Owner owner) {
 
     @Validated
     public record Security(
@@ -128,16 +129,15 @@ public record ApplicationProperties(
     }
 
     @Validated
-    public record Seed(@NotNull @Valid Owner owner, @NotNull @Valid User user) {
+    public record Owner(@NotBlank String email) {}
+
+    @Validated
+    public record Authorization(@NotNull @Valid Role role) {
 
         @Validated
-        public record Owner(
-                @NotBlank String email, @NotBlank String roleKey, @NotBlank String roleName) {}
+        public record Role(@NotNull @Valid Properties owner, @NotNull @Valid Properties user) {}
 
         @Validated
-        public record User(
-                @NotBlank String roleKey,
-                @NotBlank String roleName,
-                @NotEmpty List<@NotBlank String> permissions) {}
+        public record Properties(@NotBlank String key, @NotBlank String name) {}
     }
 }

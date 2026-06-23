@@ -19,7 +19,7 @@ public class UserRoleAssignmentService {
 
     @Transactional(rollbackFor = Exception.class)
     public void assignConfiguredUserRole(User user) {
-        var roleKey = applicationProperties.seed().user().roleKey();
+        var roleKey = applicationProperties.authorization().role().user().key();
         var role =
                 roleRepository
                         .findByKey(roleKey)

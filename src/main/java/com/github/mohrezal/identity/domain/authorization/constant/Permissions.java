@@ -1,7 +1,5 @@
 package com.github.mohrezal.identity.domain.authorization.constant;
 
-import java.util.List;
-
 public final class Permissions {
 
     private Permissions() {}
@@ -26,18 +24,4 @@ public final class Permissions {
             "identity.authorization.roles.assign-permissions";
     public static final String IDENTITY_AUTHORIZATION_USERS_ASSIGN_ROLES =
             "identity.authorization.users.assign-roles";
-
-    public static final List<String> ALL =
-            List.of(
-                    IDENTITY_AUTH_SESSIONS_READ,
-                    IDENTITY_AUTH_SESSIONS_REVOKE,
-                    IDENTITY_AUTH_SESSIONS_REVOKE_ALL,
-                    IDENTITY_AUTH_OAUTH_CONNECTIONS_READ,
-                    IDENTITY_AUTH_OAUTH_CONNECTIONS_UNLINK,
-                    IDENTITY_AUTHORIZATION_ROLES_READ,
-                    IDENTITY_AUTHORIZATION_ROLES_CREATE,
-                    IDENTITY_AUTHORIZATION_ROLES_UPDATE,
-                    IDENTITY_AUTHORIZATION_ROLES_DELETE,
-                    IDENTITY_AUTHORIZATION_ROLES_ASSIGN_PERMISSIONS,
-                    IDENTITY_AUTHORIZATION_USERS_ASSIGN_ROLES);
 }

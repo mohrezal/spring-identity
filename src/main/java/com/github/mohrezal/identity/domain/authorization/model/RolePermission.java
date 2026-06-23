@@ -1,7 +1,6 @@
 package com.github.mohrezal.identity.domain.authorization.model;
 
 import com.github.mohrezal.identity.shared.model.BaseModel;
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
@@ -22,6 +21,7 @@ public class RolePermission extends BaseModel {
     @JoinColumn(name = "role_id", nullable = false)
     private Role role;
 
-    @Column(name = "permission_key", nullable = false, length = 150)
-    private String permissionKey;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "permission_id", nullable = false)
+    private Permission permission;
 }
