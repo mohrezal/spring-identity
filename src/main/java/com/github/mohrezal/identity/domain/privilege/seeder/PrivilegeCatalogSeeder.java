@@ -1,14 +1,14 @@
-package com.github.mohrezal.identity.domain.authorization.seeder;
+package com.github.mohrezal.identity.domain.privilege.seeder;
 
 import com.github.mohrezal.identity.config.ApplicationProperties;
-import com.github.mohrezal.identity.domain.authorization.constant.PermissionCatalog;
-import com.github.mohrezal.identity.domain.authorization.constant.PermissionCatalog.Definition;
-import com.github.mohrezal.identity.domain.authorization.model.Permission;
-import com.github.mohrezal.identity.domain.authorization.model.Role;
-import com.github.mohrezal.identity.domain.authorization.model.RolePermission;
-import com.github.mohrezal.identity.domain.authorization.repository.PermissionRepository;
-import com.github.mohrezal.identity.domain.authorization.repository.RolePermissionRepository;
-import com.github.mohrezal.identity.domain.authorization.repository.RoleRepository;
+import com.github.mohrezal.identity.domain.privilege.constant.PermissionCatalog;
+import com.github.mohrezal.identity.domain.privilege.constant.PermissionCatalog.Definition;
+import com.github.mohrezal.identity.domain.privilege.model.Permission;
+import com.github.mohrezal.identity.domain.privilege.model.Role;
+import com.github.mohrezal.identity.domain.privilege.model.RolePermission;
+import com.github.mohrezal.identity.domain.privilege.repository.PermissionRepository;
+import com.github.mohrezal.identity.domain.privilege.repository.RolePermissionRepository;
+import com.github.mohrezal.identity.domain.privilege.repository.RoleRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,9 +23,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @Order(1)
 @Component
-@Profile("seed-authorization")
+@Profile("seed-privilege")
 @RequiredArgsConstructor
-public class AuthorizationCatalogSeeder implements CommandLineRunner {
+public class PrivilegeCatalogSeeder implements CommandLineRunner {
 
     private final ApplicationProperties applicationProperties;
     private final PermissionRepository permissionRepository;
@@ -37,25 +37,22 @@ public class AuthorizationCatalogSeeder implements CommandLineRunner {
     @Transactional(rollbackFor = Exception.class)
     public void run(String... args) {
         if (permissionRepository.count() > 0) {
-            log.info(
-                    "Authorization catalog already exists. Skipping authorization catalog "
-                            + "seeding.");
+            log.info("Privilege catalog already exists. Skipping privilege catalog " + "seeding.");
             System.exit(SpringApplication.exit(applicationContext, () -> 0));
             return;
         }
 
-        var roles = applicationProperties.authorization().role();
+        var roles = applicationProperties.privilege().role();
 
         seedRole(roles.owner(), PermissionCatalog.ALL);
         seedRole(roles.user(), PermissionCatalog.USER);
 
-        log.info("Authorization catalog seeding completed.");
+        log.info("Privilege catalog seeding completed.");
         System.exit(SpringApplication.exit(applicationContext, () -> 0));
     }
 
     private Role seedRole(
-            ApplicationProperties.Authorization.Properties properties,
-            List<Definition> permissions) {
+            ApplicationProperties.Privilege.Properties properties, List<Definition> permissions) {
         var role =
                 roleRepository
                         .findByKey(properties.key())

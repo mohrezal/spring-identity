@@ -13,7 +13,7 @@ import com.github.mohrezal.identity.domain.authentication.repository.UserOauthCo
 import com.github.mohrezal.identity.domain.authentication.service.TokenIssuanceService;
 import com.github.mohrezal.identity.domain.authentication.service.oauth.OAuthLinkService;
 import com.github.mohrezal.identity.domain.authentication.service.oauth.OAuthProviderRegistry;
-import com.github.mohrezal.identity.domain.authorization.service.UserRoleAssignmentService;
+import com.github.mohrezal.identity.domain.privilege.service.UserRoleAssignmentService;
 import com.github.mohrezal.identity.domain.user.model.User;
 import com.github.mohrezal.identity.domain.user.repository.UserRepository;
 import com.github.mohrezal.identity.shared.enums.RedisKey;

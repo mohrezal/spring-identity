@@ -1,8 +1,8 @@
-package com.github.mohrezal.identity.domain.authorization.repository;
+package com.github.mohrezal.identity.domain.privilege.repository;
 
-import com.github.mohrezal.identity.domain.authorization.model.Permission;
-import com.github.mohrezal.identity.domain.authorization.model.Role;
-import com.github.mohrezal.identity.domain.authorization.model.RolePermission;
+import com.github.mohrezal.identity.domain.privilege.model.Permission;
+import com.github.mohrezal.identity.domain.privilege.model.Role;
+import com.github.mohrezal.identity.domain.privilege.model.RolePermission;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -1,9 +1,9 @@
-package com.github.mohrezal.identity.domain.authorization.service;
+package com.github.mohrezal.identity.domain.privilege.service;
 
 import com.github.mohrezal.identity.config.ApplicationProperties;
-import com.github.mohrezal.identity.domain.authorization.model.UserRole;
-import com.github.mohrezal.identity.domain.authorization.repository.RoleRepository;
-import com.github.mohrezal.identity.domain.authorization.repository.UserRoleRepository;
+import com.github.mohrezal.identity.domain.privilege.model.UserRole;
+import com.github.mohrezal.identity.domain.privilege.repository.RoleRepository;
+import com.github.mohrezal.identity.domain.privilege.repository.UserRoleRepository;
 import com.github.mohrezal.identity.domain.user.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,7 +19,7 @@ public class UserRoleAssignmentService {
 
     @Transactional(rollbackFor = Exception.class)
     public void assignConfiguredUserRole(User user) {
-        var roleKey = applicationProperties.authorization().role().user().key();
+        var roleKey = applicationProperties.privilege().role().user().key();
         var role =
                 roleRepository
                         .findByKey(roleKey)

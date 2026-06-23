@@ -1,6 +1,6 @@
-package com.github.mohrezal.identity.domain.authorization.service;
+package com.github.mohrezal.identity.domain.privilege.service;
 
-import com.github.mohrezal.identity.domain.authorization.repository.UserRoleRepository;
+import com.github.mohrezal.identity.domain.privilege.repository.UserRoleRepository;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;

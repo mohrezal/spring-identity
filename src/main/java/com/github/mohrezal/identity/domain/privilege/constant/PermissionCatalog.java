@@ -1,4 +1,4 @@
-package com.github.mohrezal.identity.domain.authorization.constant;
+package com.github.mohrezal.identity.domain.privilege.constant;
 
 import java.util.List;
 
@@ -33,35 +33,35 @@ public final class PermissionCatalog {
                     Permissions.IDENTITY_AUTH_OAUTH_CONNECTIONS_UNLINK,
                     "Unlink OAuth connections",
                     IDENTITY_SERVICE);
-    private static final Definition IDENTITY_AUTHORIZATION_ROLES_READ =
+    private static final Definition IDENTITY_PRIVILEGE_ROLES_READ =
             new Definition(
-                    Permissions.IDENTITY_AUTHORIZATION_ROLES_READ,
-                    "Read authorization roles",
+                    Permissions.IDENTITY_PRIVILEGE_ROLES_READ,
+                    "Read privilege roles",
                     IDENTITY_SERVICE);
-    private static final Definition IDENTITY_AUTHORIZATION_ROLES_CREATE =
+    private static final Definition IDENTITY_PRIVILEGE_ROLES_CREATE =
             new Definition(
-                    Permissions.IDENTITY_AUTHORIZATION_ROLES_CREATE,
-                    "Create authorization roles",
+                    Permissions.IDENTITY_PRIVILEGE_ROLES_CREATE,
+                    "Create privilege roles",
                     IDENTITY_SERVICE);
-    private static final Definition IDENTITY_AUTHORIZATION_ROLES_UPDATE =
+    private static final Definition IDENTITY_PRIVILEGE_ROLES_UPDATE =
             new Definition(
-                    Permissions.IDENTITY_AUTHORIZATION_ROLES_UPDATE,
-                    "Update authorization roles",
+                    Permissions.IDENTITY_PRIVILEGE_ROLES_UPDATE,
+                    "Update privilege roles",
                     IDENTITY_SERVICE);
-    private static final Definition IDENTITY_AUTHORIZATION_ROLES_DELETE =
+    private static final Definition IDENTITY_PRIVILEGE_ROLES_DELETE =
             new Definition(
-                    Permissions.IDENTITY_AUTHORIZATION_ROLES_DELETE,
-                    "Delete authorization roles",
+                    Permissions.IDENTITY_PRIVILEGE_ROLES_DELETE,
+                    "Delete privilege roles",
                     IDENTITY_SERVICE);
-    private static final Definition IDENTITY_AUTHORIZATION_ROLES_ASSIGN_PERMISSIONS =
+    private static final Definition IDENTITY_PRIVILEGE_ROLES_ASSIGN_PERMISSIONS =
             new Definition(
-                    Permissions.IDENTITY_AUTHORIZATION_ROLES_ASSIGN_PERMISSIONS,
-                    "Assign permissions to authorization roles",
+                    Permissions.IDENTITY_PRIVILEGE_ROLES_ASSIGN_PERMISSIONS,
+                    "Assign permissions to privilege roles",
                     IDENTITY_SERVICE);
-    private static final Definition IDENTITY_AUTHORIZATION_USERS_ASSIGN_ROLES =
+    private static final Definition IDENTITY_PRIVILEGE_USERS_ASSIGN_ROLES =
             new Definition(
-                    Permissions.IDENTITY_AUTHORIZATION_USERS_ASSIGN_ROLES,
-                    "Assign authorization roles to users",
+                    Permissions.IDENTITY_PRIVILEGE_USERS_ASSIGN_ROLES,
+                    "Assign privilege roles to users",
                     IDENTITY_SERVICE);
 
     public static final List<Definition> USER =
@@ -79,12 +79,12 @@ public final class PermissionCatalog {
                     IDENTITY_AUTH_SESSIONS_REVOKE_ALL,
                     IDENTITY_AUTH_OAUTH_CONNECTIONS_READ,
                     IDENTITY_AUTH_OAUTH_CONNECTIONS_UNLINK,
-                    IDENTITY_AUTHORIZATION_ROLES_READ,
-                    IDENTITY_AUTHORIZATION_ROLES_CREATE,
-                    IDENTITY_AUTHORIZATION_ROLES_UPDATE,
-                    IDENTITY_AUTHORIZATION_ROLES_DELETE,
-                    IDENTITY_AUTHORIZATION_ROLES_ASSIGN_PERMISSIONS,
-                    IDENTITY_AUTHORIZATION_USERS_ASSIGN_ROLES);
+                    IDENTITY_PRIVILEGE_ROLES_READ,
+                    IDENTITY_PRIVILEGE_ROLES_CREATE,
+                    IDENTITY_PRIVILEGE_ROLES_UPDATE,
+                    IDENTITY_PRIVILEGE_ROLES_DELETE,
+                    IDENTITY_PRIVILEGE_ROLES_ASSIGN_PERMISSIONS,
+                    IDENTITY_PRIVILEGE_USERS_ASSIGN_ROLES);
 
     public record Definition(String key, String name, String service) {}
 }

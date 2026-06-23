@@ -1,7 +1,7 @@
-package com.github.mohrezal.identity.domain.authorization.repository;
+package com.github.mohrezal.identity.domain.privilege.repository;
 
-import com.github.mohrezal.identity.domain.authorization.model.Role;
-import com.github.mohrezal.identity.domain.authorization.model.UserRole;
+import com.github.mohrezal.identity.domain.privilege.model.Role;
+import com.github.mohrezal.identity.domain.privilege.model.UserRole;
 import com.github.mohrezal.identity.domain.user.model.User;
 import java.util.List;
 import java.util.UUID;

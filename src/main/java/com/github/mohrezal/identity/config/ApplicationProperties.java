@@ -19,7 +19,7 @@ import org.springframework.validation.annotation.Validated;
 public record ApplicationProperties(
         @NotNull @Valid Security security,
         @NotNull @Valid RateLimit rateLimit,
-        @NotNull @Valid Authorization authorization,
+        @NotNull @Valid Privilege privilege,
         @NotNull @Valid Owner owner) {
 
     @Validated
@@ -132,7 +132,7 @@ public record ApplicationProperties(
     public record Owner(@NotBlank String email) {}
 
     @Validated
-    public record Authorization(@NotNull @Valid Role role) {
+    public record Privilege(@NotNull @Valid Role role) {
 
         @Validated
         public record Role(@NotNull @Valid Properties owner, @NotNull @Valid Properties user) {}

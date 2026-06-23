@@ -31,7 +31,7 @@ import com.github.mohrezal.identity.domain.authentication.dto.ResetPasswordReque
 import com.github.mohrezal.identity.domain.authentication.dto.SessionSummary;
 import com.github.mohrezal.identity.domain.authentication.query.GetAuthSessionsQuery;
 import com.github.mohrezal.identity.domain.authentication.query.param.GetAuthSessionsQueryParams;
-import com.github.mohrezal.identity.domain.authorization.constant.Permissions;
+import com.github.mohrezal.identity.domain.privilege.constant.Permissions;
 import com.github.mohrezal.identity.domain.user.dto.UserSummary;
 import com.github.mohrezal.identity.shared.annotation.Authenticated;
 import com.github.mohrezal.identity.shared.annotation.RequiresPermission;

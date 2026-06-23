@@ -1,5 +1,5 @@
 --liquibase formatted sql
---changeset mohammadreza:1782056717_add_authorization_schema splitStatements:false
+--changeset mohammadreza:1782056717_add_privilege_schema splitStatements:false
 CREATE TABLE roles (
     id UUID NOT NULL DEFAULT uuid_generate_v4(),
     key VARCHAR(100) NOT NULL,

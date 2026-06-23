@@ -1,6 +1,6 @@
 package com.github.mohrezal.identity.domain.user.command;
 
-import com.github.mohrezal.identity.domain.authorization.service.UserRoleAssignmentService;
+import com.github.mohrezal.identity.domain.privilege.service.UserRoleAssignmentService;
 import com.github.mohrezal.identity.domain.user.command.param.RegisterCommandParams;
 import com.github.mohrezal.identity.domain.user.dto.RegisterResponse;
 import com.github.mohrezal.identity.domain.user.exception.type.UserEmailAlreadyExistsException;

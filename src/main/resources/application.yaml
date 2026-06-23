@@ -67,7 +67,7 @@ springdoc:
 app:
   owner:
     email: ${APP_OWNER_EMAIL}
-  authorization:
+  privilege:
     role:
       owner:
         key: owner

@@ -4,7 +4,7 @@ import com.github.mohrezal.identity.config.security.JwtTokenProvider;
 import com.github.mohrezal.identity.domain.authentication.dto.AuthResponse;
 import com.github.mohrezal.identity.domain.authentication.model.RefreshToken;
 import com.github.mohrezal.identity.domain.authentication.repository.RefreshTokenRepository;
-import com.github.mohrezal.identity.domain.authorization.service.UserPermissionService;
+import com.github.mohrezal.identity.domain.privilege.service.UserPermissionService;
 import com.github.mohrezal.identity.domain.user.model.User;
 import com.github.mohrezal.identity.shared.exception.type.UnauthorizedException;
 import com.github.mohrezal.identity.shared.service.HashService;

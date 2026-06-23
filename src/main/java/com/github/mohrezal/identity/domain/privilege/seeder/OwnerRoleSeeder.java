@@ -1,10 +1,10 @@
-package com.github.mohrezal.identity.domain.authorization.seeder;
+package com.github.mohrezal.identity.domain.privilege.seeder;
 
 import com.github.mohrezal.identity.config.ApplicationProperties;
-import com.github.mohrezal.identity.domain.authorization.model.Role;
-import com.github.mohrezal.identity.domain.authorization.model.UserRole;
-import com.github.mohrezal.identity.domain.authorization.repository.RoleRepository;
-import com.github.mohrezal.identity.domain.authorization.repository.UserRoleRepository;
+import com.github.mohrezal.identity.domain.privilege.model.Role;
+import com.github.mohrezal.identity.domain.privilege.model.UserRole;
+import com.github.mohrezal.identity.domain.privilege.repository.RoleRepository;
+import com.github.mohrezal.identity.domain.privilege.repository.UserRoleRepository;
 import com.github.mohrezal.identity.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,7 +38,7 @@ public class OwnerRoleSeeder implements CommandLineRunner {
     }
 
     private Role getOwnerRole() {
-        var roleKey = applicationProperties.authorization().role().owner().key();
+        var roleKey = applicationProperties.privilege().role().owner().key();
         return roleRepository
                 .findByKey(roleKey)
                 .orElseThrow(

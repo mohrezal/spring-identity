@@ -1,4 +1,4 @@
-package com.github.mohrezal.identity.domain.authorization.model;
+package com.github.mohrezal.identity.domain.privilege.model;
 
 import com.github.mohrezal.identity.shared.model.BaseModel;
 import jakarta.persistence.Entity;

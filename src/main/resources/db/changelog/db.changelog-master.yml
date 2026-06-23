@@ -8,6 +8,6 @@ databaseChangeLog:
       relativeToChangelogFile: true
       context: schema
   - include:
-      file: migrations/1782056717_add_authorization_schema.sql
+      file: migrations/1782056717_add_privilege_schema.sql
       relativeToChangelogFile: true
       context: schema
