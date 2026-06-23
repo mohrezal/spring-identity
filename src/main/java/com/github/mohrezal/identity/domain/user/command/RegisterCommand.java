@@ -1,5 +1,6 @@
 package com.github.mohrezal.identity.domain.user.command;
 
+import com.github.mohrezal.identity.domain.authorization.service.UserRoleAssignmentService;
 import com.github.mohrezal.identity.domain.user.command.param.RegisterCommandParams;
 import com.github.mohrezal.identity.domain.user.dto.RegisterResponse;
 import com.github.mohrezal.identity.domain.user.exception.type.UserEmailAlreadyExistsException;
@@ -36,6 +37,7 @@ public class RegisterCommand implements Command<RegisterCommandParams, RegisterR
     private final HashService hashService;
     private final RedisService redisService;
     private final ApplicationEventPublisher eventPublisher;
+    private final UserRoleAssignmentService userRoleAssignmentService;
 
     @Override
     public void validate(RegisterCommandParams params) {
@@ -55,6 +57,7 @@ public class RegisterCommand implements Command<RegisterCommandParams, RegisterR
         var hashedPassword = passwordEncoder.encode(request.password());
         var user = userMapper.toUser(request);
         var savedUser = userRepository.save(user);
+        userRoleAssignmentService.assignConfiguredUserRole(savedUser);
         var credential = userMapper.toCredential(savedUser, hashedPassword);
         userCredentialRepository.save(credential);
         var token = UUID.randomUUID().toString();

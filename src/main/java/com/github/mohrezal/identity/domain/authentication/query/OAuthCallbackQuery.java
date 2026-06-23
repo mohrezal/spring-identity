@@ -13,6 +13,7 @@ import com.github.mohrezal.identity.domain.authentication.repository.UserOauthCo
 import com.github.mohrezal.identity.domain.authentication.service.TokenIssuanceService;
 import com.github.mohrezal.identity.domain.authentication.service.oauth.OAuthLinkService;
 import com.github.mohrezal.identity.domain.authentication.service.oauth.OAuthProviderRegistry;
+import com.github.mohrezal.identity.domain.authorization.service.UserRoleAssignmentService;
 import com.github.mohrezal.identity.domain.user.model.User;
 import com.github.mohrezal.identity.domain.user.repository.UserRepository;
 import com.github.mohrezal.identity.shared.enums.RedisKey;
@@ -38,6 +39,7 @@ public class OAuthCallbackQuery implements Query<OAuthCallbackQueryParams, OAuth
     private final TokenIssuanceService tokenIssuanceService;
     private final OAuthLinkService oAuthLinkService;
     private final ApplicationEventPublisher eventPublisher;
+    private final UserRoleAssignmentService userRoleAssignmentService;
 
     @Override
     public void validate(OAuthCallbackQueryParams params) {
@@ -146,6 +148,7 @@ public class OAuthCallbackQuery implements Query<OAuthCallbackQueryParams, OAuth
                         .build();
 
         var savedUser = userRepository.save(user);
+        userRoleAssignmentService.assignConfiguredUserRole(savedUser);
         log.info(
                 "OAuth login created user. provider={}, userId={}",
                 profile.provider(),

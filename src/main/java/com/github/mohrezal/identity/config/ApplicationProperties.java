@@ -17,7 +17,9 @@ import org.springframework.validation.annotation.Validated;
 @Validated
 @ConfigurationProperties(prefix = "app")
 public record ApplicationProperties(
-        @NotNull @Valid Security security, @NotNull @Valid RateLimit rateLimit, @Valid Seed seed) {
+        @NotNull @Valid Security security,
+        @NotNull @Valid RateLimit rateLimit,
+        @NotNull @Valid Seed seed) {
 
     @Validated
     public record Security(
@@ -126,10 +128,16 @@ public record ApplicationProperties(
     }
 
     @Validated
-    public record Seed(@Valid Owner owner) {
+    public record Seed(@NotNull @Valid Owner owner, @NotNull @Valid User user) {
 
         @Validated
         public record Owner(
                 @NotBlank String email, @NotBlank String roleKey, @NotBlank String roleName) {}
+
+        @Validated
+        public record User(
+                @NotBlank String roleKey,
+                @NotBlank String roleName,
+                @NotEmpty List<@NotBlank String> permissions) {}
     }
 }

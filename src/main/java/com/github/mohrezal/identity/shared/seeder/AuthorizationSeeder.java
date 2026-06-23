@@ -9,6 +9,7 @@ import com.github.mohrezal.identity.domain.authorization.repository.RolePermissi
 import com.github.mohrezal.identity.domain.authorization.repository.RoleRepository;
 import com.github.mohrezal.identity.domain.authorization.repository.UserRoleRepository;
 import com.github.mohrezal.identity.domain.user.repository.UserRepository;
+import java.util.stream.StreamSupport;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
@@ -18,7 +19,6 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
-import org.springframework.util.StringUtils;
 
 @Slf4j
 @Component
@@ -41,7 +41,8 @@ public class AuthorizationSeeder implements CommandLineRunner {
         transactionTemplate.execute(
                 status -> {
                     var ownerRole = seedOwnerRole();
-                    seedOwnerPermissions(ownerRole);
+                    seedPermissions(ownerRole, Permissions.ALL);
+                    seedUserRole();
                     assignOwnerRole(ownerRole);
                     return null;
                 });
@@ -52,28 +53,36 @@ public class AuthorizationSeeder implements CommandLineRunner {
 
     private Role seedOwnerRole() {
         var owner = applicationProperties.seed().owner();
+        return seedRole(owner.roleKey(), owner.roleName());
+    }
+
+    private Role seedUserRole() {
+        var user = applicationProperties.seed().user();
+        var userRole = seedRole(user.roleKey(), user.roleName());
+        seedPermissions(userRole, user.permissions());
+        return userRole;
+    }
+
+    private Role seedRole(String roleKey, String roleName) {
         return roleRepository
-                .findByKey(owner.roleKey())
+                .findByKey(roleKey)
                 .orElseGet(
                         () ->
                                 roleRepository.save(
-                                        Role.builder()
-                                                .key(owner.roleKey())
-                                                .name(owner.roleName())
-                                                .build()));
+                                        Role.builder().key(roleKey).name(roleName).build()));
     }
 
-    private void seedOwnerPermissions(Role ownerRole) {
+    private void seedPermissions(Role role, Iterable<String> permissionKeys) {
         var rolePermissions =
-                Permissions.ALL.stream()
+                StreamSupport.stream(permissionKeys.spliterator(), false)
                         .filter(
                                 permissionKey ->
                                         !rolePermissionRepository.existsByRoleAndPermissionKey(
-                                                ownerRole, permissionKey))
+                                                role, permissionKey))
                         .map(
                                 permissionKey ->
                                         RolePermission.builder()
-                                                .role(ownerRole)
+                                                .role(role)
                                                 .permissionKey(permissionKey)
                                                 .build())
                         .toList();
@@ -83,11 +92,6 @@ public class AuthorizationSeeder implements CommandLineRunner {
 
     private void assignOwnerRole(Role ownerRole) {
         var ownerEmail = applicationProperties.seed().owner().email();
-        if (!StringUtils.hasText(ownerEmail)) {
-            log.info("No seed owner email configured. Skipping owner role assignment.");
-            return;
-        }
-
         var owner =
                 userRepository
                         .findByEmail(ownerEmail)
