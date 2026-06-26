@@ -34,21 +34,17 @@ public class PrivilegeCatalogSeeder implements CommandLineRunner {
     private final ConfigurableApplicationContext applicationContext;
 
     @Override
-    @Transactional(rollbackFor = Exception.class)
     public void run(String... args) {
-        if (permissionRepository.count() > 0) {
-            log.info("Privilege catalog already exists. Skipping privilege catalog " + "seeding.");
-            System.exit(SpringApplication.exit(applicationContext, () -> 0));
-            return;
-        }
-
-        var roles = applicationProperties.privilege().role();
-
-        seedRole(roles.owner(), PermissionCatalog.ALL);
-        seedRole(roles.user(), PermissionCatalog.USER);
-
+        seedPrivilegeCatalog();
         log.info("Privilege catalog seeding completed.");
         System.exit(SpringApplication.exit(applicationContext, () -> 0));
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void seedPrivilegeCatalog() {
+        var roles = applicationProperties.privilege().role();
+        seedRole(roles.owner(), PermissionCatalog.ALL);
+        seedRole(roles.user(), PermissionCatalog.USER);
     }
 
     private Role seedRole(
@@ -88,11 +84,15 @@ public class PrivilegeCatalogSeeder implements CommandLineRunner {
     }
 
     private Permission seedPermission(Definition definition) {
-        return permissionRepository.save(
-                Permission.builder()
-                        .key(definition.key())
-                        .name(definition.name())
-                        .service(definition.service())
-                        .build());
+        return permissionRepository
+                .findByKey(definition.key())
+                .orElseGet(
+                        () ->
+                                permissionRepository.save(
+                                        Permission.builder()
+                                                .key(definition.key())
+                                                .name(definition.name())
+                                                .service(definition.service())
+                                                .build()));
     }
 }

@@ -33,6 +33,11 @@ public final class PermissionCatalog {
                     Permissions.IDENTITY_AUTH_OAUTH_CONNECTIONS_UNLINK,
                     "Unlink OAuth connections",
                     IDENTITY_SERVICE);
+    private static final Definition IDENTITY_PRIVILEGE_PERMISSIONS_READ =
+            new Definition(
+                    Permissions.IDENTITY_PRIVILEGE_PERMISSIONS_READ,
+                    "Read privilege permissions",
+                    IDENTITY_SERVICE);
     private static final Definition IDENTITY_PRIVILEGE_ROLES_READ =
             new Definition(
                     Permissions.IDENTITY_PRIVILEGE_ROLES_READ,
@@ -79,6 +84,7 @@ public final class PermissionCatalog {
                     IDENTITY_AUTH_SESSIONS_REVOKE_ALL,
                     IDENTITY_AUTH_OAUTH_CONNECTIONS_READ,
                     IDENTITY_AUTH_OAUTH_CONNECTIONS_UNLINK,
+                    IDENTITY_PRIVILEGE_PERMISSIONS_READ,
                     IDENTITY_PRIVILEGE_ROLES_READ,
                     IDENTITY_PRIVILEGE_ROLES_CREATE,
                     IDENTITY_PRIVILEGE_ROLES_UPDATE,

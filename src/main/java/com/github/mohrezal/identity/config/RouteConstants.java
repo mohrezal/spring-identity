@@ -36,4 +36,8 @@ public final class RouteConstants {
             public static final String CALLBACK = "{provider}/callback";
         }
     }
+
+    public static final class Privilege {
+        public static final String PERMISSIONS = API_BASE + "permissions";
+    }
 }

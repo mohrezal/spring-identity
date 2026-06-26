@@ -1,7 +1,6 @@
 package com.github.mohrezal.identity.domain.privilege.seeder;
 
 import com.github.mohrezal.identity.config.ApplicationProperties;
-import com.github.mohrezal.identity.domain.privilege.model.Role;
 import com.github.mohrezal.identity.domain.privilege.model.UserRole;
 import com.github.mohrezal.identity.domain.privilege.repository.RoleRepository;
 import com.github.mohrezal.identity.domain.privilege.repository.UserRoleRepository;
@@ -30,24 +29,23 @@ public class OwnerRoleSeeder implements CommandLineRunner {
     private final ConfigurableApplicationContext applicationContext;
 
     @Override
-    @Transactional(rollbackFor = Exception.class)
     public void run(String... args) {
-        assignOwnerRole(getOwnerRole());
-        log.info("Owner role seeding completed.");
+        assignOwnerRole();
+        log.info("Owner role assignment completed.");
         System.exit(SpringApplication.exit(applicationContext, () -> 0));
     }
 
-    private Role getOwnerRole() {
+    @Transactional(rollbackFor = Exception.class)
+    public void assignOwnerRole() {
         var roleKey = applicationProperties.privilege().role().owner().key();
-        return roleRepository
-                .findByKey(roleKey)
-                .orElseThrow(
-                        () ->
-                                new IllegalStateException(
-                                        "Configured owner role not found: " + roleKey));
-    }
+        var role =
+                roleRepository
+                        .findByKey(roleKey)
+                        .orElseThrow(
+                                () ->
+                                        new IllegalStateException(
+                                                "Owner role not found: " + roleKey));
 
-    private void assignOwnerRole(Role ownerRole) {
         var ownerEmail = applicationProperties.owner().email();
         var owner =
                 userRepository
@@ -57,10 +55,8 @@ public class OwnerRoleSeeder implements CommandLineRunner {
                                         new IllegalArgumentException(
                                                 "Owner user not found: " + ownerEmail));
 
-        if (userRoleRepository.existsByUserAndRole(owner, ownerRole)) {
-            return;
+        if (!userRoleRepository.existsByUserAndRole(owner, role)) {
+            userRoleRepository.save(UserRole.builder().user(owner).role(role).build());
         }
-
-        userRoleRepository.save(UserRole.builder().user(owner).role(ownerRole).build());
     }
 }
