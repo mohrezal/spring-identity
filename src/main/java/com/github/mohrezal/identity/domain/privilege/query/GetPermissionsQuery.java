@@ -1,13 +1,10 @@
 package com.github.mohrezal.identity.domain.privilege.query;
 
 import com.github.mohrezal.identity.domain.privilege.dto.PermissionSummary;
-import com.github.mohrezal.identity.domain.privilege.dto.PermissionSummaryCache;
 import com.github.mohrezal.identity.domain.privilege.mapper.PermissionMapper;
 import com.github.mohrezal.identity.domain.privilege.query.param.GetPermissionsQueryParams;
 import com.github.mohrezal.identity.domain.privilege.repository.PermissionRepository;
-import com.github.mohrezal.identity.shared.enums.RedisKey;
 import com.github.mohrezal.identity.shared.interfaces.Query;
-import com.github.mohrezal.identity.shared.redis.RedisService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,25 +17,12 @@ public class GetPermissionsQuery
 
     private final PermissionRepository permissionRepository;
     private final PermissionMapper permissionMapper;
-    private final RedisService redisService;
 
     @Override
     @Transactional(readOnly = true)
     public List<PermissionSummary> execute(GetPermissionsQueryParams params) {
-        return redisService
-                .get(RedisKey.PRIVILEGE_PERMISSIONS, PermissionSummaryCache.class)
-                .map(PermissionSummaryCache::permissions)
-                .orElseGet(
-                        () -> {
-                            var permissions =
-                                    permissionRepository.findAllByOrderByServiceAscKeyAsc().stream()
-                                            .map(permissionMapper::toSummary)
-                                            .toList();
-
-                            redisService.set(
-                                    RedisKey.PRIVILEGE_PERMISSIONS,
-                                    new PermissionSummaryCache(permissions));
-                            return permissions;
-                        });
+        return permissionRepository.findAllByOrderByServiceAscKeyAsc().stream()
+                .map(permissionMapper::toSummary)
+                .toList();
     }
 }

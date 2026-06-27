@@ -1,0 +1,29 @@
+package com.github.mohrezal.identity.domain.privilege.exception;
+
+import com.github.mohrezal.identity.domain.privilege.exception.type.PermissionNotFoundException;
+import com.github.mohrezal.identity.domain.privilege.exception.type.RoleKeyAlreadyExistsException;
+import com.github.mohrezal.identity.shared.exception.AbstractExceptionHandler;
+import com.github.mohrezal.identity.shared.exception.ErrorResponse;
+import com.github.mohrezal.identity.shared.exception.type.BaseException;
+import org.springframework.context.MessageSource;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.WebRequest;
+
+@RestControllerAdvice
+@Order(Ordered.HIGHEST_PRECEDENCE)
+public class PrivilegeExceptionHandler extends AbstractExceptionHandler {
+
+    public PrivilegeExceptionHandler(MessageSource messageSource) {
+        super(messageSource);
+    }
+
+    @ExceptionHandler({PermissionNotFoundException.class, RoleKeyAlreadyExistsException.class})
+    public ResponseEntity<ErrorResponse> handlePrivilegeException(
+            BaseException exception, WebRequest request) {
+        return buildErrorResponse(exception, request);
+    }
+}

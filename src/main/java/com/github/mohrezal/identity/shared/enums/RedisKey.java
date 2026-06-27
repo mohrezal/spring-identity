@@ -7,8 +7,6 @@ public enum RedisKey {
     EMAIL_VERIFICATION_TOKEN("user:email:verification:%s", Duration.ofHours(24L)),
     PASSWORD_RESET_TOKEN("user:password:reset:%s", Duration.ofMinutes(30L)),
     OAUTH_STATE("oauth:state:%s", Duration.ofMinutes(10)),
-    PRIVILEGE_PERMISSIONS("privilege:permissions", Duration.ofDays(1)),
-    PRIVILEGE_ROLES("privilege:roles", Duration.ofDays(1)),
     RATE_LIMIT_IP("rate-limit:%s:ip:%s", Duration.ZERO),
     RATE_LIMIT_USER("rate-limit:%s:user:%s", Duration.ZERO);
     private final String pattern;
