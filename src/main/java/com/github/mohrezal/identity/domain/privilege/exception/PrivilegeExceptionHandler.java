@@ -2,6 +2,7 @@ package com.github.mohrezal.identity.domain.privilege.exception;
 
 import com.github.mohrezal.identity.domain.privilege.exception.type.PermissionNotFoundException;
 import com.github.mohrezal.identity.domain.privilege.exception.type.RoleKeyAlreadyExistsException;
+import com.github.mohrezal.identity.domain.privilege.exception.type.RoleNotFoundException;
 import com.github.mohrezal.identity.shared.exception.AbstractExceptionHandler;
 import com.github.mohrezal.identity.shared.exception.ErrorResponse;
 import com.github.mohrezal.identity.shared.exception.type.BaseException;
@@ -21,7 +22,11 @@ public class PrivilegeExceptionHandler extends AbstractExceptionHandler {
         super(messageSource);
     }
 
-    @ExceptionHandler({PermissionNotFoundException.class, RoleKeyAlreadyExistsException.class})
+    @ExceptionHandler({
+        PermissionNotFoundException.class,
+        RoleKeyAlreadyExistsException.class,
+        RoleNotFoundException.class
+    })
     public ResponseEntity<ErrorResponse> handlePrivilegeException(
             BaseException exception, WebRequest request) {
         return buildErrorResponse(exception, request);

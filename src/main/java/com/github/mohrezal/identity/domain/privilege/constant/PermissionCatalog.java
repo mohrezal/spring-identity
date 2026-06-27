@@ -58,11 +58,6 @@ public final class PermissionCatalog {
                     Permissions.IDENTITY_PRIVILEGE_ROLES_DELETE,
                     "Delete privilege roles",
                     IDENTITY_SERVICE);
-    private static final Definition IDENTITY_PRIVILEGE_ROLES_ASSIGN_PERMISSIONS =
-            new Definition(
-                    Permissions.IDENTITY_PRIVILEGE_ROLES_ASSIGN_PERMISSIONS,
-                    "Assign permissions to privilege roles",
-                    IDENTITY_SERVICE);
     private static final Definition IDENTITY_PRIVILEGE_USERS_ASSIGN_ROLES =
             new Definition(
                     Permissions.IDENTITY_PRIVILEGE_USERS_ASSIGN_ROLES,
@@ -89,7 +84,6 @@ public final class PermissionCatalog {
                     IDENTITY_PRIVILEGE_ROLES_CREATE,
                     IDENTITY_PRIVILEGE_ROLES_UPDATE,
                     IDENTITY_PRIVILEGE_ROLES_DELETE,
-                    IDENTITY_PRIVILEGE_ROLES_ASSIGN_PERMISSIONS,
                     IDENTITY_PRIVILEGE_USERS_ASSIGN_ROLES);
 
     public record Definition(String key, String name, String service) {}

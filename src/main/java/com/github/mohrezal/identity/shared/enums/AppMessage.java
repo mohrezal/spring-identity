@@ -32,6 +32,7 @@ public enum AppMessage {
     USER_ALREADY_VERIFIED("user.error.already-verified"),
     USER_NOT_FOUND("user.error.not-found"),
     PRIVILEGE_PERMISSION_NOT_FOUND("privilege.error.permission-not-found"),
+    PRIVILEGE_ROLE_NOT_FOUND("privilege.error.role-not-found"),
     PRIVILEGE_ROLE_KEY_ALREADY_EXISTS("privilege.error.role-key-already-exists");
 
     private final String messageKey;

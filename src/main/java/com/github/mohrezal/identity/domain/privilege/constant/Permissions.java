@@ -18,8 +18,6 @@ public final class Permissions {
     public static final String IDENTITY_PRIVILEGE_ROLES_CREATE = "identity.privilege.roles.create";
     public static final String IDENTITY_PRIVILEGE_ROLES_UPDATE = "identity.privilege.roles.update";
     public static final String IDENTITY_PRIVILEGE_ROLES_DELETE = "identity.privilege.roles.delete";
-    public static final String IDENTITY_PRIVILEGE_ROLES_ASSIGN_PERMISSIONS =
-            "identity.privilege.roles.assign-permissions";
     public static final String IDENTITY_PRIVILEGE_USERS_ASSIGN_ROLES =
             "identity.privilege.users.assign-roles";
 }
