@@ -39,5 +39,6 @@ public final class RouteConstants {
 
     public static final class Privilege {
         public static final String PERMISSIONS = API_BASE + "permissions";
+        public static final String ROLES = API_BASE + "roles";
     }
 }
