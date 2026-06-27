@@ -9,7 +9,9 @@ import com.github.mohrezal.identity.domain.privilege.constant.Permissions;
 import com.github.mohrezal.identity.domain.privilege.dto.CreateRoleRequest;
 import com.github.mohrezal.identity.domain.privilege.dto.RoleSummary;
 import com.github.mohrezal.identity.domain.privilege.dto.UpdateRoleRequest;
+import com.github.mohrezal.identity.domain.privilege.query.GetRoleQuery;
 import com.github.mohrezal.identity.domain.privilege.query.GetRolesQuery;
+import com.github.mohrezal.identity.domain.privilege.query.param.GetRoleQueryParams;
 import com.github.mohrezal.identity.domain.privilege.query.param.GetRolesQueryParams;
 import com.github.mohrezal.identity.shared.annotation.RequiresPermission;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -34,6 +36,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class RoleController {
 
     private final GetRolesQuery getRolesQuery;
+    private final GetRoleQuery getRoleQuery;
     private final CreateRoleCommand createRoleCommand;
     private final UpdateRoleCommand updateRoleCommand;
 
@@ -41,6 +44,13 @@ public class RoleController {
     @GetMapping
     public ResponseEntity<List<RoleSummary>> roles() {
         var response = getRolesQuery.execute(new GetRolesQueryParams());
+        return ResponseEntity.ok(response);
+    }
+
+    @RequiresPermission(Permissions.IDENTITY_PRIVILEGE_ROLES_READ)
+    @GetMapping(RouteConstants.Privilege.ROLE)
+    public ResponseEntity<RoleSummary> role(@PathVariable UUID id) {
+        var response = getRoleQuery.execute(new GetRoleQueryParams(id));
         return ResponseEntity.ok(response);
     }
 
