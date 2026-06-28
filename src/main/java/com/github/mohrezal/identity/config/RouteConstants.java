@@ -41,5 +41,6 @@ public final class RouteConstants {
         public static final String PERMISSIONS = API_BASE + "permissions";
         public static final String ROLES = API_BASE + "roles";
         public static final String ROLE = "{id}";
+        public static final String ROLE_ASSIGNMENTS = "assignments/{userId}";
     }
 }

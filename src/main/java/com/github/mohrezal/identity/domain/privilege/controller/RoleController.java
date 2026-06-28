@@ -3,12 +3,15 @@ package com.github.mohrezal.identity.domain.privilege.controller;
 import com.github.mohrezal.identity.config.RouteConstants;
 import com.github.mohrezal.identity.domain.privilege.command.CreateRoleCommand;
 import com.github.mohrezal.identity.domain.privilege.command.UpdateRoleCommand;
+import com.github.mohrezal.identity.domain.privilege.command.UpdateUserRolesCommand;
 import com.github.mohrezal.identity.domain.privilege.command.param.CreateRoleCommandParams;
 import com.github.mohrezal.identity.domain.privilege.command.param.UpdateRoleCommandParams;
+import com.github.mohrezal.identity.domain.privilege.command.param.UpdateUserRolesCommandParams;
 import com.github.mohrezal.identity.domain.privilege.constant.Permissions;
 import com.github.mohrezal.identity.domain.privilege.dto.CreateRoleRequest;
 import com.github.mohrezal.identity.domain.privilege.dto.RoleSummary;
 import com.github.mohrezal.identity.domain.privilege.dto.UpdateRoleRequest;
+import com.github.mohrezal.identity.domain.privilege.dto.UpdateUserRolesRequest;
 import com.github.mohrezal.identity.domain.privilege.query.GetRoleQuery;
 import com.github.mohrezal.identity.domain.privilege.query.GetRolesQuery;
 import com.github.mohrezal.identity.domain.privilege.query.param.GetRoleQueryParams;
@@ -39,6 +42,7 @@ public class RoleController {
     private final GetRoleQuery getRoleQuery;
     private final CreateRoleCommand createRoleCommand;
     private final UpdateRoleCommand updateRoleCommand;
+    private final UpdateUserRolesCommand updateUserRolesCommand;
 
     @RequiresPermission(Permissions.IDENTITY_PRIVILEGE_ROLES_READ)
     @GetMapping
@@ -66,6 +70,15 @@ public class RoleController {
     public ResponseEntity<RoleSummary> update(
             @PathVariable UUID id, @Valid @RequestBody UpdateRoleRequest body) {
         var response = updateRoleCommand.execute(new UpdateRoleCommandParams(id, body));
+        return ResponseEntity.ok(response);
+    }
+
+    @RequiresPermission(Permissions.IDENTITY_PRIVILEGE_USERS_ASSIGN_ROLES)
+    @PutMapping(RouteConstants.Privilege.ROLE_ASSIGNMENTS)
+    public ResponseEntity<List<RoleSummary>> updateUserRoles(
+            @PathVariable UUID userId, @Valid @RequestBody UpdateUserRolesRequest body) {
+        var response =
+                updateUserRolesCommand.execute(new UpdateUserRolesCommandParams(userId, body));
         return ResponseEntity.ok(response);
     }
 }
