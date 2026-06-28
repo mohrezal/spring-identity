@@ -1,6 +1,8 @@
 package com.github.mohrezal.identity.domain.privilege.exception;
 
+import com.github.mohrezal.identity.domain.privilege.exception.type.ConfiguredRoleCannotBeDeletedException;
 import com.github.mohrezal.identity.domain.privilege.exception.type.PermissionNotFoundException;
+import com.github.mohrezal.identity.domain.privilege.exception.type.RoleAssignedToUsersException;
 import com.github.mohrezal.identity.domain.privilege.exception.type.RoleKeyAlreadyExistsException;
 import com.github.mohrezal.identity.domain.privilege.exception.type.RoleNotFoundException;
 import com.github.mohrezal.identity.shared.exception.AbstractExceptionHandler;
@@ -23,7 +25,9 @@ public class PrivilegeExceptionHandler extends AbstractExceptionHandler {
     }
 
     @ExceptionHandler({
+        ConfiguredRoleCannotBeDeletedException.class,
         PermissionNotFoundException.class,
+        RoleAssignedToUsersException.class,
         RoleKeyAlreadyExistsException.class,
         RoleNotFoundException.class
     })

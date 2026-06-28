@@ -2,9 +2,11 @@ package com.github.mohrezal.identity.domain.privilege.controller;
 
 import com.github.mohrezal.identity.config.RouteConstants;
 import com.github.mohrezal.identity.domain.privilege.command.CreateRoleCommand;
+import com.github.mohrezal.identity.domain.privilege.command.DeleteRoleCommand;
 import com.github.mohrezal.identity.domain.privilege.command.UpdateRoleCommand;
 import com.github.mohrezal.identity.domain.privilege.command.UpdateUserRolesCommand;
 import com.github.mohrezal.identity.domain.privilege.command.param.CreateRoleCommandParams;
+import com.github.mohrezal.identity.domain.privilege.command.param.DeleteRoleCommandParams;
 import com.github.mohrezal.identity.domain.privilege.command.param.UpdateRoleCommandParams;
 import com.github.mohrezal.identity.domain.privilege.command.param.UpdateUserRolesCommandParams;
 import com.github.mohrezal.identity.domain.privilege.constant.Permissions;
@@ -26,6 +28,7 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -44,6 +47,7 @@ public class RoleController {
     private final GetRoleQuery getRoleQuery;
     private final GetUserRolesQuery getUserRolesQuery;
     private final CreateRoleCommand createRoleCommand;
+    private final DeleteRoleCommand deleteRoleCommand;
     private final UpdateRoleCommand updateRoleCommand;
     private final UpdateUserRolesCommand updateUserRolesCommand;
 
@@ -90,5 +94,12 @@ public class RoleController {
     public ResponseEntity<List<RoleSummary>> userRoles(@PathVariable UUID userId) {
         var response = getUserRolesQuery.execute(new GetUserRolesQueryParams(userId));
         return ResponseEntity.ok(response);
+    }
+
+    @RequiresPermission(Permissions.IDENTITY_PRIVILEGE_ROLES_DELETE)
+    @DeleteMapping(RouteConstants.Privilege.ROLE)
+    public ResponseEntity<Void> delete(@PathVariable UUID id) {
+        deleteRoleCommand.execute(new DeleteRoleCommandParams(id));
+        return ResponseEntity.noContent().build();
     }
 }

@@ -33,7 +33,10 @@ public enum AppMessage {
     USER_NOT_FOUND("user.error.not-found"),
     PRIVILEGE_PERMISSION_NOT_FOUND("privilege.error.permission-not-found"),
     PRIVILEGE_ROLE_NOT_FOUND("privilege.error.role-not-found"),
-    PRIVILEGE_ROLE_KEY_ALREADY_EXISTS("privilege.error.role-key-already-exists");
+    PRIVILEGE_ROLE_KEY_ALREADY_EXISTS("privilege.error.role-key-already-exists"),
+    PRIVILEGE_CONFIGURED_ROLE_CANNOT_BE_DELETED(
+            "privilege.error.configured-role-cannot-be-deleted"),
+    PRIVILEGE_ROLE_ASSIGNED_TO_USERS("privilege.error.role-assigned-to-users");
 
     private final String messageKey;
 

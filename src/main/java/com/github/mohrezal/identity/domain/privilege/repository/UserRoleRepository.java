@@ -23,6 +23,8 @@ public interface UserRoleRepository extends JpaRepository<UserRole, UUID> {
 
     boolean existsByUserAndRole(User user, Role role);
 
+    boolean existsByRole(Role role);
+
     @Query(
             """
             SELECT DISTINCT permission.key
