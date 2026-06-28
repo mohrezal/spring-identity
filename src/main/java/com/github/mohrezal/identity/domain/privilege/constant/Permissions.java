@@ -14,6 +14,8 @@ public final class Permissions {
             "identity.auth.oauth-connections.unlink";
     public static final String IDENTITY_PRIVILEGE_PERMISSIONS_READ =
             "identity.privilege.permissions.read";
+    public static final String IDENTITY_PRIVILEGE_PERMISSIONS_UPDATE =
+            "identity.privilege.permissions.update";
     public static final String IDENTITY_PRIVILEGE_ROLES_READ = "identity.privilege.roles.read";
     public static final String IDENTITY_PRIVILEGE_ROLES_CREATE = "identity.privilege.roles.create";
     public static final String IDENTITY_PRIVILEGE_ROLES_UPDATE = "identity.privilege.roles.update";
