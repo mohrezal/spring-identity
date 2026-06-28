@@ -14,8 +14,10 @@ import com.github.mohrezal.identity.domain.privilege.dto.UpdateRoleRequest;
 import com.github.mohrezal.identity.domain.privilege.dto.UpdateUserRolesRequest;
 import com.github.mohrezal.identity.domain.privilege.query.GetRoleQuery;
 import com.github.mohrezal.identity.domain.privilege.query.GetRolesQuery;
+import com.github.mohrezal.identity.domain.privilege.query.GetUserRolesQuery;
 import com.github.mohrezal.identity.domain.privilege.query.param.GetRoleQueryParams;
 import com.github.mohrezal.identity.domain.privilege.query.param.GetRolesQueryParams;
+import com.github.mohrezal.identity.domain.privilege.query.param.GetUserRolesQueryParams;
 import com.github.mohrezal.identity.shared.annotation.RequiresPermission;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -40,6 +42,7 @@ public class RoleController {
 
     private final GetRolesQuery getRolesQuery;
     private final GetRoleQuery getRoleQuery;
+    private final GetUserRolesQuery getUserRolesQuery;
     private final CreateRoleCommand createRoleCommand;
     private final UpdateRoleCommand updateRoleCommand;
     private final UpdateUserRolesCommand updateUserRolesCommand;
@@ -79,6 +82,13 @@ public class RoleController {
             @PathVariable UUID userId, @Valid @RequestBody UpdateUserRolesRequest body) {
         var response =
                 updateUserRolesCommand.execute(new UpdateUserRolesCommandParams(userId, body));
+        return ResponseEntity.ok(response);
+    }
+
+    @RequiresPermission(Permissions.IDENTITY_PRIVILEGE_ROLES_READ)
+    @GetMapping(RouteConstants.Privilege.ROLE_ASSIGNMENTS)
+    public ResponseEntity<List<RoleSummary>> userRoles(@PathVariable UUID userId) {
+        var response = getUserRolesQuery.execute(new GetUserRolesQueryParams(userId));
         return ResponseEntity.ok(response);
     }
 }

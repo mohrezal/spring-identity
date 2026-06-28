@@ -27,6 +27,6 @@ public interface RoleRepository extends JpaRepository<Role, UUID> {
     Optional<Role> findByIdWithPermissions(@Param("id") UUID id);
 
     @EntityGraph(attributePaths = {"permissions", "permissions.permission"})
-    @Query("SELECT DISTINCT role FROM Role role WHERE role.id IN :ids")
+    @Query("SELECT role FROM Role role WHERE role.id IN :ids")
     List<Role> findAllByIdWithPermissions(@Param("ids") Set<UUID> ids);
 }
