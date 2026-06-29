@@ -24,8 +24,7 @@ public class Permission extends BaseModel {
     @Column(name = "name", nullable = false, length = 150)
     private String name;
 
-    @Setter
-    @Column(name = "service", nullable = false, length = 100)
+    @Column(name = "service", nullable = false, updatable = false, length = 100)
     private String service;
 
     @Setter

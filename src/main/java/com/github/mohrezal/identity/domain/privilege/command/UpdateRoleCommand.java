@@ -1,7 +1,9 @@
 package com.github.mohrezal.identity.domain.privilege.command;
 
+import com.github.mohrezal.identity.config.ApplicationProperties;
 import com.github.mohrezal.identity.domain.privilege.command.param.UpdateRoleCommandParams;
 import com.github.mohrezal.identity.domain.privilege.dto.RoleSummary;
+import com.github.mohrezal.identity.domain.privilege.exception.type.OwnerRoleCannotBeUpdatedException;
 import com.github.mohrezal.identity.domain.privilege.exception.type.PermissionNotFoundException;
 import com.github.mohrezal.identity.domain.privilege.exception.type.RoleNotFoundException;
 import com.github.mohrezal.identity.domain.privilege.mapper.RoleMapper;
@@ -20,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class UpdateRoleCommand implements Command<UpdateRoleCommandParams, RoleSummary> {
 
+    private final ApplicationProperties applicationProperties;
     private final RoleRepository roleRepository;
     private final PermissionRepository permissionRepository;
     private final RoleMapper roleMapper;
@@ -31,6 +34,11 @@ public class UpdateRoleCommand implements Command<UpdateRoleCommandParams, RoleS
                 roleRepository
                         .findByIdWithPermissions(params.roleId())
                         .orElseThrow(RoleNotFoundException::new);
+
+        if (role.getKey().equals(applicationProperties.privilege().role().owner().key())) {
+            throw new OwnerRoleCannotBeUpdatedException();
+        }
+
         var request = params.request();
         var permissionIds = request.permissionIds();
         var permissions = permissionRepository.findAllById(permissionIds);

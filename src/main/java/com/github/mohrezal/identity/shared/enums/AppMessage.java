@@ -36,6 +36,7 @@ public enum AppMessage {
     PRIVILEGE_ROLE_KEY_ALREADY_EXISTS("privilege.error.role-key-already-exists"),
     PRIVILEGE_CONFIGURED_ROLE_CANNOT_BE_DELETED(
             "privilege.error.configured-role-cannot-be-deleted"),
+    PRIVILEGE_OWNER_ROLE_CANNOT_BE_UPDATED("privilege.error.owner-role-cannot-be-updated"),
     PRIVILEGE_ROLE_ASSIGNED_TO_USERS("privilege.error.role-assigned-to-users");
 
     private final String messageKey;
