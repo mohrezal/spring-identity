@@ -165,7 +165,7 @@ public class AuthController {
                 .build();
     }
 
-    @Authenticated
+    @RequiresPermission(Permissions.IDENTITY_AUTH_SESSIONS_REVOKE_ALL)
     @PostMapping(RouteConstants.Auth.LOGOUT_ALL)
     public ResponseEntity<?> logoutAll(@AuthenticationPrincipal UserDetails userDetails) {
         var params = new LogoutAllCommandParams(userDetails);
