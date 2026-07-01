@@ -1,7 +1,9 @@
 package com.github.mohrezal.identity.domain.privilege.command;
 
+import com.github.mohrezal.identity.config.ApplicationProperties;
 import com.github.mohrezal.identity.domain.privilege.command.param.UpdateUserRolesCommandParams;
 import com.github.mohrezal.identity.domain.privilege.dto.RoleSummary;
+import com.github.mohrezal.identity.domain.privilege.exception.type.LastOwnerRoleCannotBeRemovedException;
 import com.github.mohrezal.identity.domain.privilege.exception.type.RoleNotFoundException;
 import com.github.mohrezal.identity.domain.privilege.mapper.RoleMapper;
 import com.github.mohrezal.identity.domain.privilege.model.Role;
@@ -24,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UpdateUserRolesCommand
         implements Command<UpdateUserRolesCommandParams, List<RoleSummary>> {
 
+    private final ApplicationProperties applicationProperties;
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final UserRoleRepository userRoleRepository;
@@ -39,6 +42,23 @@ public class UpdateUserRolesCommand
 
         if (roles.size() != roleIds.size()) {
             throw new RoleNotFoundException();
+        }
+
+        var configuredOwnerRoleKey = applicationProperties.privilege().role().owner().key();
+        var ownerRole =
+                roleRepository
+                        .findByKeyForUpdate(configuredOwnerRoleKey)
+                        .orElseThrow(
+                                () ->
+                                        new IllegalStateException(
+                                                "Configured owner role not found: "
+                                                        + configuredOwnerRoleKey));
+        var removesOwnerRole =
+                !roleIds.contains(ownerRole.getId())
+                        && userRoleRepository.existsByUserAndRole(user, ownerRole);
+
+        if (removesOwnerRole && userRoleRepository.countByRole(ownerRole) == 1) {
+            throw new LastOwnerRoleCannotBeRemovedException();
         }
 
         var existingAssignments = userRoleRepository.findAllByUser(user);

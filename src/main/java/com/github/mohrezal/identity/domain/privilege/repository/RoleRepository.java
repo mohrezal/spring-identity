@@ -1,12 +1,14 @@
 package com.github.mohrezal.identity.domain.privilege.repository;
 
 import com.github.mohrezal.identity.domain.privilege.model.Role;
+import jakarta.persistence.LockModeType;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -15,6 +17,10 @@ import org.springframework.stereotype.Repository;
 public interface RoleRepository extends JpaRepository<Role, UUID> {
 
     Optional<Role> findByKey(String key);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT role FROM Role role WHERE role.key = :key")
+    Optional<Role> findByKeyForUpdate(@Param("key") String key);
 
     boolean existsByKey(String key);
 

@@ -1,6 +1,7 @@
 package com.github.mohrezal.identity.domain.privilege.exception;
 
 import com.github.mohrezal.identity.domain.privilege.exception.type.ConfiguredRoleCannotBeDeletedException;
+import com.github.mohrezal.identity.domain.privilege.exception.type.LastOwnerRoleCannotBeRemovedException;
 import com.github.mohrezal.identity.domain.privilege.exception.type.OwnerRoleCannotBeUpdatedException;
 import com.github.mohrezal.identity.domain.privilege.exception.type.PermissionNotFoundException;
 import com.github.mohrezal.identity.domain.privilege.exception.type.RoleAssignedToUsersException;
@@ -27,6 +28,7 @@ public class PrivilegeExceptionHandler extends AbstractExceptionHandler {
 
     @ExceptionHandler({
         ConfiguredRoleCannotBeDeletedException.class,
+        LastOwnerRoleCannotBeRemovedException.class,
         OwnerRoleCannotBeUpdatedException.class,
         PermissionNotFoundException.class,
         RoleAssignedToUsersException.class,

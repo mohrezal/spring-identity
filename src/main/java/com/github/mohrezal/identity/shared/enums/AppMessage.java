@@ -37,6 +37,8 @@ public enum AppMessage {
     PRIVILEGE_CONFIGURED_ROLE_CANNOT_BE_DELETED(
             "privilege.error.configured-role-cannot-be-deleted"),
     PRIVILEGE_OWNER_ROLE_CANNOT_BE_UPDATED("privilege.error.owner-role-cannot-be-updated"),
+    PRIVILEGE_LAST_OWNER_ROLE_CANNOT_BE_REMOVED(
+            "privilege.error.last-owner-role-cannot-be-removed"),
     PRIVILEGE_ROLE_ASSIGNED_TO_USERS("privilege.error.role-assigned-to-users");
 
     private final String messageKey;

@@ -25,6 +25,8 @@ public interface UserRoleRepository extends JpaRepository<UserRole, UUID> {
 
     boolean existsByRole(Role role);
 
+    long countByRole(Role role);
+
     @Query(
             """
             SELECT DISTINCT permission.key
