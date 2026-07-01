@@ -58,7 +58,7 @@ public class OAuthController {
         return ResponseEntity.ok(response);
     }
 
-    @Authenticated
+    @RequiresPermission(Permissions.IDENTITY_AUTH_OAUTH_CONNECTIONS_UNLINK)
     @DeleteMapping(RouteConstants.Auth.OAuth.CONNECTION)
     public ResponseEntity<Void> unlinkConnection(
             @PathVariable UUID id, @AuthenticationPrincipal UserDetails userDetails) {
