@@ -32,6 +32,8 @@ public enum AppMessage {
     USER_ALREADY_VERIFIED("user.error.already-verified"),
     USER_NOT_FOUND("user.error.not-found"),
     PRIVILEGE_PERMISSION_NOT_FOUND("privilege.error.permission-not-found"),
+    PRIVILEGE_PROTECTED_PERMISSION_CANNOT_BE_DISABLED(
+            "privilege.error.protected-permission-cannot-be-disabled"),
     PRIVILEGE_ROLE_NOT_FOUND("privilege.error.role-not-found"),
     PRIVILEGE_ROLE_KEY_ALREADY_EXISTS("privilege.error.role-key-already-exists"),
     PRIVILEGE_CONFIGURED_ROLE_CANNOT_BE_DELETED(

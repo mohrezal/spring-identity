@@ -4,6 +4,7 @@ import com.github.mohrezal.identity.domain.privilege.exception.type.ConfiguredRo
 import com.github.mohrezal.identity.domain.privilege.exception.type.LastOwnerRoleCannotBeRemovedException;
 import com.github.mohrezal.identity.domain.privilege.exception.type.OwnerRoleCannotBeUpdatedException;
 import com.github.mohrezal.identity.domain.privilege.exception.type.PermissionNotFoundException;
+import com.github.mohrezal.identity.domain.privilege.exception.type.ProtectedPermissionCannotBeDisabledException;
 import com.github.mohrezal.identity.domain.privilege.exception.type.RoleAssignedToUsersException;
 import com.github.mohrezal.identity.domain.privilege.exception.type.RoleKeyAlreadyExistsException;
 import com.github.mohrezal.identity.domain.privilege.exception.type.RoleNotFoundException;
@@ -31,6 +32,7 @@ public class PrivilegeExceptionHandler extends AbstractExceptionHandler {
         LastOwnerRoleCannotBeRemovedException.class,
         OwnerRoleCannotBeUpdatedException.class,
         PermissionNotFoundException.class,
+        ProtectedPermissionCannotBeDisabledException.class,
         RoleAssignedToUsersException.class,
         RoleKeyAlreadyExistsException.class,
         RoleNotFoundException.class
