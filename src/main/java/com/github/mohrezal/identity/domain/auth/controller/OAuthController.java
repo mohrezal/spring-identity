@@ -13,7 +13,9 @@ import com.github.mohrezal.identity.domain.auth.query.OAuthCallbackQuery;
 import com.github.mohrezal.identity.domain.auth.query.param.GetOAuthConnectionsQueryParams;
 import com.github.mohrezal.identity.domain.auth.query.param.OAuthAuthorizeQueryParams;
 import com.github.mohrezal.identity.domain.auth.query.param.OAuthCallbackQueryParams;
+import com.github.mohrezal.identity.domain.privilege.constant.Permissions;
 import com.github.mohrezal.identity.shared.annotation.Authenticated;
+import com.github.mohrezal.identity.shared.annotation.RequiresPermission;
 import com.github.mohrezal.identity.shared.service.ClientIpService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
@@ -47,7 +49,7 @@ public class OAuthController {
     private final ClientIpService clientIpService;
     private final ApplicationProperties applicationProperties;
 
-    @Authenticated
+    @RequiresPermission(Permissions.IDENTITY_AUTH_OAUTH_CONNECTIONS_READ)
     @GetMapping(RouteConstants.Auth.OAuth.CONNECTIONS)
     public ResponseEntity<List<OAuthConnectionSummary>> connections(
             @AuthenticationPrincipal UserDetails userDetails) {
