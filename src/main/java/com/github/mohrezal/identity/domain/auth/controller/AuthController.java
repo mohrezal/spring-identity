@@ -263,7 +263,7 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
-    @Authenticated
+    @RequiresPermission(Permissions.IDENTITY_AUTH_SESSIONS_REVOKE)
     @DeleteMapping(RouteConstants.Auth.SESSIONS + "/{id}")
     public ResponseEntity<?> revokeSession(
             @AuthenticationPrincipal UserDetails userDetails,
