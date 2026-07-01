@@ -28,6 +28,11 @@ public final class PermissionCatalog {
                     Permissions.IDENTITY_AUTH_OAUTH_CONNECTIONS_READ,
                     "Read OAuth connections",
                     IDENTITY_SERVICE);
+    private static final Definition IDENTITY_AUTH_OAUTH_CONNECTIONS_LINK =
+            new Definition(
+                    Permissions.IDENTITY_AUTH_OAUTH_CONNECTIONS_LINK,
+                    "Link OAuth connections",
+                    IDENTITY_SERVICE);
     private static final Definition IDENTITY_AUTH_OAUTH_CONNECTIONS_UNLINK =
             new Definition(
                     Permissions.IDENTITY_AUTH_OAUTH_CONNECTIONS_UNLINK,
@@ -75,6 +80,7 @@ public final class PermissionCatalog {
                     IDENTITY_AUTH_SESSIONS_REVOKE,
                     IDENTITY_AUTH_SESSIONS_REVOKE_ALL,
                     IDENTITY_AUTH_OAUTH_CONNECTIONS_READ,
+                    IDENTITY_AUTH_OAUTH_CONNECTIONS_LINK,
                     IDENTITY_AUTH_OAUTH_CONNECTIONS_UNLINK);
 
     public static final List<Definition> ALL =
@@ -83,6 +89,7 @@ public final class PermissionCatalog {
                     IDENTITY_AUTH_SESSIONS_REVOKE,
                     IDENTITY_AUTH_SESSIONS_REVOKE_ALL,
                     IDENTITY_AUTH_OAUTH_CONNECTIONS_READ,
+                    IDENTITY_AUTH_OAUTH_CONNECTIONS_LINK,
                     IDENTITY_AUTH_OAUTH_CONNECTIONS_UNLINK,
                     IDENTITY_PRIVILEGE_PERMISSIONS_READ,
                     IDENTITY_PRIVILEGE_PERMISSIONS_UPDATE,

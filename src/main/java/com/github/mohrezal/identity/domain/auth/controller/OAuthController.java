@@ -14,7 +14,6 @@ import com.github.mohrezal.identity.domain.auth.query.param.GetOAuthConnectionsQ
 import com.github.mohrezal.identity.domain.auth.query.param.OAuthAuthorizeQueryParams;
 import com.github.mohrezal.identity.domain.auth.query.param.OAuthCallbackQueryParams;
 import com.github.mohrezal.identity.domain.privilege.constant.Permissions;
-import com.github.mohrezal.identity.shared.annotation.Authenticated;
 import com.github.mohrezal.identity.shared.annotation.RequiresPermission;
 import com.github.mohrezal.identity.shared.service.ClientIpService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -89,7 +88,7 @@ public class OAuthController {
                 .build();
     }
 
-    @Authenticated
+    @RequiresPermission(Permissions.IDENTITY_AUTH_OAUTH_CONNECTIONS_LINK)
     @GetMapping(RouteConstants.Auth.OAuth.LINK)
     public ResponseEntity<?> link(
             @PathVariable String provider,

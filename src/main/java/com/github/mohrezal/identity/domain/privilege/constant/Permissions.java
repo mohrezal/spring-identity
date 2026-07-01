@@ -10,6 +10,8 @@ public final class Permissions {
             "identity.auth.sessions.revoke-all";
     public static final String IDENTITY_AUTH_OAUTH_CONNECTIONS_READ =
             "identity.auth.oauth-connections.read";
+    public static final String IDENTITY_AUTH_OAUTH_CONNECTIONS_LINK =
+            "identity.auth.oauth-connections.link";
     public static final String IDENTITY_AUTH_OAUTH_CONNECTIONS_UNLINK =
             "identity.auth.oauth-connections.unlink";
     public static final String IDENTITY_PRIVILEGE_PERMISSIONS_READ =
