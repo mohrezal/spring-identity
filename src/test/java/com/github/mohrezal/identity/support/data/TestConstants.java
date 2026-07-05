@@ -25,4 +25,11 @@ public final class TestConstants {
         public static final String USER_AGENT = "Test Browser";
         public static final String OTHER_USER_AGENT = "Replacement Browser";
     }
+
+    public static final class Account {
+        private Account() {}
+
+        public static final String EMAIL = "user@client.test";
+        public static final String PASSWORD = "Password1!";
+    }
 }
