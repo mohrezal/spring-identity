@@ -308,7 +308,7 @@
                         </googleJavaFormat>
                         <replaceRegex>
                             <name>Place field annotations on separate lines</name>
-                            <searchRegex>(?m)^([ \t]*)(@(Autowired|Mock)) private </searchRegex>
+                            <searchRegex>(?m)^([ \t]*)(@(Autowired|InjectMocks|Mock)) private </searchRegex>
                             <replacement>$1$2&#10;$1private </replacement>
                         </replaceRegex>
                         <removeUnusedImports/>

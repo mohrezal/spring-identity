@@ -5,7 +5,6 @@ import static com.github.mohrezal.identity.support.data.TestConstants.Origin.LOC
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.github.mohrezal.identity.config.ApplicationProperties;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -14,6 +13,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.context.ConfigDataApplicationContextInitializer;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
@@ -27,14 +27,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 class RedirectValidationServiceTest {
 
     @Autowired
-    private ApplicationProperties applicationProperties;
-
     private RedirectValidationService service;
-
-    @BeforeEach
-    void setUp() {
-        service = new RedirectValidationService(applicationProperties);
-    }
 
     @ParameterizedTest
     @ValueSource(
@@ -72,5 +65,12 @@ class RedirectValidationServiceTest {
 
     @Configuration(proxyBeanMethods = false)
     @EnableConfigurationProperties(ApplicationProperties.class)
-    static class TestConfiguration {}
+    static class TestConfiguration {
+
+        @Bean
+        RedirectValidationService redirectValidationService(
+                ApplicationProperties applicationProperties) {
+            return new RedirectValidationService(applicationProperties);
+        }
+    }
 }

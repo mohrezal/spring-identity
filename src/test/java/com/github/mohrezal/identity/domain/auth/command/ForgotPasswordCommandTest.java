@@ -17,10 +17,10 @@ import com.github.mohrezal.identity.shared.redis.RedisService;
 import com.github.mohrezal.identity.shared.service.RedirectValidationService;
 import java.util.Optional;
 import java.util.UUID;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
@@ -42,14 +42,8 @@ class ForgotPasswordCommandTest {
     @Mock
     private ApplicationEventPublisher eventPublisher;
 
+    @InjectMocks
     private ForgotPasswordCommand command;
-
-    @BeforeEach
-    void setUp() {
-        command =
-                new ForgotPasswordCommand(
-                        redirectValidationService, userRepository, redisService, eventPublisher);
-    }
 
     @Test
     void execute_whenEmailIsUnknown_returnsSuccessWithoutCreatingResetState() {
