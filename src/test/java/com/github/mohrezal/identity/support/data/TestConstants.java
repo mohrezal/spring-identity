@@ -31,5 +31,6 @@ public final class TestConstants {
 
         public static final String EMAIL = "user@client.test";
         public static final String PASSWORD = "Password1!";
+        public static final String NEW_PASSWORD = "NewPassword1!";
     }
 }
