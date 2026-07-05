@@ -36,7 +36,7 @@ public class RefreshTokenCommand implements Command<RefreshTokenCommandParams, A
         var hashedRefreshToken = hashService.hashHex(params.rawRefreshToken());
         var refreshToken =
                 refreshTokenRepository
-                        .findByHashedToken(hashedRefreshToken)
+                        .findByHashedTokenForUpdate(hashedRefreshToken)
                         .orElseThrow(UnauthorizedException::new);
         if (!refreshToken.isActive()) {
             log.warn(
