@@ -11,29 +11,23 @@ import com.github.mohrezal.identity.config.RouteConstants;
 import com.github.mohrezal.identity.domain.auth.dto.oauth.OAuthStatePayload;
 import com.github.mohrezal.identity.domain.auth.enums.OAuthFlowType;
 import com.github.mohrezal.identity.domain.auth.enums.OAuthProviderType;
-import com.github.mohrezal.identity.domain.auth.service.oauth.OAuthProvider;
 import com.github.mohrezal.identity.shared.enums.RedisKey;
 import com.github.mohrezal.identity.shared.redis.RedisService;
-import com.github.mohrezal.identity.support.IntegrationTestSupport;
-import com.github.mohrezal.identity.support.oauth.FakeOAuthProvider;
+import com.github.mohrezal.identity.support.OAuthIntegrationTestSupport;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpHeaders;
-import org.springframework.test.context.bean.override.convention.TestBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.util.UriComponentsBuilder;
 
-class OAuthAuthorizeEndpointIT extends IntegrationTestSupport {
+class OAuthAuthorizeEndpointIT extends OAuthIntegrationTestSupport {
 
     private static final String AUTHORIZE_PATH =
             RouteConstants.build(
                             RouteConstants.Auth.OAuth.BASE, RouteConstants.Auth.OAuth.AUTHORIZE)
                     .replace("{provider}", OAuthProviderType.GOOGLE.getName());
-
-    @TestBean(name = "googleOAuthProvider", enforceOverride = true)
-    private OAuthProvider oAuthProvider;
 
     @Autowired
     private MockMvc mockMvc;
@@ -79,9 +73,5 @@ class OAuthAuthorizeEndpointIT extends IntegrationTestSupport {
         assertThat(correlationCookie.getValue()).isEqualTo(storedState.correlationId());
         assertThat(redisTemplate.getExpire(RedisKey.OAUTH_STATE.resolve(state), TimeUnit.SECONDS))
                 .isPositive();
-    }
-
-    private static OAuthProvider oAuthProvider() {
-        return new FakeOAuthProvider();
     }
 }
