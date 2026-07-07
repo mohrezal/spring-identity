@@ -1,0 +1,97 @@
+spring:
+  application:
+    name: identity-test
+  jpa:
+    open-in-view: false
+    show-sql: false
+    hibernate:
+      ddl-auto: validate
+  liquibase:
+    enabled: true
+    change-log: classpath:/db/changelog/db.changelog-master.yml
+
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
+
+app:
+  owner:
+    email: owner@client.test
+  privilege:
+    role:
+      owner:
+        key: owner
+        name: Owner
+      user:
+        key: user
+        name: User
+  security:
+    secret: test-signing-secret-with-more-than-thirty-two-bytes
+    verification-token-ttl: 30m
+    password-reset-token-ttl: 15m
+    allowed-origins:
+      - https://client.test
+      - http://localhost:3000
+    cookie:
+      csrf:
+        path: /
+        secure: false
+        same-site: Lax
+      access-token:
+        name: user_info
+        path: /
+        http-only: true
+        secure: false
+        same-site: Lax
+        ttl: 15m
+      refresh-token:
+        name: user_refresh
+        path: /
+        http-only: true
+        secure: false
+        same-site: Lax
+        ttl: 14d
+      oauth-state:
+        name: oauth_state
+        path: /api/auth/o
+        http-only: true
+        secure: false
+        same-site: Lax
+        ttl: 10m
+    oauth:
+      google:
+        client-id: test-google-client
+        client-secret: test-google-secret
+        redirect-uri: http://localhost/api/auth/o/google/callback
+        scopes:
+          - email
+          - profile
+  rate-limit:
+    policies:
+      - key: auth-login
+        method: POST
+        path: /api/auth/login
+        window: 5m
+        ip-limit: 50
+      - key: auth-forgot-password
+        method: POST
+        path: /api/auth/forgot-password
+        window: 15m
+        ip-limit: 20
+      - key: auth-resend-email-verification
+        method: POST
+        path: /api/auth/resend-email-verification
+        window: 15m
+        ip-limit: 20
+      - key: oauth-authorize
+        method: GET
+        path: /api/auth/o/*/authorize
+        window: 5m
+        ip-limit: 30
+      - key: oauth-link
+        method: GET
+        path: /api/auth/o/*/link
+        window: 5m
+        user-limit: 10

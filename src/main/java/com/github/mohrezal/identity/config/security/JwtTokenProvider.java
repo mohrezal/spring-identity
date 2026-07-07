@@ -60,6 +60,7 @@ public class JwtTokenProvider {
     public String createRefreshToken(UUID userId) {
         var now = Instant.now();
         return Jwts.builder()
+                .id(UUID.randomUUID().toString())
                 .subject(userId.toString())
                 .issuedAt(Date.from(now))
                 .expiration(

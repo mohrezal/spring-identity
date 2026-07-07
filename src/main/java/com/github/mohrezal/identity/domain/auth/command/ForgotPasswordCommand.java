@@ -48,7 +48,7 @@ public class ForgotPasswordCommand implements Command<ForgotPasswordCommandParam
         redisService.set(RedisKey.PASSWORD_RESET_TOKEN, user.get().getEmail(), token);
 
         var resetUrl =
-                UriComponentsBuilder.fromPath(params.redirectUrl())
+                UriComponentsBuilder.fromUriString(params.redirectUrl())
                         .queryParam("token", token)
                         .toUriString();
 

@@ -63,7 +63,7 @@ public class RegisterCommand implements Command<RegisterCommandParams, RegisterR
         var token = UUID.randomUUID().toString();
         redisService.set(RedisKey.EMAIL_VERIFICATION_TOKEN, user.getEmail(), token);
         var activationUrl =
-                UriComponentsBuilder.fromPath(params.redirectUrl())
+                UriComponentsBuilder.fromUriString(params.redirectUrl())
                         .queryParam("token", token)
                         .toUriString();
         var emailVerificationEvent =

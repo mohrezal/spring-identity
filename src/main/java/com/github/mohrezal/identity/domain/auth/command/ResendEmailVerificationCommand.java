@@ -43,7 +43,7 @@ public class ResendEmailVerificationCommand
         var email = params.request().email();
         redisService.set(RedisKey.EMAIL_VERIFICATION_TOKEN, email, token);
         var activationUrl =
-                UriComponentsBuilder.fromPath(params.redirectUrl())
+                UriComponentsBuilder.fromUriString(params.redirectUrl())
                         .queryParam("token", token)
                         .toUriString();
         var emailVerificationEvent = new UserEmailVerificationMessage(email, activationUrl);
