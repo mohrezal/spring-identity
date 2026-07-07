@@ -42,6 +42,7 @@ permissions, which Spring Security enforces through method annotations.
 - Liquibase
 - MapStruct and Lombok
 - Docker and Docker Compose
+- JUnit, Mockito, and Testcontainers
 - Maven, Spotless, and Checkstyle
 
 ## What It Can Do
@@ -225,11 +226,28 @@ The owner account must already exist before running the owner seeder.
 
 ## Development
 
-Run tests:
+### Testing
+
+Run unit tests:
 
 ```bash
 ./mvnw test
 ```
+
+Run the full test suite, including Testcontainers integration tests:
+
+```bash
+./mvnw verify
+```
+
+Core tested areas:
+
+- authentication and session lifecycle
+- OAuth state and callback handling
+- Redis atomic operations and rate limiting
+- role, permission, and owner-role invariants
+- HTTP security contracts
+- RabbitMQ notification publishing
 
 Run formatting and static analysis:
 
