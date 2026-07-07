@@ -14,6 +14,7 @@ public final class TestConstants {
     public static final class Redirect {
         private Redirect() {}
 
+        public static final String EMAIL_VERIFICATION = Origin.CLIENT + "/verify-email";
         public static final String OAUTH_CALLBACK = Origin.CLIENT + "/oauth/callback";
         public static final String PASSWORD_RESET = Origin.CLIENT + "/reset-password";
     }
