@@ -116,11 +116,15 @@ class PrivilegeInvariantIT extends IntegrationTestSupport {
                         User.builder().email(EMAIL).firstName("Test").lastName("User").build());
         var configuredUserRole = applicationProperties.privilege().role().user();
         var userRole =
-                roleRepository.saveAndFlush(
-                        Role.builder()
-                                .key(configuredUserRole.key())
-                                .name(configuredUserRole.name())
-                                .build());
+                roleRepository
+                        .findByKey(configuredUserRole.key())
+                        .orElseGet(
+                                () ->
+                                        roleRepository.saveAndFlush(
+                                                Role.builder()
+                                                        .key(configuredUserRole.key())
+                                                        .name(configuredUserRole.name())
+                                                        .build()));
         var accessToken =
                 jwtTokenProvider.createAccessToken(
                         user.getId(), List.of(Permissions.IDENTITY_PRIVILEGE_ROLES_DELETE));
@@ -144,8 +148,15 @@ class PrivilegeInvariantIT extends IntegrationTestSupport {
                 userRepository.saveAndFlush(
                         User.builder().email(EMAIL).firstName("Test").lastName("User").build());
         var supportRole =
-                roleRepository.saveAndFlush(
-                        Role.builder().key("support").name("Support operators").build());
+                roleRepository
+                        .findByKey("support")
+                        .orElseGet(
+                                () ->
+                                        roleRepository.saveAndFlush(
+                                                Role.builder()
+                                                        .key("support")
+                                                        .name("Support operators")
+                                                        .build()));
         userRoleRepository.saveAndFlush(UserRole.builder().user(user).role(supportRole).build());
         var accessToken =
                 jwtTokenProvider.createAccessToken(
@@ -174,11 +185,15 @@ class PrivilegeInvariantIT extends IntegrationTestSupport {
                                 .build());
         var configuredOwnerRole = applicationProperties.privilege().role().owner();
         var ownerRole =
-                roleRepository.saveAndFlush(
-                        Role.builder()
-                                .key(configuredOwnerRole.key())
-                                .name(configuredOwnerRole.name())
-                                .build());
+                roleRepository
+                        .findByKey(configuredOwnerRole.key())
+                        .orElseGet(
+                                () ->
+                                        roleRepository.saveAndFlush(
+                                                Role.builder()
+                                                        .key(configuredOwnerRole.key())
+                                                        .name(configuredOwnerRole.name())
+                                                        .build()));
         userRoleRepository.saveAndFlush(UserRole.builder().user(owner).role(ownerRole).build());
         var accessToken =
                 jwtTokenProvider.createAccessToken(
