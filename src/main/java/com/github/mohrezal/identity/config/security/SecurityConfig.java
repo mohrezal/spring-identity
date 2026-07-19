@@ -65,8 +65,17 @@ public class SecurityConfig {
             CorsConfigurationSource corsConfigurationSource,
             CookieCsrfTokenRepository csrfTokenRepository)
             throws Exception {
+        org.springframework.security.web.csrf.XorCsrfTokenRequestAttributeHandler requestHandler =
+                new org.springframework.security.web.csrf.XorCsrfTokenRequestAttributeHandler();
+        // By setting the request attribute name to null, we ensure the token is resolved
+        // appropriately for SPAs
+        requestHandler.setCsrfRequestAttributeName(null);
+
         http.cors(cors -> cors.configurationSource(corsConfigurationSource))
-                .csrf(csrf -> csrf.spa().csrfTokenRepository(csrfTokenRepository))
+                .csrf(
+                        csrf ->
+                                csrf.csrfTokenRepository(csrfTokenRepository)
+                                        .csrfTokenRequestHandler(requestHandler))
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
                 .logout(AbstractHttpConfigurer::disable)
@@ -154,6 +163,7 @@ public class SecurityConfig {
     public CookieCsrfTokenRepository csrfTokenRepository() {
         var csrfCookie = applicationProperties.security().cookie().csrf();
         CookieCsrfTokenRepository repository = CookieCsrfTokenRepository.withHttpOnlyFalse();
+        repository.setHeaderName("X-XSRF-TOKEN");
         repository.setCookiePath(csrfCookie.path());
         repository.setCookieCustomizer(
                 cookie -> {

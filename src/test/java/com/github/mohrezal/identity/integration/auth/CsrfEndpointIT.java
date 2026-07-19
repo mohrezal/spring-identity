@@ -9,9 +9,12 @@ import com.github.mohrezal.identity.domain.auth.dto.CsrfTokenResponse;
 import com.github.mohrezal.identity.support.IntegrationTestSupport;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.web.servlet.MockMvc;
 import tools.jackson.databind.ObjectMapper;
 
+@DirtiesContext(classMode = ClassMode.BEFORE_CLASS)
 class CsrfEndpointIT extends IntegrationTestSupport {
 
     private static final String CSRF_PATH =

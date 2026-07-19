@@ -40,6 +40,7 @@ import com.github.mohrezal.identity.shared.service.ClientIpService;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import java.net.URI;
 import java.util.List;
@@ -50,6 +51,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -81,9 +83,14 @@ public class AuthController {
 
     private final ClientIpService clientIpService;
     private final ApplicationProperties applicationProperties;
+    private final CookieCsrfTokenRepository csrfTokenRepository;
 
     @GetMapping(RouteConstants.Auth.CSRF)
-    public ResponseEntity<CsrfTokenResponse> csrf(@Parameter(hidden = true) CsrfToken csrfToken) {
+    public ResponseEntity<CsrfTokenResponse> csrf(
+            @Parameter(hidden = true) CsrfToken csrfToken,
+            HttpServletRequest request,
+            HttpServletResponse response) {
+        csrfTokenRepository.saveToken(csrfToken, request, response);
         return ResponseEntity.ok(
                 new CsrfTokenResponse(csrfToken.getToken(), csrfToken.getHeaderName()));
     }
