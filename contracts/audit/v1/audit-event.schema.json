@@ -1,0 +1,266 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:spring-identity:audit-event:v1",
+  "title": "Audit Event v1",
+  "description": "Version 1 contract for audit events produced by Spring Identity.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "eventId",
+    "eventType",
+    "outcome",
+    "occurredAt",
+    "traceId",
+    "actor",
+    "subject",
+    "session",
+    "request",
+    "reason"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "integer",
+      "const": 1,
+      "description": "The audit event contract version."
+    },
+    "eventId": {
+      "type": "string",
+      "format": "uuid",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+      "description": "A stable UUID version 4 identifier for the audit event."
+    },
+    "eventType": {
+      "type": "string",
+      "enum": [
+        "LOGIN_SUCCEEDED",
+        "LOGIN_FAILED"
+      ],
+      "description": "The type of security-sensitive operation recorded."
+    },
+    "outcome": {
+      "type": "string",
+      "enum": [
+        "SUCCESS",
+        "FAILURE"
+      ],
+      "description": "Whether the audited operation succeeded or failed."
+    },
+    "occurredAt": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$",
+      "description": "The UTC timestamp when the audited operation occurred, with millisecond precision."
+    },
+    "traceId": {
+      "type": "string",
+      "pattern": "^(?!0{32}$)[0-9a-f]{32}$",
+      "description": "The non-zero lowercase OpenTelemetry trace identifier."
+    },
+    "actor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "userId"
+      ],
+      "properties": {
+        "userId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 128,
+          "description": "The identifier of the user who performed the operation, when known."
+        }
+      }
+    },
+    "subject": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "userId",
+        "email"
+      ],
+      "properties": {
+        "userId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 128,
+          "description": "The identifier of the affected user account, when known."
+        },
+        "email": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "email",
+          "pattern": "^[^\\sA-Z]+$",
+          "maxLength": 320,
+          "description": "The normalized lowercase email associated with the login attempt."
+        }
+      }
+    },
+    "session": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sessionId"
+      ],
+      "properties": {
+        "sessionId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 128,
+          "description": "The authenticated session identifier, when available."
+        }
+      }
+    },
+    "request": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "requestId",
+        "clientRequestId",
+        "ipAddress",
+        "userAgent",
+        "forwardedHost",
+        "forwardedProto"
+      ],
+      "properties": {
+        "requestId": {
+          "type": "string",
+          "pattern": "^(?!0{32}$)[0-9a-f]{32}$",
+          "description": "The trusted request identifier derived from the active trace."
+        },
+        "clientRequestId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 128,
+          "description": "An optional untrusted request identifier supplied by the client."
+        },
+        "ipAddress": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 45,
+          "description": "The trusted effective client IPv4 or IPv6 address."
+        },
+        "userAgent": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 1024,
+          "description": "The client User-Agent value when safe and available."
+        },
+        "forwardedHost": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 255,
+          "description": "The trusted forwarded host when proxy headers are enabled."
+        },
+        "forwardedProto": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            "http",
+            "https",
+            null
+          ],
+          "description": "The trusted forwarded protocol when available."
+        }
+      }
+    },
+    "reason": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "enum": [
+        "BAD_CREDENTIALS",
+        "ACCOUNT_DISABLED",
+        "ACCOUNT_LOCKED",
+        "AUTHENTICATION_FAILED",
+        null
+      ],
+      "description": "The controlled failure reason, or null for successful operations."
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "eventType": {
+            "const": "LOGIN_SUCCEEDED"
+          }
+        },
+        "required": [
+          "eventType"
+        ]
+      },
+      "then": {
+        "properties": {
+          "outcome": {
+            "const": "SUCCESS"
+          },
+          "reason": {
+            "const": null
+          },
+          "subject": {
+            "properties": {
+              "email": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "eventType": {
+            "const": "LOGIN_FAILED"
+          }
+        },
+        "required": [
+          "eventType"
+        ]
+      },
+      "then": {
+        "properties": {
+          "outcome": {
+            "const": "FAILURE"
+          },
+          "reason": {
+            "type": "string",
+            "enum": [
+              "BAD_CREDENTIALS",
+              "ACCOUNT_DISABLED",
+              "ACCOUNT_LOCKED",
+              "AUTHENTICATION_FAILED"
+            ]
+          },
+          "subject": {
+            "properties": {
+              "email": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

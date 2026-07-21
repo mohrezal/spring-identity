@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "eventId": "550e8400-e29b-41d4-a716-446655440002",
+  "eventType": "LOGIN_SUCCEEDED",
+  "outcome": "SUCCESS",
+  "occurredAt": "2026-07-21T10:17:30.789Z",
+  "traceId": "1234567890abcdef1234567890abcdef",
+  "actor": {},
+  "subject": {
+    "userId": "user-123",
+    "email": "user@example.com"
+  }
+}
