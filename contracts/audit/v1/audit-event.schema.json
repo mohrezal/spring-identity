@@ -69,7 +69,7 @@
             "string",
             "null"
           ],
-          "maxLength": 128,
+          "format": "uuid",
           "description": "The identifier of the user who performed the operation, when known."
         }
       }

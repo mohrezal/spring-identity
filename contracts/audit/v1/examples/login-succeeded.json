@@ -6,10 +6,10 @@
   "occurredAt": "2026-07-21T10:15:30.123Z",
   "traceId": "4bf92f3577b34da6a3ce929d0e0e4736",
   "actor": {
-    "userId": "user-123"
+    "userId": "9c74cf9f-34ab-4f5d-82d5-927cc68a8791"
   },
   "subject": {
-    "userId": "user-123",
+    "userId": "9c74cf9f-34ab-4f5d-82d5-927cc68a8791",
     "email": "user@example.com"
   },
   "session": {

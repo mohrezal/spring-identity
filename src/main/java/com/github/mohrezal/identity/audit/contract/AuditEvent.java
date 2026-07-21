@@ -4,11 +4,10 @@ import com.github.mohrezal.identity.audit.enums.AuditEventType;
 import com.github.mohrezal.identity.audit.enums.AuditOutcome;
 import com.github.mohrezal.identity.shared.enums.AppMessage;
 import java.time.Instant;
-import java.util.UUID;
 
 public record AuditEvent(
         int schemaVersion,
-        UUID eventId,
+        String eventId,
         AuditEventType eventType,
         AuditOutcome outcome,
         Instant occurredAt,
