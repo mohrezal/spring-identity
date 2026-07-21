@@ -1,4 +1,4 @@
-package com.github.mohrezal.identity.audit.model;
+package com.github.mohrezal.identity.audit.contract;
 
 import java.util.UUID;
 

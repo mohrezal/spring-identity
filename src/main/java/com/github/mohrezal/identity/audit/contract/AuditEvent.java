@@ -1,4 +1,4 @@
-package com.github.mohrezal.identity.audit.model;
+package com.github.mohrezal.identity.audit.contract;
 
 import com.github.mohrezal.identity.audit.enums.AuditEventType;
 import com.github.mohrezal.identity.audit.enums.AuditOutcome;
