@@ -54,6 +54,27 @@ public final class RabbitMQConstants {
         }
     }
 
+    public static final class Audit {
+
+        public static final String EXCHANGE = "audit.exchange";
+
+        private Audit() {}
+
+        public static final class Queue {
+
+            public static final String AUDIT = "audit.event.queue";
+
+            private Queue() {}
+        }
+
+        public static final class RoutingKey {
+
+            public static final String AUDIT = "audit.event.route";
+
+            private RoutingKey() {}
+        }
+    }
+
     public static final class DeadLetter {
 
         public static final String EXCHANGE = "dead.letter.exchange";
