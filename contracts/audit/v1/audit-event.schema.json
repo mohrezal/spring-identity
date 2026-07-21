@@ -187,14 +187,8 @@
         "string",
         "null"
       ],
-      "enum": [
-        "BAD_CREDENTIALS",
-        "ACCOUNT_DISABLED",
-        "ACCOUNT_LOCKED",
-        "AUTHENTICATION_FAILED",
-        null
-      ],
-      "description": "The controlled failure reason, or null for successful operations."
+      "maxLength": 128,
+      "description": "The existing application exception code associated with a failed operation."
     }
   },
   "allOf": [
@@ -245,12 +239,7 @@
           },
           "reason": {
             "type": "string",
-            "enum": [
-              "BAD_CREDENTIALS",
-              "ACCOUNT_DISABLED",
-              "ACCOUNT_LOCKED",
-              "AUTHENTICATION_FAILED"
-            ]
+            "minLength": 1
           },
           "subject": {
             "properties": {
