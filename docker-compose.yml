@@ -2,7 +2,7 @@ services:
   identity:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: services/identity-api/Dockerfile
     container_name: identity_app
     env_file:
       - .env
