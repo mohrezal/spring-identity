@@ -34,7 +34,10 @@
       "type": "string",
       "enum": [
         "LOGIN_SUCCEEDED",
-        "LOGIN_FAILED"
+        "LOGIN_FAILED",
+        "REGISTER_STARTED",
+        "REGISTER_SUCCEEDED",
+        "REGISTER_FAILED"
       ],
       "description": "The type of security-sensitive operation recorded."
     },
@@ -232,6 +235,115 @@
           "reason": {
             "type": "string",
             "minLength": 1
+          },
+          "subject": {
+            "properties": {
+              "email": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "eventType": {
+            "const": "REGISTER_STARTED"
+          }
+        },
+        "required": [
+          "eventType"
+        ]
+      },
+      "then": {
+        "properties": {
+          "outcome": {
+            "const": "SUCCESS"
+          },
+          "reason": {
+            "const": null
+          },
+          "actor": {
+            "properties": {
+              "userId": {
+                "const": null
+              }
+            }
+          },
+          "subject": {
+            "properties": {
+              "email": {
+                "type": "string"
+              }
+            }
+          },
+          "session": {
+            "properties": {
+              "sessionId": {
+                "const": null
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "eventType": {
+            "const": "REGISTER_SUCCEEDED"
+          }
+        },
+        "required": [
+          "eventType"
+        ]
+      },
+      "then": {
+        "properties": {
+          "outcome": {
+            "const": "SUCCESS"
+          },
+          "reason": {
+            "const": null
+          },
+          "subject": {
+            "properties": {
+              "email": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "eventType": {
+            "const": "REGISTER_FAILED"
+          }
+        },
+        "required": [
+          "eventType"
+        ]
+      },
+      "then": {
+        "properties": {
+          "outcome": {
+            "const": "FAILURE"
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1
+          },
+          "actor": {
+            "properties": {
+              "userId": {
+                "const": null
+              }
+            }
           },
           "subject": {
             "properties": {

@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "eventId": "550e8400-e29b-41d4-a716-446655440004",
+  "eventType": "REGISTER_FAILED",
+  "outcome": "FAILURE",
+  "occurredAt": "2026-07-21T12:01:00.567Z",
+  "traceId": "4d5e6f7a8b9c4d1e8f2a3b4c5d6e7f8a",
+  "actor": {
+    "userId": null
+  },
+  "subject": {
+    "userId": null,
+    "email": "existing@example.com"
+  },
+  "session": {
+    "sessionId": null
+  },
+  "request": {
+    "requestId": "4d5e6f7a8b9c4d1e8f2a3b4c5d6e7f8a",
+    "clientRequestId": null,
+    "ipAddress": "203.0.113.42",
+    "userAgent": "Mozilla/5.0",
+    "forwardedHost": null,
+    "forwardedProto": null
+  },
+  "reason": "USER_EMAIL_ALREADY_EXISTS"
+}

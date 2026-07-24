@@ -1,7 +1,6 @@
 package com.github.mohrezal.identity.domain.auth.controller;
 
 import com.github.mohrezal.identity.audit.service.AuditEventFactory;
-import com.github.mohrezal.identity.audit.service.AuditRequestContext;
 import com.github.mohrezal.identity.config.ApplicationProperties;
 import com.github.mohrezal.identity.config.RouteConstants;
 import com.github.mohrezal.identity.domain.auth.command.ChangePasswordCommand;
@@ -115,14 +114,7 @@ public class AuthController {
     @PostMapping(RouteConstants.Auth.LOGIN)
     public ResponseEntity<UserSummary> login(
             @Valid @RequestBody LoginRequest body, HttpServletRequest request) {
-        var auditRequestContext =
-                new AuditRequestContext(
-                        httpRequestContextService.requireTraceId(),
-                        httpRequestContextService.getClientRequestId(request).orElse(null),
-                        httpRequestContextService.getClientIp(request),
-                        httpRequestContextService.getUserAgent(request).orElse(null),
-                        httpRequestContextService.getForwardedHost(request).orElse(null),
-                        httpRequestContextService.getForwardedProto(request).orElse(null));
+        var auditRequestContext = auditEventFactory.createAuditRequestContext(request);
         var params = new LoginCommandParams(body);
 
         var response = loginCommand.execute(params, auditRequestContext);

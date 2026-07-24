@@ -1,5 +1,6 @@
 package com.github.mohrezal.identity.domain.user.controller;
 
+import com.github.mohrezal.identity.audit.service.AuditEventFactory;
 import com.github.mohrezal.identity.config.RouteConstants;
 import com.github.mohrezal.identity.domain.user.command.RegisterCommand;
 import com.github.mohrezal.identity.domain.user.command.param.RegisterCommandParams;
@@ -9,8 +10,11 @@ import com.github.mohrezal.identity.domain.user.dto.UserSummary;
 import com.github.mohrezal.identity.domain.user.query.GetCurrentUserQuery;
 import com.github.mohrezal.identity.domain.user.query.param.GetCurrentUserQueryParams;
 import com.github.mohrezal.identity.shared.annotation.Authenticated;
+import com.github.mohrezal.identity.shared.service.HttpRequestContextService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -29,13 +33,26 @@ public class UserController {
 
     private final RegisterCommand registerCommand;
     private final GetCurrentUserQuery getCurrentUserQuery;
+    private final HttpRequestContextService httpRequestContextService;
+    private final AuditEventFactory auditEventFactory;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     @PostMapping(RouteConstants.User.REGISTER)
     public ResponseEntity<RegisterResponse> register(
             @Valid @RequestBody RegisterRequest body,
-            @RequestParam("redirectUrl") String redirectUrl) {
+            @RequestParam("redirectUrl") String redirectUrl,
+            HttpServletRequest request) {
+        var auditRequestContext = auditEventFactory.createAuditRequestContext(request);
         var params = new RegisterCommandParams(body, redirectUrl);
-        var response = registerCommand.execute(params, null);
+
+        applicationEventPublisher.publishEvent(
+                auditEventFactory.registerStarted(auditRequestContext, body.email()));
+
+        var response = registerCommand.execute(params, auditRequestContext);
+
+        applicationEventPublisher.publishEvent(
+                auditEventFactory.registerSucceeded(
+                        auditRequestContext, response.userId(), body.email()));
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
