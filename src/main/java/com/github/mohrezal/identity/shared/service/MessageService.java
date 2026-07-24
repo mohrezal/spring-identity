@@ -1,6 +1,6 @@
 package com.github.mohrezal.identity.shared.service;
 
-import com.github.mohrezal.identity.shared.enums.AppMessage;
+import com.github.mohrezal.identity.shared.enums.ExceptionCode;
 import java.util.Locale;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 public class MessageService {
     private final MessageSource messageSource;
 
-    public String resolve(AppMessage key, Locale locale) {
+    public String resolve(ExceptionCode key, Locale locale) {
         return messageSource.getMessage(key.messageKey(), null, locale);
     }
 }

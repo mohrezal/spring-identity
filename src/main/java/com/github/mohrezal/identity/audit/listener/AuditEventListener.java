@@ -14,6 +14,11 @@ import org.springframework.stereotype.Component;
 public class AuditEventListener {
     private final RabbitMQPublisher rabbitMQPublisher;
 
+    // Uses @EventListener (not @TransactionalEventListener) because audit events
+    // are published outside the command's transaction boundary — the controller
+    // publishes after LoginCommand's transaction has already committed, and the
+    // exception handler publishes after rollback. There is no active transaction
+    // to hook into, so transactional semantics don't apply.
     @EventListener
     public void handle(AuditEvent event) {
         rabbitMQPublisher.publish(

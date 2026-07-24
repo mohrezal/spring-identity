@@ -102,7 +102,11 @@ public class RabbitMQConfig {
 
     @Bean
     public Queue auditQueue() {
-        return new Queue(RabbitMQConstants.Audit.Queue.AUDIT, true, false, false);
+        return QueueBuilder.durable(RabbitMQConstants.Audit.Queue.AUDIT)
+                .deadLetterExchange(RabbitMQConstants.DeadLetter.EXCHANGE)
+                .deadLetterRoutingKey(RabbitMQConstants.DeadLetter.RoutingKey.AUDIT)
+                .lazy()
+                .build();
     }
 
     @Bean
@@ -110,6 +114,18 @@ public class RabbitMQConfig {
         return BindingBuilder.bind(auditQueue)
                 .to(auditExchange)
                 .with(RabbitMQConstants.Audit.RoutingKey.AUDIT);
+    }
+
+    @Bean
+    public Queue deadLetterAuditQueue() {
+        return QueueBuilder.durable(RabbitMQConstants.DeadLetter.Queue.AUDIT).lazy().build();
+    }
+
+    @Bean
+    public Binding deadLetterAuditBinding() {
+        return BindingBuilder.bind(deadLetterAuditQueue())
+                .to(deadLetterExchange())
+                .with(RabbitMQConstants.DeadLetter.RoutingKey.AUDIT);
     }
 
     @Bean

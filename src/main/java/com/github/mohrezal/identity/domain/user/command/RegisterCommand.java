@@ -9,7 +9,7 @@ import com.github.mohrezal.identity.domain.user.listener.message.UserEmailVerifi
 import com.github.mohrezal.identity.domain.user.mapper.UserMapper;
 import com.github.mohrezal.identity.domain.user.repository.UserCredentialRepository;
 import com.github.mohrezal.identity.domain.user.repository.UserRepository;
-import com.github.mohrezal.identity.shared.enums.AppMessage;
+import com.github.mohrezal.identity.shared.enums.ExceptionCode;
 import com.github.mohrezal.identity.shared.enums.RedisKey;
 import com.github.mohrezal.identity.shared.exception.type.InvalidRedirectUrlException;
 import com.github.mohrezal.identity.shared.interfaces.Command;
@@ -74,7 +74,8 @@ public class RegisterCommand implements Command<RegisterCommandParams, RegisterR
         eventPublisher.publishEvent(emailVerificationEvent);
 
         var message =
-                messageService.resolve(AppMessage.AUTH_REGISTERED, LocaleContextHolder.getLocale());
+                messageService.resolve(
+                        ExceptionCode.AUTH_REGISTERED, LocaleContextHolder.getLocale());
         return new RegisterResponse(message);
     }
 }

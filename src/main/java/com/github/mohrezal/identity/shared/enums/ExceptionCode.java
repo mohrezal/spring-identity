@@ -1,6 +1,6 @@
 package com.github.mohrezal.identity.shared.enums;
 
-public enum AppMessage {
+public enum ExceptionCode {
     BAD_REQUEST("shared.error.bad-request"),
     UNAUTHORIZED("shared.error.unauthorized"),
     FORBIDDEN("shared.error.forbidden"),
@@ -45,7 +45,7 @@ public enum AppMessage {
 
     private final String messageKey;
 
-    AppMessage(String messageKey) {
+    ExceptionCode(String messageKey) {
         this.messageKey = messageKey;
     }
 

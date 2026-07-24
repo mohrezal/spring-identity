@@ -1,6 +1,6 @@
 package com.github.mohrezal.identity.shared.exception;
 
-import com.github.mohrezal.identity.shared.enums.AppMessage;
+import com.github.mohrezal.identity.shared.enums.ExceptionCode;
 import com.github.mohrezal.identity.shared.exception.type.BadRequestException;
 import com.github.mohrezal.identity.shared.exception.type.BaseException;
 import com.github.mohrezal.identity.shared.exception.type.ConflictException;
@@ -53,28 +53,28 @@ public class SharedExceptionHandler extends AbstractExceptionHandler {
     public ResponseEntity<ErrorResponse> handleBadCredentialsException(
             BadCredentialsException exception, WebRequest request) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(buildBody(AppMessage.AUTH_INVALID_CREDENTIALS, null, request));
+                .body(buildBody(ExceptionCode.AUTH_INVALID_CREDENTIALS, null, request));
     }
 
     @ExceptionHandler(AuthorizationDeniedException.class)
     public ResponseEntity<ErrorResponse> handleAuthorizationDeniedException(
             AuthorizationDeniedException exception, WebRequest request) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .body(buildBody(AppMessage.FORBIDDEN, null, request));
+                .body(buildBody(ExceptionCode.FORBIDDEN, null, request));
     }
 
     @ExceptionHandler(NoResourceFoundException.class)
     public ResponseEntity<ErrorResponse> handleNoResourceFoundException(
             NoResourceFoundException exception, WebRequest request) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(buildBody(AppMessage.NOT_FOUND, null, request));
+                .body(buildBody(ExceptionCode.NOT_FOUND, null, request));
     }
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public ResponseEntity<ErrorResponse> handleHttpRequestMethodNotSupportedException(
             HttpRequestMethodNotSupportedException exception, WebRequest request) {
         return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED)
-                .body(buildBody(AppMessage.METHOD_NOT_ALLOWED, null, request));
+                .body(buildBody(ExceptionCode.METHOD_NOT_ALLOWED, null, request));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -87,7 +87,7 @@ public class SharedExceptionHandler extends AbstractExceptionHandler {
                 .forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
 
         return ResponseEntity.status(exception.getStatusCode())
-                .body(buildBody(AppMessage.VALIDATION_FAILED, errors, request));
+                .body(buildBody(ExceptionCode.VALIDATION_FAILED, errors, request));
     }
 
     @ExceptionHandler(HandlerMethodValidationException.class)
@@ -109,13 +109,13 @@ public class SharedExceptionHandler extends AbstractExceptionHandler {
                         });
 
         return ResponseEntity.status(exception.getStatusCode())
-                .body(buildBody(AppMessage.VALIDATION_FAILED, errors, request));
+                .body(buildBody(ExceptionCode.VALIDATION_FAILED, errors, request));
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleException(Exception exception, WebRequest request) {
         log.error("Unhandled exception", exception);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(buildBody(AppMessage.UNEXPECTED, null, request));
+                .body(buildBody(ExceptionCode.UNEXPECTED, null, request));
     }
 }

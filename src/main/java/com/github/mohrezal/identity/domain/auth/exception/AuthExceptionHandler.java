@@ -55,7 +55,7 @@ public class AuthExceptionHandler extends AbstractExceptionHandler {
                         String attemptedEmail)) {
             applicationEventPublisher.publishEvent(
                     auditEventFactory.loginFailed(
-                            auditRequestContext, attemptedEmail, exception.getAppMessage()));
+                            auditRequestContext, attemptedEmail, exception.getExceptionCode()));
         }
         return buildErrorResponse(exception, request);
     }
@@ -70,7 +70,7 @@ public class AuthExceptionHandler extends AbstractExceptionHandler {
                         String attemptedEmail)) {
             applicationEventPublisher.publishEvent(
                     auditEventFactory.loginFailed(
-                            auditRequestContext, attemptedEmail, exception.getAppMessage()));
+                            auditRequestContext, attemptedEmail, exception.getExceptionCode()));
         }
         return buildErrorResponse(exception, request);
     }

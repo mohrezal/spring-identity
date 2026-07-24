@@ -7,6 +7,6 @@ public final class ErrorResponseAssertions {
     private ErrorResponseAssertions() {}
 
     public static String errorName(BaseException exception) {
-        return exception.getAppMessage().name();
+        return exception.getExceptionCode().name();
     }
 }

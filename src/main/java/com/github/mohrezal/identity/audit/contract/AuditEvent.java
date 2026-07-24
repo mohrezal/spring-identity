@@ -2,7 +2,6 @@ package com.github.mohrezal.identity.audit.contract;
 
 import com.github.mohrezal.identity.audit.enums.AuditEventType;
 import com.github.mohrezal.identity.audit.enums.AuditOutcome;
-import com.github.mohrezal.identity.shared.enums.AppMessage;
 import java.time.Instant;
 
 public record AuditEvent(
@@ -16,4 +15,4 @@ public record AuditEvent(
         AuditSubject subject,
         AuditSession session,
         AuditRequest request,
-        AppMessage reason) {}
+        String reason) {}

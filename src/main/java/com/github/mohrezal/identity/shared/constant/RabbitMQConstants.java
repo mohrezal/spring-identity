@@ -84,6 +84,7 @@ public final class RabbitMQConstants {
         public static final class Queue {
 
             public static final String EMAIL = "dead.letter.email.queue";
+            public static final String AUDIT = "dead.letter.audit.queue";
 
             private Queue() {}
         }
@@ -91,6 +92,7 @@ public final class RabbitMQConstants {
         public static final class RoutingKey {
 
             public static final String EMAIL = "dead.letter.email.route";
+            public static final String AUDIT = "dead.letter.audit.route";
 
             private RoutingKey() {}
         }

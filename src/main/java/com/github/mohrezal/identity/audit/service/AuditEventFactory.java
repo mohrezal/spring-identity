@@ -7,7 +7,7 @@ import com.github.mohrezal.identity.audit.contract.AuditSession;
 import com.github.mohrezal.identity.audit.contract.AuditSubject;
 import com.github.mohrezal.identity.audit.enums.AuditEventType;
 import com.github.mohrezal.identity.audit.enums.AuditOutcome;
-import com.github.mohrezal.identity.shared.enums.AppMessage;
+import com.github.mohrezal.identity.shared.enums.ExceptionCode;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Locale;
@@ -43,7 +43,7 @@ public class AuditEventFactory {
     }
 
     public AuditEvent loginFailed(
-            AuditRequestContext requestContext, String attemptedEmail, AppMessage reason) {
+            AuditRequestContext requestContext, String attemptedEmail, ExceptionCode reason) {
         Objects.requireNonNull(requestContext, "requestContext must not be null");
         Objects.requireNonNull(reason, "reason must not be null");
 
@@ -60,7 +60,7 @@ public class AuditEventFactory {
                 new AuditSubject(null, normalizeEmail(attemptedEmail)),
                 new AuditSession(null),
                 createAuditRequest(requestContext, traceId),
-                reason);
+                reason.name());
     }
 
     private AuditRequest createAuditRequest(AuditRequestContext requestContext, String traceId) {
