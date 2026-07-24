@@ -7,7 +7,6 @@ COPY .mvn ./.mvn
 
 COPY pom.xml ./pom.xml
 COPY shared/pom.xml ./shared/pom.xml
-COPY services/identity-api/pom.xml ./services/identity-api/pom.xml
 COPY workers/audit-worker/pom.xml ./workers/audit-worker/pom.xml
 
 RUN ./mvnw dependency:go-offline -B

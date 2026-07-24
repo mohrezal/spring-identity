@@ -33,8 +33,8 @@ services:
     env_file:
       - .env
     environment:
-      APP_REDIS_HOST: redis
-      APP_REDIS_PORT: "6379"
+      APP_DATABASE_HOST: db
+      APP_DATABASE_PORT: "5432"
       APP_RABBITMQ_HOST: rabbitmq
       APP_RABBITMQ_PORT: "5672"
     ports:
@@ -42,7 +42,7 @@ services:
     networks:
       - identity-network
     depends_on:
-      redis:
+      db:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
