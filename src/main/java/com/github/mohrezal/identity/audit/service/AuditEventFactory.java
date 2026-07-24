@@ -142,6 +142,69 @@ public class AuditEventFactory {
                 reason.name());
     }
 
+    public AuditEvent emailVerificationSent(AuditRequestContext requestContext, String email) {
+        Objects.requireNonNull(requestContext, "requestContext must not be null");
+        Objects.requireNonNull(email, "email must not be null");
+
+        var traceId = requireTraceId(requestContext);
+
+        return new AuditEvent(
+                SCHEMA_VERSION,
+                UUID.randomUUID().toString(),
+                AuditEventType.EMAIL_VERIFICATION_SENT,
+                AuditOutcome.SUCCESS,
+                currentTimestamp(),
+                traceId,
+                new AuditActor(null),
+                new AuditSubject(null, normalizeEmail(email)),
+                new AuditSession(null),
+                createAuditRequest(requestContext, traceId),
+                null);
+    }
+
+    public AuditEvent emailVerified(AuditRequestContext requestContext, UUID userId, String email) {
+        Objects.requireNonNull(requestContext, "requestContext must not be null");
+        Objects.requireNonNull(userId, "userId must not be null");
+        Objects.requireNonNull(email, "email must not be null");
+
+        var traceId = requireTraceId(requestContext);
+
+        return new AuditEvent(
+                SCHEMA_VERSION,
+                UUID.randomUUID().toString(),
+                AuditEventType.EMAIL_VERIFIED,
+                AuditOutcome.SUCCESS,
+                currentTimestamp(),
+                traceId,
+                new AuditActor(null),
+                new AuditSubject(userId, normalizeEmail(email)),
+                new AuditSession(null),
+                createAuditRequest(requestContext, traceId),
+                null);
+    }
+
+    public AuditEvent emailVerificationFailed(
+            AuditRequestContext requestContext, String email, ExceptionCode reason) {
+        Objects.requireNonNull(requestContext, "requestContext must not be null");
+        Objects.requireNonNull(email, "email must not be null");
+        Objects.requireNonNull(reason, "reason must not be null");
+
+        var traceId = requireTraceId(requestContext);
+
+        return new AuditEvent(
+                SCHEMA_VERSION,
+                UUID.randomUUID().toString(),
+                AuditEventType.EMAIL_VERIFICATION_FAILED,
+                AuditOutcome.FAILURE,
+                currentTimestamp(),
+                traceId,
+                new AuditActor(null),
+                new AuditSubject(null, normalizeEmail(email)),
+                new AuditSession(null),
+                createAuditRequest(requestContext, traceId),
+                reason.name());
+    }
+
     private AuditRequest createAuditRequest(AuditRequestContext requestContext, String traceId) {
         return new AuditRequest(
                 traceId,

@@ -2,6 +2,7 @@ package com.github.mohrezal.identity.domain.auth.command;
 
 import com.github.mohrezal.identity.audit.service.AuditRequestContext;
 import com.github.mohrezal.identity.domain.auth.command.param.VerifyEmailCommandParams;
+import com.github.mohrezal.identity.domain.auth.exception.context.EmailVerificationAuditExceptionContext;
 import com.github.mohrezal.identity.domain.auth.exception.type.AuthEmailAlreadyVerifiedException;
 import com.github.mohrezal.identity.domain.auth.exception.type.AuthEmailVerificationTokenNotFoundException;
 import com.github.mohrezal.identity.domain.user.exception.type.UserNotFoundException;
@@ -20,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class VerifyEmailCommand implements Command<VerifyEmailCommandParams, Void> {
+public class VerifyEmailCommand implements Command<VerifyEmailCommandParams, String> {
 
     private final RedirectValidationService redirectValidationService;
     private final RedisService redisService;
@@ -35,7 +36,8 @@ public class VerifyEmailCommand implements Command<VerifyEmailCommandParams, Voi
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public Void execute(VerifyEmailCommandParams params, AuditRequestContext auditRequestContext) {
+    public String execute(
+            VerifyEmailCommandParams params, AuditRequestContext auditRequestContext) {
         validate(params);
         var email =
                 redisService
@@ -46,11 +48,12 @@ public class VerifyEmailCommand implements Command<VerifyEmailCommandParams, Voi
                         .orElseThrow(AuthEmailVerificationTokenNotFoundException::new);
         var user = userRepository.findByEmail(email).orElseThrow(UserNotFoundException::new);
         if (user.getEmailVerifiedAt() != null) {
-            throw new AuthEmailAlreadyVerifiedException();
+            throw new AuthEmailAlreadyVerifiedException(
+                    new EmailVerificationAuditExceptionContext(auditRequestContext, email));
         }
         user.setEmailVerifiedAt(OffsetDateTime.now());
         userRepository.save(user);
         redisService.delete(RedisKey.EMAIL_VERIFICATION_TOKEN, params.token().toString());
-        return null;
+        return email;
     }
 }

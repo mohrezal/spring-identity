@@ -2,6 +2,7 @@ package com.github.mohrezal.identity.domain.auth.exception;
 
 import com.github.mohrezal.identity.audit.service.AuditEventFactory;
 import com.github.mohrezal.identity.audit.service.AuditRequestContext;
+import com.github.mohrezal.identity.domain.auth.exception.context.EmailVerificationAuditExceptionContext;
 import com.github.mohrezal.identity.domain.auth.exception.context.LoginAuditExceptionContext;
 import com.github.mohrezal.identity.domain.auth.exception.type.AuthCannotRevokeCurrentSessionException;
 import com.github.mohrezal.identity.domain.auth.exception.type.AuthCurrentPasswordMismatchException;
@@ -75,6 +76,21 @@ public class AuthExceptionHandler extends AbstractExceptionHandler {
         return buildErrorResponse(exception, request);
     }
 
+    @ExceptionHandler(AuthEmailAlreadyVerifiedException.class)
+    public ResponseEntity<ErrorResponse> handleEmailAlreadyVerified(
+            AuthEmailAlreadyVerifiedException exception, WebRequest request) {
+        if (exception.getContext()
+                instanceof
+                EmailVerificationAuditExceptionContext(
+                        AuditRequestContext auditRequestContext,
+                        String email)) {
+            applicationEventPublisher.publishEvent(
+                    auditEventFactory.emailVerificationFailed(
+                            auditRequestContext, email, exception.getExceptionCode()));
+        }
+        return buildErrorResponse(exception, request);
+    }
+
     @ExceptionHandler({
         AuthCurrentPasswordMismatchException.class,
         AuthInvalidRefreshTokenException.class,
@@ -82,7 +98,6 @@ public class AuthExceptionHandler extends AbstractExceptionHandler {
         AuthRefreshTokenNotFoundException.class,
         AuthSessionNotFoundException.class,
         AuthCannotRevokeCurrentSessionException.class,
-        AuthEmailAlreadyVerifiedException.class,
         OAuthConnectionNotFoundException.class,
         OAuthCannotUnlinkLastLoginMethodException.class,
         OAuthEmailConflictException.class,

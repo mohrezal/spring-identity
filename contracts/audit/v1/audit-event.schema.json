@@ -37,7 +37,10 @@
         "LOGIN_FAILED",
         "REGISTER_STARTED",
         "REGISTER_SUCCEEDED",
-        "REGISTER_FAILED"
+        "REGISTER_FAILED",
+        "EMAIL_VERIFICATION_SENT",
+        "EMAIL_VERIFIED",
+        "EMAIL_VERIFICATION_FAILED"
       ],
       "description": "The type of security-sensitive operation recorded."
     },
@@ -323,6 +326,115 @@
         "properties": {
           "eventType": {
             "const": "REGISTER_FAILED"
+          }
+        },
+        "required": [
+          "eventType"
+        ]
+      },
+      "then": {
+        "properties": {
+          "outcome": {
+            "const": "FAILURE"
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1
+          },
+          "actor": {
+            "properties": {
+              "userId": {
+                "const": null
+              }
+            }
+          },
+          "subject": {
+            "properties": {
+              "email": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "eventType": {
+            "const": "EMAIL_VERIFICATION_SENT"
+          }
+        },
+        "required": [
+          "eventType"
+        ]
+      },
+      "then": {
+        "properties": {
+          "outcome": {
+            "const": "SUCCESS"
+          },
+          "reason": {
+            "const": null
+          },
+          "actor": {
+            "properties": {
+              "userId": {
+                "const": null
+              }
+            }
+          },
+          "subject": {
+            "properties": {
+              "email": {
+                "type": "string"
+              }
+            }
+          },
+          "session": {
+            "properties": {
+              "sessionId": {
+                "const": null
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "eventType": {
+            "const": "EMAIL_VERIFIED"
+          }
+        },
+        "required": [
+          "eventType"
+        ]
+      },
+      "then": {
+        "properties": {
+          "outcome": {
+            "const": "SUCCESS"
+          },
+          "reason": {
+            "const": null
+          },
+          "subject": {
+            "properties": {
+              "email": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "eventType": {
+            "const": "EMAIL_VERIFICATION_FAILED"
           }
         },
         "required": [

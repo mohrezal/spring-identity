@@ -96,18 +96,26 @@ public class AuthController {
     @GetMapping(RouteConstants.Auth.VERIFY_EMAIL)
     public ResponseEntity<?> verifyEmail(
             @RequestParam("token") UUID token,
-            @RequestParam(value = "redirectUrl") String redirectUrl) {
+            @RequestParam(value = "redirectUrl") String redirectUrl,
+            HttpServletRequest request) {
+        var auditRequestContext = auditEventFactory.createAuditRequestContext(request);
         var params = new VerifyEmailCommandParams(token, redirectUrl);
-        verifyEmailCommand.execute(params, null);
+        var email = verifyEmailCommand.execute(params, auditRequestContext);
+        applicationEventPublisher.publishEvent(
+                auditEventFactory.emailVerified(auditRequestContext, null, email));
         return ResponseEntity.status(HttpStatus.FOUND).location(URI.create(redirectUrl)).build();
     }
 
     @PostMapping(RouteConstants.Auth.RESEND_EMAIL_VERIFICATION)
     public ResponseEntity<Boolean> resendEmailVerification(
             @Valid @RequestBody ResendEmailVerificationRequest body,
-            @RequestParam(value = "redirectUrl") String redirectUrl) {
+            @RequestParam(value = "redirectUrl") String redirectUrl,
+            HttpServletRequest request) {
+        var auditRequestContext = auditEventFactory.createAuditRequestContext(request);
         var params = new ResendEmailVerificationCommandParams(body, redirectUrl);
-        var response = resendEmailVerificationCommand.execute(params, null);
+        var response = resendEmailVerificationCommand.execute(params, auditRequestContext);
+        applicationEventPublisher.publishEvent(
+                auditEventFactory.emailVerificationSent(auditRequestContext, body.email()));
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
