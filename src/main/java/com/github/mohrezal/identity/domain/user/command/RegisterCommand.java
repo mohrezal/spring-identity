@@ -1,5 +1,6 @@
 package com.github.mohrezal.identity.domain.user.command;
 
+import com.github.mohrezal.identity.audit.service.AuditRequestContext;
 import com.github.mohrezal.identity.domain.privilege.service.UserRoleAssignmentService;
 import com.github.mohrezal.identity.domain.user.command.param.RegisterCommandParams;
 import com.github.mohrezal.identity.domain.user.dto.RegisterResponse;
@@ -51,7 +52,8 @@ public class RegisterCommand implements Command<RegisterCommandParams, RegisterR
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public RegisterResponse execute(RegisterCommandParams params) {
+    public RegisterResponse execute(
+            RegisterCommandParams params, AuditRequestContext auditRequestContext) {
         validate(params);
         var request = params.request();
         var hashedPassword = passwordEncoder.encode(request.password());

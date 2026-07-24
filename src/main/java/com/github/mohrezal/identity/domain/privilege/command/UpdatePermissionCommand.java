@@ -1,5 +1,6 @@
 package com.github.mohrezal.identity.domain.privilege.command;
 
+import com.github.mohrezal.identity.audit.service.AuditRequestContext;
 import com.github.mohrezal.identity.domain.privilege.command.param.UpdatePermissionCommandParams;
 import com.github.mohrezal.identity.domain.privilege.constant.Permissions;
 import com.github.mohrezal.identity.domain.privilege.dto.PermissionSummary;
@@ -24,7 +25,8 @@ public class UpdatePermissionCommand
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public PermissionSummary execute(UpdatePermissionCommandParams params) {
+    public PermissionSummary execute(
+            UpdatePermissionCommandParams params, AuditRequestContext auditRequestContext) {
         var permission =
                 permissionRepository
                         .findById(params.permissionId())

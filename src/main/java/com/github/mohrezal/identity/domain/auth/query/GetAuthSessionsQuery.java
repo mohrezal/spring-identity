@@ -1,5 +1,6 @@
 package com.github.mohrezal.identity.domain.auth.query;
 
+import com.github.mohrezal.identity.audit.service.AuditRequestContext;
 import com.github.mohrezal.identity.domain.auth.dto.SessionSummary;
 import com.github.mohrezal.identity.domain.auth.mapper.RefreshTokenMapper;
 import com.github.mohrezal.identity.domain.auth.model.RefreshToken;
@@ -23,7 +24,8 @@ public class GetAuthSessionsQuery
     private final HashService hashService;
 
     @Override
-    public List<SessionSummary> execute(GetAuthSessionsQueryParams params) {
+    public List<SessionSummary> execute(
+            GetAuthSessionsQueryParams params, AuditRequestContext auditRequestContext) {
         var user = getCurrentUser(params);
         var currentSessionHash =
                 StringUtils.hasText(params.rawRefreshToken())

@@ -35,8 +35,7 @@ public class UserController {
             @Valid @RequestBody RegisterRequest body,
             @RequestParam("redirectUrl") String redirectUrl) {
         var params = new RegisterCommandParams(body, redirectUrl);
-
-        var response = registerCommand.execute(params);
+        var response = registerCommand.execute(params, null);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -45,7 +44,7 @@ public class UserController {
     @GetMapping(RouteConstants.User.ME)
     public ResponseEntity<UserSummary> me(@AuthenticationPrincipal UserDetails userDetails) {
         var params = new GetCurrentUserQueryParams(userDetails);
-        var response = getCurrentUserQuery.execute(params);
+        var response = getCurrentUserQuery.execute(params, null);
         return ResponseEntity.ok(response);
     }
 }

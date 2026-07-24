@@ -1,7 +1,9 @@
 package com.github.mohrezal.identity.domain.auth.command;
 
+import com.github.mohrezal.identity.audit.service.AuditRequestContext;
 import com.github.mohrezal.identity.domain.auth.command.param.LoginCommandParams;
 import com.github.mohrezal.identity.domain.auth.dto.LoginResponse;
+import com.github.mohrezal.identity.domain.auth.exception.context.LoginAuditExceptionContext;
 import com.github.mohrezal.identity.domain.auth.exception.type.AuthEmailNotVerifiedException;
 import com.github.mohrezal.identity.domain.auth.exception.type.AuthInvalidCredentialsException;
 import com.github.mohrezal.identity.domain.auth.service.TokenIssuanceService;
@@ -28,32 +30,37 @@ public class LoginCommand implements Command<LoginCommandParams, LoginResponse> 
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public LoginResponse execute(LoginCommandParams params) {
+    public LoginResponse execute(
+            LoginCommandParams params, AuditRequestContext auditRequestContext) {
+        var exceptionContext =
+                new LoginAuditExceptionContext(auditRequestContext, params.request().email());
         var user =
                 userRepository
                         .findByEmail(params.request().email())
-                        .orElseThrow(AuthInvalidCredentialsException::new);
+                        .orElseThrow(() -> new AuthInvalidCredentialsException(exceptionContext));
         var userCredential =
                 userCredentialRepository
                         .findByUser(user)
-                        .orElseThrow(AuthInvalidCredentialsException::new);
+                        .orElseThrow(() -> new AuthInvalidCredentialsException(exceptionContext));
         var isValidPassword =
                 passwordEncoder.matches(
                         params.request().password(), userCredential.getHashedPassword());
         if (!isValidPassword) {
             log.warn("Email/password login failed. userId={}", user.getId());
-            throw new AuthInvalidCredentialsException();
+            throw new AuthInvalidCredentialsException(exceptionContext);
         }
 
         if (!user.isEmailVerified()) {
             log.warn("Email/password login blocked for unverified email. userId={}", user.getId());
-            throw new AuthEmailNotVerifiedException();
+            throw new AuthEmailNotVerifiedException(exceptionContext);
         }
 
-        log.info("Email/password login succeeded. userId={}", user.getId());
-
-        var authResponse = tokenIssuanceService.issue(user, params.ipAddress(), params.userAgent());
+        var authResponse =
+                tokenIssuanceService.issue(
+                        user, auditRequestContext.ipAddress(), auditRequestContext.userAgent());
         var userSummary = userMapper.toUserSummary(user);
+
+        log.info("Email/password login succeeded. userId={}", user.getId());
         return new LoginResponse(authResponse, userSummary);
     }
 }

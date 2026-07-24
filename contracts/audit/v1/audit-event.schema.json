@@ -87,7 +87,6 @@
             "string",
             "null"
           ],
-          "maxLength": 128,
           "description": "The identifier of the affected user account, when known."
         },
         "email": {
@@ -97,7 +96,6 @@
           ],
           "format": "email",
           "pattern": "^[^\\sA-Z]+$",
-          "maxLength": 320,
           "description": "The normalized lowercase email associated with the login attempt."
         }
       }
@@ -114,7 +112,6 @@
             "string",
             "null"
           ],
-          "maxLength": 128,
           "description": "The authenticated session identifier, when available."
         }
       }
@@ -141,7 +138,6 @@
             "string",
             "null"
           ],
-          "maxLength": 128,
           "description": "An optional untrusted request identifier supplied by the client."
         },
         "ipAddress": {
@@ -149,7 +145,6 @@
             "string",
             "null"
           ],
-          "maxLength": 45,
           "description": "The trusted effective client IPv4 or IPv6 address."
         },
         "userAgent": {
@@ -157,7 +152,6 @@
             "string",
             "null"
           ],
-          "maxLength": 1024,
           "description": "The client User-Agent value when safe and available."
         },
         "forwardedHost": {
@@ -165,7 +159,6 @@
             "string",
             "null"
           ],
-          "maxLength": 255,
           "description": "The trusted forwarded host when proxy headers are enabled."
         },
         "forwardedProto": {
@@ -187,7 +180,6 @@
         "string",
         "null"
       ],
-      "maxLength": 128,
       "description": "The existing application exception code associated with a failed operation."
     }
   },

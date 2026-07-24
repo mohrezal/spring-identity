@@ -51,7 +51,7 @@ class UnlinkOAuthConnectionCommandTest {
         when(userCredentialRepository.existsByUser(user)).thenReturn(false);
         when(userOauthConnectionRepository.countByUser(user)).thenReturn(1L);
 
-        assertThatThrownBy(() -> command.execute(params))
+        assertThatThrownBy(() -> command.execute(params, null))
                 .isInstanceOf(OAuthCannotUnlinkLastLoginMethodException.class);
         verify(userOauthConnectionRepository, never()).delete(connection);
     }
@@ -74,7 +74,7 @@ class UnlinkOAuthConnectionCommandTest {
         when(userCredentialRepository.existsByUser(user)).thenReturn(hasPasswordLogin);
         when(userOauthConnectionRepository.countByUser(user)).thenReturn(oauthConnectionCount);
 
-        var result = command.execute(params);
+        var result = command.execute(params, null);
 
         assertThat(result).isNull();
         verify(userOauthConnectionRepository).delete(connection);

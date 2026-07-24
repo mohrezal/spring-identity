@@ -1,5 +1,7 @@
 package com.github.mohrezal.identity.domain.auth.controller;
 
+import com.github.mohrezal.identity.audit.service.AuditEventFactory;
+import com.github.mohrezal.identity.audit.service.AuditRequestContext;
 import com.github.mohrezal.identity.config.ApplicationProperties;
 import com.github.mohrezal.identity.config.RouteConstants;
 import com.github.mohrezal.identity.domain.auth.command.ChangePasswordCommand;
@@ -36,7 +38,7 @@ import com.github.mohrezal.identity.domain.user.dto.UserSummary;
 import com.github.mohrezal.identity.shared.annotation.Authenticated;
 import com.github.mohrezal.identity.shared.annotation.RequiresPermission;
 import com.github.mohrezal.identity.shared.constant.CookieConstant;
-import com.github.mohrezal.identity.shared.service.ClientIpService;
+import com.github.mohrezal.identity.shared.service.HttpRequestContextService;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
@@ -45,12 +47,12 @@ import java.net.URI;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -80,9 +82,10 @@ public class AuthController {
     private final GetAuthSessionsQuery getAuthSessionsQuery;
     private final RevokeAuthSessionCommand revokeAuthSessionCommand;
 
-    private final ClientIpService clientIpService;
     private final ApplicationProperties applicationProperties;
-    private final CookieCsrfTokenRepository csrfTokenRepository;
+    private final HttpRequestContextService httpRequestContextService;
+    private final AuditEventFactory auditEventFactory;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     @GetMapping(RouteConstants.Auth.CSRF)
     public ResponseEntity<CsrfTokenResponse> csrf(@Parameter(hidden = true) CsrfToken csrfToken) {
@@ -96,7 +99,7 @@ public class AuthController {
             @RequestParam("token") UUID token,
             @RequestParam(value = "redirectUrl") String redirectUrl) {
         var params = new VerifyEmailCommandParams(token, redirectUrl);
-        verifyEmailCommand.execute(params);
+        verifyEmailCommand.execute(params, null);
         return ResponseEntity.status(HttpStatus.FOUND).location(URI.create(redirectUrl)).build();
     }
 
@@ -105,20 +108,24 @@ public class AuthController {
             @Valid @RequestBody ResendEmailVerificationRequest body,
             @RequestParam(value = "redirectUrl") String redirectUrl) {
         var params = new ResendEmailVerificationCommandParams(body, redirectUrl);
-        var response = resendEmailVerificationCommand.execute(params);
+        var response = resendEmailVerificationCommand.execute(params, null);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @PostMapping(RouteConstants.Auth.LOGIN)
     public ResponseEntity<UserSummary> login(
             @Valid @RequestBody LoginRequest body, HttpServletRequest request) {
-        var params =
-                new LoginCommandParams(
-                        body,
-                        clientIpService.getClientIp(request),
-                        request.getHeader(HttpHeaders.USER_AGENT));
+        var auditRequestContext =
+                new AuditRequestContext(
+                        httpRequestContextService.requireTraceId(),
+                        httpRequestContextService.getClientRequestId(request).orElse(null),
+                        httpRequestContextService.getClientIp(request),
+                        httpRequestContextService.getUserAgent(request).orElse(null),
+                        httpRequestContextService.getForwardedHost(request).orElse(null),
+                        httpRequestContextService.getForwardedProto(request).orElse(null));
+        var params = new LoginCommandParams(body);
 
-        var response = loginCommand.execute(params);
+        var response = loginCommand.execute(params, auditRequestContext);
         var accessCookie =
                 applicationProperties
                         .security()
@@ -131,10 +138,20 @@ public class AuthController {
                         .cookie()
                         .refreshToken()
                         .build(response.authResponse().refreshToken(), RouteConstants.Auth.BASE);
-        return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
-                .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
-                .body(response.userSummary());
+        var httpResponse =
+                ResponseEntity.ok()
+                        .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
+                        .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
+                        .body(response.userSummary());
+
+        applicationEventPublisher.publishEvent(
+                auditEventFactory.loginSucceeded(
+                        auditRequestContext,
+                        response.userSummary().id(),
+                        response.userSummary().email(),
+                        response.authResponse().sessionId().toString()));
+
+        return httpResponse;
     }
 
     @PostMapping(RouteConstants.Auth.LOGOUT)
@@ -143,7 +160,7 @@ public class AuthController {
                     @CookieValue(name = CookieConstant.REFRESH_TOKEN, required = false)
                     String rawRefreshToken) {
         var params = new LogoutCommandParams(rawRefreshToken);
-        logoutCommand.execute(params);
+        logoutCommand.execute(params, null);
 
         var accessCookie = applicationProperties.security().cookie().accessToken().clear();
         var refreshCookie =
@@ -172,7 +189,7 @@ public class AuthController {
     @PostMapping(RouteConstants.Auth.LOGOUT_ALL)
     public ResponseEntity<?> logoutAll(@AuthenticationPrincipal UserDetails userDetails) {
         var params = new LogoutAllCommandParams(userDetails);
-        logoutAllCommand.execute(params);
+        logoutAllCommand.execute(params, null);
 
         var accessCookie = applicationProperties.security().cookie().accessToken().clear();
         var refreshCookie =
@@ -206,9 +223,9 @@ public class AuthController {
         var params =
                 new RefreshTokenCommandParams(
                         rawRefreshToken,
-                        clientIpService.getClientIp(request),
+                        httpRequestContextService.getClientIp(request),
                         request.getHeader(HttpHeaders.USER_AGENT));
-        var response = refreshTokenCommand.execute(params);
+        var response = refreshTokenCommand.execute(params, null);
         var accessCookie =
                 applicationProperties
                         .security()
@@ -241,7 +258,7 @@ public class AuthController {
             @Valid @RequestBody ForgotPasswordRequest body,
             @RequestParam(value = "redirectUrl") String redirectUrl) {
         var params = new ForgotPasswordCommandParams(body, redirectUrl);
-        var response = forgotPasswordCommand.execute(params);
+        var response = forgotPasswordCommand.execute(params, null);
         return ResponseEntity.ok(response);
     }
 
@@ -250,7 +267,7 @@ public class AuthController {
             @Valid @RequestBody ResetPasswordRequest body,
             @RequestParam(value = "redirectUrl") String redirectUrl) {
         var params = new ResetPasswordCommandParams(body, redirectUrl);
-        resetPasswordCommand.execute(params);
+        resetPasswordCommand.execute(params, null);
         return ResponseEntity.status(HttpStatus.FOUND).location(URI.create(redirectUrl)).build();
     }
 
@@ -262,7 +279,7 @@ public class AuthController {
                     @CookieValue(name = CookieConstant.REFRESH_TOKEN, required = false)
                     String rawRefreshToken) {
         var params = new GetAuthSessionsQueryParams(userDetails, rawRefreshToken);
-        var response = getAuthSessionsQuery.execute(params);
+        var response = getAuthSessionsQuery.execute(params, null);
         return ResponseEntity.ok(response);
     }
 
@@ -275,7 +292,7 @@ public class AuthController {
                     @CookieValue(name = CookieConstant.REFRESH_TOKEN, required = false)
                     String rawRefreshToken) {
         var params = new RevokeAuthSessionCommandParams(userDetails, id, rawRefreshToken);
-        revokeAuthSessionCommand.execute(params);
+        revokeAuthSessionCommand.execute(params, null);
         return ResponseEntity.noContent().build();
     }
 
@@ -285,7 +302,7 @@ public class AuthController {
             @AuthenticationPrincipal UserDetails userDetails,
             @Valid @RequestBody ChangePasswordRequest body) {
         var params = new ChangePasswordCommandParams(userDetails, body);
-        changePasswordCommand.execute(params);
+        changePasswordCommand.execute(params, null);
         return ResponseEntity.noContent().build();
     }
 }

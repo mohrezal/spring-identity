@@ -1,5 +1,6 @@
 package com.github.mohrezal.identity.domain.auth.command;
 
+import com.github.mohrezal.identity.audit.service.AuditRequestContext;
 import com.github.mohrezal.identity.domain.auth.command.param.LogoutAllCommandParams;
 import com.github.mohrezal.identity.domain.auth.model.RefreshToken;
 import com.github.mohrezal.identity.domain.auth.repository.RefreshTokenRepository;
@@ -18,7 +19,7 @@ public class LogoutAllCommand extends AuthenticatedCommand<LogoutAllCommandParam
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Void execute(LogoutAllCommandParams params) {
+    public Void execute(LogoutAllCommandParams params, AuditRequestContext auditRequestContext) {
         var user = getCurrentUser(params);
         var activeRefreshTokens = refreshTokenRepository.findAllByUserAndRevokedAtIsNull(user);
 

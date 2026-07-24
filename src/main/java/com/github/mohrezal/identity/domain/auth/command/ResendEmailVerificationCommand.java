@@ -1,5 +1,6 @@
 package com.github.mohrezal.identity.domain.auth.command;
 
+import com.github.mohrezal.identity.audit.service.AuditRequestContext;
 import com.github.mohrezal.identity.domain.auth.command.param.ResendEmailVerificationCommandParams;
 import com.github.mohrezal.identity.domain.user.listener.message.UserEmailVerificationMessage;
 import com.github.mohrezal.identity.domain.user.repository.UserRepository;
@@ -33,7 +34,8 @@ public class ResendEmailVerificationCommand
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public Boolean execute(ResendEmailVerificationCommandParams params) {
+    public Boolean execute(
+            ResendEmailVerificationCommandParams params, AuditRequestContext auditRequestContext) {
         validate(params);
 
         var optionalUser = userRepository.findByEmail(params.request().email());

@@ -95,7 +95,7 @@ class UpdateRoleCommandTest {
         when(roleRepository.saveAndFlush(role)).thenReturn(role);
         when(roleMapper.toSummary(role)).thenReturn(summary);
 
-        var result = command.execute(params);
+        var result = command.execute(params, null);
 
         assertThat(result).isSameAs(summary);
         assertThat(role.getKey()).isEqualTo(ROLE_KEY);
@@ -127,7 +127,7 @@ class UpdateRoleCommandTest {
         when(applicationProperties.privilege()).thenReturn(PRIVILEGE_PROPERTIES);
         when(roleRepository.findByIdWithPermissions(roleId)).thenReturn(Optional.of(role));
 
-        assertThatThrownBy(() -> command.execute(params))
+        assertThatThrownBy(() -> command.execute(params, null))
                 .isInstanceOf(OwnerRoleCannotBeUpdatedException.class);
         assertThat(role.getName()).isEqualTo("Owner");
         assertThat(role.getEnabled()).isTrue();

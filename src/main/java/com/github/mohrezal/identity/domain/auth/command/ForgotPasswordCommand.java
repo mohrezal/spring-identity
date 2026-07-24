@@ -1,5 +1,6 @@
 package com.github.mohrezal.identity.domain.auth.command;
 
+import com.github.mohrezal.identity.audit.service.AuditRequestContext;
 import com.github.mohrezal.identity.domain.auth.command.param.ForgotPasswordCommandParams;
 import com.github.mohrezal.identity.domain.auth.listener.message.PasswordResetEmailMessage;
 import com.github.mohrezal.identity.domain.user.repository.UserRepository;
@@ -35,7 +36,8 @@ public class ForgotPasswordCommand implements Command<ForgotPasswordCommandParam
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Boolean execute(ForgotPasswordCommandParams params) {
+    public Boolean execute(
+            ForgotPasswordCommandParams params, AuditRequestContext auditRequestContext) {
         validate(params);
 
         var user = userRepository.findByEmail(params.request().email());

@@ -1,5 +1,6 @@
 package com.github.mohrezal.identity.domain.privilege.command;
 
+import com.github.mohrezal.identity.audit.service.AuditRequestContext;
 import com.github.mohrezal.identity.config.ApplicationProperties;
 import com.github.mohrezal.identity.domain.privilege.command.param.UpdateRoleCommandParams;
 import com.github.mohrezal.identity.domain.privilege.dto.RoleSummary;
@@ -29,7 +30,8 @@ public class UpdateRoleCommand implements Command<UpdateRoleCommandParams, RoleS
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public RoleSummary execute(UpdateRoleCommandParams params) {
+    public RoleSummary execute(
+            UpdateRoleCommandParams params, AuditRequestContext auditRequestContext) {
         var role =
                 roleRepository
                         .findByIdWithPermissions(params.roleId())

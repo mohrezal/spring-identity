@@ -1,5 +1,6 @@
 package com.github.mohrezal.identity.domain.auth.command;
 
+import com.github.mohrezal.identity.audit.service.AuditRequestContext;
 import com.github.mohrezal.identity.domain.auth.command.param.LogoutCommandParams;
 import com.github.mohrezal.identity.domain.auth.repository.RefreshTokenRepository;
 import com.github.mohrezal.identity.shared.interfaces.Command;
@@ -20,7 +21,7 @@ public class LogoutCommand implements Command<LogoutCommandParams, Void> {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Void execute(LogoutCommandParams params) {
+    public Void execute(LogoutCommandParams params, AuditRequestContext auditRequestContext) {
         if (!StringUtils.hasText(params.rawRefreshToken())) {
             log.info("Logout requested without refresh token cookie.");
             return null;

@@ -90,7 +90,8 @@ class OAuthCallbackQueryTest {
         when(redisService.consume(RedisKey.OAUTH_STATE, OAuthStatePayload.class, STATE))
                 .thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> query.execute(params)).isInstanceOf(UnauthorizedException.class);
+        assertThatThrownBy(() -> query.execute(params, null))
+                .isInstanceOf(UnauthorizedException.class);
         verifyNoInteractions(providerRegistry, provider);
     }
 
@@ -109,7 +110,8 @@ class OAuthCallbackQueryTest {
         when(redisService.consume(RedisKey.OAUTH_STATE, OAuthStatePayload.class, STATE))
                 .thenReturn(Optional.of(payload));
 
-        assertThatThrownBy(() -> query.execute(params)).isInstanceOf(UnauthorizedException.class);
+        assertThatThrownBy(() -> query.execute(params, null))
+                .isInstanceOf(UnauthorizedException.class);
         verifyNoInteractions(providerRegistry, provider);
     }
 
@@ -124,7 +126,8 @@ class OAuthCallbackQueryTest {
         when(redisService.consume(RedisKey.OAUTH_STATE, OAuthStatePayload.class, STATE))
                 .thenReturn(Optional.of(payload));
 
-        assertThatThrownBy(() -> query.execute(params)).isInstanceOf(UnauthorizedException.class);
+        assertThatThrownBy(() -> query.execute(params, null))
+                .isInstanceOf(UnauthorizedException.class);
         verifyNoInteractions(providerRegistry, provider);
     }
 
@@ -143,7 +146,8 @@ class OAuthCallbackQueryTest {
         when(providerRegistry.get(PROVIDER)).thenReturn(provider);
         when(provider.profile(CODE)).thenReturn(profile);
 
-        assertThatThrownBy(() -> query.execute(params)).isInstanceOf(UnauthorizedException.class);
+        assertThatThrownBy(() -> query.execute(params, null))
+                .isInstanceOf(UnauthorizedException.class);
         verifyNoInteractions(userRepository, userOauthConnectionRepository);
     }
 
@@ -169,7 +173,7 @@ class OAuthCallbackQueryTest {
                 .thenReturn(Optional.of(connection));
         when(tokenIssuanceService.issue(user, IP_ADDRESS, USER_AGENT)).thenReturn(authResponse);
 
-        var response = query.execute(params);
+        var response = query.execute(params, null);
 
         assertThat(response.authResponse()).isSameAs(authResponse);
         assertThat(response.redirectUrl()).isEqualTo(REDIRECT_URL);
@@ -197,7 +201,7 @@ class OAuthCallbackQueryTest {
                 .thenReturn(Optional.empty());
         when(userRepository.existsUserByEmail(EMAIL)).thenReturn(true);
 
-        assertThatThrownBy(() -> query.execute(params))
+        assertThatThrownBy(() -> query.execute(params, null))
                 .isInstanceOf(OAuthEmailConflictException.class);
         verify(userRepository, never()).save(any());
         verifyNoInteractions(tokenIssuanceService, userRoleAssignmentService, eventPublisher);
@@ -231,7 +235,7 @@ class OAuthCallbackQueryTest {
         when(tokenIssuanceService.issue(savedUser, IP_ADDRESS, USER_AGENT))
                 .thenReturn(authResponse);
 
-        var response = query.execute(params);
+        var response = query.execute(params, null);
 
         assertThat(response.authResponse()).isSameAs(authResponse);
         verify(userRepository).save(userCaptor.capture());
@@ -270,7 +274,7 @@ class OAuthCallbackQueryTest {
         when(providerRegistry.get(PROVIDER)).thenReturn(provider);
         when(provider.profile(CODE)).thenReturn(profile);
 
-        var response = query.execute(params);
+        var response = query.execute(params, null);
 
         assertThat(response.authResponse()).isNull();
         assertThat(response.redirectUrl()).isEqualTo(REDIRECT_URL);

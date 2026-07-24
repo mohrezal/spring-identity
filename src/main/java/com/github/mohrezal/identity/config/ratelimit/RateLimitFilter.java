@@ -3,8 +3,8 @@ package com.github.mohrezal.identity.config.ratelimit;
 import com.github.mohrezal.identity.domain.user.model.User;
 import com.github.mohrezal.identity.shared.enums.RedisKey;
 import com.github.mohrezal.identity.shared.redis.RedisService;
-import com.github.mohrezal.identity.shared.service.ClientIpService;
 import com.github.mohrezal.identity.shared.service.HashService;
+import com.github.mohrezal.identity.shared.service.HttpRequestContextService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -27,7 +27,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
 
     private final RateLimitConfig rateLimitConfig;
     private final RedisService redisService;
-    private final ClientIpService clientIpService;
+    private final HttpRequestContextService httpRequestContextProvider;
     private final HashService hashService;
 
     private record ConsumptionResult(boolean allowed, int remainingTokens, int retryAfterSeconds) {}
@@ -47,7 +47,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
         if (policy.ipLimit() != null) {
             var ipSubject =
                     hashService
-                            .hashHex(clientIpService.getClientIp(request))
+                            .hashHex(httpRequestContextProvider.getClientIp(request))
                             .substring(0, SUBJECT_HASH_LENGTH);
             var result =
                     tryConsume(

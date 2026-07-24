@@ -1,5 +1,6 @@
 package com.github.mohrezal.identity.domain.auth.query;
 
+import com.github.mohrezal.identity.audit.service.AuditRequestContext;
 import com.github.mohrezal.identity.domain.auth.dto.OAuthAuthorizeResponse;
 import com.github.mohrezal.identity.domain.auth.dto.oauth.OAuthStatePayload;
 import com.github.mohrezal.identity.domain.auth.enums.OAuthFlowType;
@@ -36,7 +37,8 @@ public class OAuthAuthorizeQuery
     }
 
     @Override
-    public OAuthAuthorizeResponse execute(OAuthAuthorizeQueryParams params) {
+    public OAuthAuthorizeResponse execute(
+            OAuthAuthorizeQueryParams params, AuditRequestContext auditRequestContext) {
         validate(params);
 
         var state = hashService.randomBase64(TOKEN_BYTES);

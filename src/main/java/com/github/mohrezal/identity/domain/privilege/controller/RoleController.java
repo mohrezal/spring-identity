@@ -54,21 +54,21 @@ public class RoleController {
     @RequiresPermission(Permissions.IDENTITY_PRIVILEGE_ROLES_READ)
     @GetMapping
     public ResponseEntity<List<RoleSummary>> roles() {
-        var response = getRolesQuery.execute(new GetRolesQueryParams());
+        var response = getRolesQuery.execute(new GetRolesQueryParams(), null);
         return ResponseEntity.ok(response);
     }
 
     @RequiresPermission(Permissions.IDENTITY_PRIVILEGE_ROLES_READ)
     @GetMapping(RouteConstants.Privilege.ROLE)
     public ResponseEntity<RoleSummary> role(@PathVariable UUID id) {
-        var response = getRoleQuery.execute(new GetRoleQueryParams(id));
+        var response = getRoleQuery.execute(new GetRoleQueryParams(id), null);
         return ResponseEntity.ok(response);
     }
 
     @RequiresPermission(Permissions.IDENTITY_PRIVILEGE_ROLES_CREATE)
     @PostMapping
     public ResponseEntity<RoleSummary> create(@Valid @RequestBody CreateRoleRequest body) {
-        var response = createRoleCommand.execute(new CreateRoleCommandParams(body));
+        var response = createRoleCommand.execute(new CreateRoleCommandParams(body), null);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -76,7 +76,7 @@ public class RoleController {
     @PutMapping(RouteConstants.Privilege.ROLE)
     public ResponseEntity<RoleSummary> update(
             @PathVariable UUID id, @Valid @RequestBody UpdateRoleRequest body) {
-        var response = updateRoleCommand.execute(new UpdateRoleCommandParams(id, body));
+        var response = updateRoleCommand.execute(new UpdateRoleCommandParams(id, body), null);
         return ResponseEntity.ok(response);
     }
 
@@ -85,21 +85,22 @@ public class RoleController {
     public ResponseEntity<List<RoleSummary>> updateUserRoles(
             @PathVariable UUID userId, @Valid @RequestBody UpdateUserRolesRequest body) {
         var response =
-                updateUserRolesCommand.execute(new UpdateUserRolesCommandParams(userId, body));
+                updateUserRolesCommand.execute(
+                        new UpdateUserRolesCommandParams(userId, body), null);
         return ResponseEntity.ok(response);
     }
 
     @RequiresPermission(Permissions.IDENTITY_PRIVILEGE_ROLES_READ)
     @GetMapping(RouteConstants.Privilege.ROLE_ASSIGNMENTS)
     public ResponseEntity<List<RoleSummary>> userRoles(@PathVariable UUID userId) {
-        var response = getUserRolesQuery.execute(new GetUserRolesQueryParams(userId));
+        var response = getUserRolesQuery.execute(new GetUserRolesQueryParams(userId), null);
         return ResponseEntity.ok(response);
     }
 
     @RequiresPermission(Permissions.IDENTITY_PRIVILEGE_ROLES_DELETE)
     @DeleteMapping(RouteConstants.Privilege.ROLE)
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
-        deleteRoleCommand.execute(new DeleteRoleCommandParams(id));
+        deleteRoleCommand.execute(new DeleteRoleCommandParams(id), null);
         return ResponseEntity.noContent().build();
     }
 }

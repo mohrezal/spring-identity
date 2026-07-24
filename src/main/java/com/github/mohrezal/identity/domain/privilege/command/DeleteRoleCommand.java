@@ -1,5 +1,6 @@
 package com.github.mohrezal.identity.domain.privilege.command;
 
+import com.github.mohrezal.identity.audit.service.AuditRequestContext;
 import com.github.mohrezal.identity.config.ApplicationProperties;
 import com.github.mohrezal.identity.domain.privilege.command.param.DeleteRoleCommandParams;
 import com.github.mohrezal.identity.domain.privilege.exception.type.ConfiguredRoleCannotBeDeletedException;
@@ -25,7 +26,7 @@ public class DeleteRoleCommand implements Command<DeleteRoleCommandParams, Void>
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Void execute(DeleteRoleCommandParams params) {
+    public Void execute(DeleteRoleCommandParams params, AuditRequestContext auditRequestContext) {
         var role = roleRepository.findById(params.roleId()).orElseThrow(RoleNotFoundException::new);
         var configuredRoles = applicationProperties.privilege().role();
         var configuredRoleKeys =

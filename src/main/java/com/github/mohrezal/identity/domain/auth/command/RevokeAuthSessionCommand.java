@@ -1,5 +1,6 @@
 package com.github.mohrezal.identity.domain.auth.command;
 
+import com.github.mohrezal.identity.audit.service.AuditRequestContext;
 import com.github.mohrezal.identity.domain.auth.command.param.RevokeAuthSessionCommandParams;
 import com.github.mohrezal.identity.domain.auth.exception.type.AuthCannotRevokeCurrentSessionException;
 import com.github.mohrezal.identity.domain.auth.exception.type.AuthSessionNotFoundException;
@@ -23,7 +24,8 @@ public class RevokeAuthSessionCommand
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Void execute(RevokeAuthSessionCommandParams params) {
+    public Void execute(
+            RevokeAuthSessionCommandParams params, AuditRequestContext auditRequestContext) {
         var user = getCurrentUser(params);
         var targetSession =
                 refreshTokenRepository

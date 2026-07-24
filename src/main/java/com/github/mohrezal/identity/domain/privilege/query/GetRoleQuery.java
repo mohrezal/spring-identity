@@ -1,5 +1,6 @@
 package com.github.mohrezal.identity.domain.privilege.query;
 
+import com.github.mohrezal.identity.audit.service.AuditRequestContext;
 import com.github.mohrezal.identity.domain.privilege.dto.RoleSummary;
 import com.github.mohrezal.identity.domain.privilege.exception.type.RoleNotFoundException;
 import com.github.mohrezal.identity.domain.privilege.mapper.RoleMapper;
@@ -19,7 +20,7 @@ public class GetRoleQuery implements Query<GetRoleQueryParams, RoleSummary> {
 
     @Override
     @Transactional(readOnly = true)
-    public RoleSummary execute(GetRoleQueryParams params) {
+    public RoleSummary execute(GetRoleQueryParams params, AuditRequestContext auditRequestContext) {
         return roleRepository
                 .findByIdWithPermissions(params.roleId())
                 .map(roleMapper::toSummary)

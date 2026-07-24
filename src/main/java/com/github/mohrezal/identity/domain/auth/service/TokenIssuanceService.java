@@ -46,7 +46,7 @@ public class TokenIssuanceService {
                 user.getId(),
                 savedRefreshToken.getId());
 
-        return new AuthResponse(accessToken, refreshToken);
+        return new AuthResponse(accessToken, refreshToken, savedRefreshToken.getId());
     }
 
     public AuthResponse rotate(RefreshToken refreshToken, String ipAddress, String deviceInfo) {

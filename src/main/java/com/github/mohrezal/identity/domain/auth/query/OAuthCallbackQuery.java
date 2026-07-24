@@ -1,5 +1,6 @@
 package com.github.mohrezal.identity.domain.auth.query;
 
+import com.github.mohrezal.identity.audit.service.AuditRequestContext;
 import com.github.mohrezal.identity.domain.auth.dto.AuthResponse;
 import com.github.mohrezal.identity.domain.auth.dto.OAuthCallbackResponse;
 import com.github.mohrezal.identity.domain.auth.dto.oauth.OAuthStatePayload;
@@ -58,7 +59,8 @@ public class OAuthCallbackQuery implements Query<OAuthCallbackQueryParams, OAuth
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public OAuthCallbackResponse execute(OAuthCallbackQueryParams params) {
+    public OAuthCallbackResponse execute(
+            OAuthCallbackQueryParams params, AuditRequestContext auditRequestContext) {
         validate(params);
 
         var payload =

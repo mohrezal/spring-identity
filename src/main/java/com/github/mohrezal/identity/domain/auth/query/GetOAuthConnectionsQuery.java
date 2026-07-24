@@ -1,5 +1,6 @@
 package com.github.mohrezal.identity.domain.auth.query;
 
+import com.github.mohrezal.identity.audit.service.AuditRequestContext;
 import com.github.mohrezal.identity.domain.auth.dto.OAuthConnectionSummary;
 import com.github.mohrezal.identity.domain.auth.mapper.UserOauthConnectionMapper;
 import com.github.mohrezal.identity.domain.auth.query.param.GetOAuthConnectionsQueryParams;
@@ -18,7 +19,8 @@ public class GetOAuthConnectionsQuery
     private final UserOauthConnectionMapper userOauthConnectionMapper;
 
     @Override
-    public List<OAuthConnectionSummary> execute(GetOAuthConnectionsQueryParams params) {
+    public List<OAuthConnectionSummary> execute(
+            GetOAuthConnectionsQueryParams params, AuditRequestContext auditRequestContext) {
         var user = getCurrentUser(params);
         return userOauthConnectionRepository.findAllByUser(user).stream()
                 .map(userOauthConnectionMapper::toSummary)

@@ -1,5 +1,6 @@
 package com.github.mohrezal.identity.domain.auth.command;
 
+import com.github.mohrezal.identity.audit.service.AuditRequestContext;
 import com.github.mohrezal.identity.domain.auth.command.param.RefreshTokenCommandParams;
 import com.github.mohrezal.identity.domain.auth.dto.AuthResponse;
 import com.github.mohrezal.identity.domain.auth.repository.RefreshTokenRepository;
@@ -30,7 +31,8 @@ public class RefreshTokenCommand implements Command<RefreshTokenCommandParams, A
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public AuthResponse execute(RefreshTokenCommandParams params) {
+    public AuthResponse execute(
+            RefreshTokenCommandParams params, AuditRequestContext auditRequestContext) {
         validate(params);
 
         var hashedRefreshToken = hashService.hashHex(params.rawRefreshToken());

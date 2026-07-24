@@ -1,5 +1,6 @@
 package com.github.mohrezal.identity.domain.auth.command;
 
+import com.github.mohrezal.identity.audit.service.AuditRequestContext;
 import com.github.mohrezal.identity.domain.auth.command.param.ResetPasswordCommandParams;
 import com.github.mohrezal.identity.domain.auth.exception.type.AuthPasswordResetTokenNotFoundException;
 import com.github.mohrezal.identity.domain.auth.model.RefreshToken;
@@ -40,7 +41,8 @@ public class ResetPasswordCommand implements Command<ResetPasswordCommandParams,
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Void execute(ResetPasswordCommandParams params) {
+    public Void execute(
+            ResetPasswordCommandParams params, AuditRequestContext auditRequestContext) {
         validate(params);
 
         var token = params.request().token().toString();

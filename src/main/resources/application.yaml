@@ -1,6 +1,16 @@
 server:
   port: 8080
 
+management:
+  tracing:
+    export:
+      otlp:
+        enabled: false
+  otlp:
+    metrics:
+      export:
+        enabled: false
+
 spring:
   config:
     import: optional:file:.env[.properties]

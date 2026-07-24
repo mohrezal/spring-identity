@@ -1,5 +1,6 @@
 package com.github.mohrezal.identity.domain.privilege.query;
 
+import com.github.mohrezal.identity.audit.service.AuditRequestContext;
 import com.github.mohrezal.identity.domain.privilege.dto.PermissionSummary;
 import com.github.mohrezal.identity.domain.privilege.mapper.PermissionMapper;
 import com.github.mohrezal.identity.domain.privilege.query.param.GetPermissionsQueryParams;
@@ -20,7 +21,8 @@ public class GetPermissionsQuery
 
     @Override
     @Transactional(readOnly = true)
-    public List<PermissionSummary> execute(GetPermissionsQueryParams params) {
+    public List<PermissionSummary> execute(
+            GetPermissionsQueryParams params, AuditRequestContext auditRequestContext) {
         return permissionRepository.findAllByOrderByServiceAscKeyAsc().stream()
                 .map(permissionMapper::toSummary)
                 .toList();

@@ -1,5 +1,6 @@
 package com.github.mohrezal.identity.domain.auth.command;
 
+import com.github.mohrezal.identity.audit.service.AuditRequestContext;
 import com.github.mohrezal.identity.domain.auth.command.param.UnlinkOAuthConnectionCommandParams;
 import com.github.mohrezal.identity.domain.auth.exception.type.OAuthCannotUnlinkLastLoginMethodException;
 import com.github.mohrezal.identity.domain.auth.exception.type.OAuthConnectionNotFoundException;
@@ -22,7 +23,8 @@ public class UnlinkOAuthConnectionCommand
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Void execute(UnlinkOAuthConnectionCommandParams params) {
+    public Void execute(
+            UnlinkOAuthConnectionCommandParams params, AuditRequestContext auditRequestContext) {
         var user = getCurrentUser(params);
         var connection =
                 userOauthConnectionRepository

@@ -1,5 +1,6 @@
 package com.github.mohrezal.identity.domain.auth.command;
 
+import com.github.mohrezal.identity.audit.service.AuditRequestContext;
 import com.github.mohrezal.identity.domain.auth.command.param.VerifyEmailCommandParams;
 import com.github.mohrezal.identity.domain.auth.exception.type.AuthEmailAlreadyVerifiedException;
 import com.github.mohrezal.identity.domain.auth.exception.type.AuthEmailVerificationTokenNotFoundException;
@@ -34,7 +35,7 @@ public class VerifyEmailCommand implements Command<VerifyEmailCommandParams, Voi
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public Void execute(VerifyEmailCommandParams params) {
+    public Void execute(VerifyEmailCommandParams params, AuditRequestContext auditRequestContext) {
         validate(params);
         var email =
                 redisService

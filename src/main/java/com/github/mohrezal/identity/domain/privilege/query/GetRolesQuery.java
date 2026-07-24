@@ -1,5 +1,6 @@
 package com.github.mohrezal.identity.domain.privilege.query;
 
+import com.github.mohrezal.identity.audit.service.AuditRequestContext;
 import com.github.mohrezal.identity.domain.privilege.dto.RoleSummary;
 import com.github.mohrezal.identity.domain.privilege.mapper.RoleMapper;
 import com.github.mohrezal.identity.domain.privilege.query.param.GetRolesQueryParams;
@@ -19,7 +20,8 @@ public class GetRolesQuery implements Query<GetRolesQueryParams, List<RoleSummar
 
     @Override
     @Transactional(readOnly = true)
-    public List<RoleSummary> execute(GetRolesQueryParams params) {
+    public List<RoleSummary> execute(
+            GetRolesQueryParams params, AuditRequestContext auditRequestContext) {
         return roleRepository.findAllWithPermissions().stream().map(roleMapper::toSummary).toList();
     }
 }

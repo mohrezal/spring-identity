@@ -1,5 +1,6 @@
 package com.github.mohrezal.identity.domain.privilege.command;
 
+import com.github.mohrezal.identity.audit.service.AuditRequestContext;
 import com.github.mohrezal.identity.domain.privilege.command.param.CreateRoleCommandParams;
 import com.github.mohrezal.identity.domain.privilege.dto.RoleSummary;
 import com.github.mohrezal.identity.domain.privilege.exception.type.PermissionNotFoundException;
@@ -34,7 +35,8 @@ public class CreateRoleCommand implements Command<CreateRoleCommandParams, RoleS
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public RoleSummary execute(CreateRoleCommandParams params) {
+    public RoleSummary execute(
+            CreateRoleCommandParams params, AuditRequestContext auditRequestContext) {
         validate(params);
 
         var request = params.request();

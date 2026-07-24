@@ -1,5 +1,6 @@
 package com.github.mohrezal.identity.domain.auth.command;
 
+import com.github.mohrezal.identity.audit.service.AuditRequestContext;
 import com.github.mohrezal.identity.domain.auth.command.param.ChangePasswordCommandParams;
 import com.github.mohrezal.identity.domain.auth.exception.type.AuthCurrentPasswordMismatchException;
 import com.github.mohrezal.identity.domain.auth.model.RefreshToken;
@@ -23,7 +24,8 @@ public class ChangePasswordCommand extends AuthenticatedCommand<ChangePasswordCo
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Void execute(ChangePasswordCommandParams params) {
+    public Void execute(
+            ChangePasswordCommandParams params, AuditRequestContext auditRequestContext) {
         validate(params);
 
         var user = getCurrentUser(params);

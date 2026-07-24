@@ -52,7 +52,7 @@ class ForgotPasswordCommandTest {
         when(redirectValidationService.isValid(PASSWORD_RESET)).thenReturn(true);
         when(userRepository.findByEmail(EMAIL)).thenReturn(Optional.empty());
 
-        var result = command.execute(params);
+        var result = command.execute(params, null);
 
         assertThat(result).isTrue();
         verifyNoInteractions(redisService, eventPublisher);
@@ -69,7 +69,7 @@ class ForgotPasswordCommandTest {
         when(redirectValidationService.isValid(PASSWORD_RESET)).thenReturn(true);
         when(userRepository.findByEmail(EMAIL)).thenReturn(Optional.of(user));
 
-        var result = command.execute(params);
+        var result = command.execute(params, null);
 
         assertThat(result).isTrue();
         verify(redisService)

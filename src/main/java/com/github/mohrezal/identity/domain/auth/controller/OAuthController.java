@@ -15,7 +15,7 @@ import com.github.mohrezal.identity.domain.auth.query.param.OAuthAuthorizeQueryP
 import com.github.mohrezal.identity.domain.auth.query.param.OAuthCallbackQueryParams;
 import com.github.mohrezal.identity.domain.privilege.constant.Permissions;
 import com.github.mohrezal.identity.shared.annotation.RequiresPermission;
-import com.github.mohrezal.identity.shared.service.ClientIpService;
+import com.github.mohrezal.identity.shared.service.HttpRequestContextService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import java.net.URI;
@@ -45,7 +45,7 @@ public class OAuthController {
     private final GetOAuthConnectionsQuery getOAuthConnectionsQuery;
     private final UnlinkOAuthConnectionCommand unlinkOAuthConnectionCommand;
 
-    private final ClientIpService clientIpService;
+    private final HttpRequestContextService httpRequestContextProvider;
     private final ApplicationProperties applicationProperties;
 
     @RequiresPermission(Permissions.IDENTITY_AUTH_OAUTH_CONNECTIONS_READ)
@@ -53,7 +53,7 @@ public class OAuthController {
     public ResponseEntity<List<OAuthConnectionSummary>> connections(
             @AuthenticationPrincipal UserDetails userDetails) {
         var params = new GetOAuthConnectionsQueryParams(userDetails);
-        var response = getOAuthConnectionsQuery.execute(params);
+        var response = getOAuthConnectionsQuery.execute(params, null);
         return ResponseEntity.ok(response);
     }
 
@@ -62,7 +62,7 @@ public class OAuthController {
     public ResponseEntity<Void> unlinkConnection(
             @PathVariable UUID id, @AuthenticationPrincipal UserDetails userDetails) {
         var params = new UnlinkOAuthConnectionCommandParams(userDetails, id);
-        unlinkOAuthConnectionCommand.execute(params);
+        unlinkOAuthConnectionCommand.execute(params, null);
         return ResponseEntity.noContent().build();
     }
 
@@ -75,7 +75,7 @@ public class OAuthController {
                         OAuthFlowType.LOGIN,
                         redirectUrl,
                         null);
-        var response = authAuthorizeQuery.execute(params);
+        var response = authAuthorizeQuery.execute(params, null);
         var stateCookie =
                 applicationProperties
                         .security()
@@ -100,7 +100,7 @@ public class OAuthController {
                         OAuthFlowType.LINK,
                         redirectUrl,
                         userDetails);
-        var response = authAuthorizeQuery.execute(params);
+        var response = authAuthorizeQuery.execute(params, null);
         var stateCookie =
                 applicationProperties
                         .security()
@@ -130,9 +130,9 @@ public class OAuthController {
                                 .cookie()
                                 .oauthState()
                                 .valueFrom(request.getCookies()),
-                        clientIpService.getClientIp(request),
+                        httpRequestContextProvider.getClientIp(request),
                         request.getHeader(HttpHeaders.USER_AGENT));
-        var response = oAuthCallbackQuery.execute(params);
+        var response = oAuthCallbackQuery.execute(params, null);
 
         if (OAuthFlowType.LINK.equals(response.flowType())) {
             return ResponseEntity.status(HttpStatus.FOUND)

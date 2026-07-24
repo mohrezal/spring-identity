@@ -1,5 +1,6 @@
 package com.github.mohrezal.identity.domain.privilege.command;
 
+import com.github.mohrezal.identity.audit.service.AuditRequestContext;
 import com.github.mohrezal.identity.config.ApplicationProperties;
 import com.github.mohrezal.identity.domain.privilege.command.param.UpdateUserRolesCommandParams;
 import com.github.mohrezal.identity.domain.privilege.dto.RoleSummary;
@@ -34,7 +35,8 @@ public class UpdateUserRolesCommand
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public List<RoleSummary> execute(UpdateUserRolesCommandParams params) {
+    public List<RoleSummary> execute(
+            UpdateUserRolesCommandParams params, AuditRequestContext auditRequestContext) {
         var user = userRepository.findById(params.userId()).orElseThrow(UserNotFoundException::new);
         var roleIds = params.request().roleIds();
         List<Role> roles =

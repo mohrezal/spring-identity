@@ -1,5 +1,6 @@
 package com.github.mohrezal.identity.domain.privilege.query;
 
+import com.github.mohrezal.identity.audit.service.AuditRequestContext;
 import com.github.mohrezal.identity.domain.privilege.dto.RoleSummary;
 import com.github.mohrezal.identity.domain.privilege.mapper.RoleMapper;
 import com.github.mohrezal.identity.domain.privilege.query.param.GetUserRolesQueryParams;
@@ -22,7 +23,8 @@ public class GetUserRolesQuery implements Query<GetUserRolesQueryParams, List<Ro
 
     @Override
     @Transactional(readOnly = true)
-    public List<RoleSummary> execute(GetUserRolesQueryParams params) {
+    public List<RoleSummary> execute(
+            GetUserRolesQueryParams params, AuditRequestContext auditRequestContext) {
         if (!userRepository.existsById(params.userId())) {
             throw new UserNotFoundException();
         }

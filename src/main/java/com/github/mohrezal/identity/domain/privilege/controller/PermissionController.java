@@ -37,14 +37,14 @@ public class PermissionController {
     @RequiresPermission(Permissions.IDENTITY_PRIVILEGE_PERMISSIONS_READ)
     @GetMapping
     public ResponseEntity<List<PermissionSummary>> permissions() {
-        var response = getPermissionsQuery.execute(new GetPermissionsQueryParams());
+        var response = getPermissionsQuery.execute(new GetPermissionsQueryParams(), null);
         return ResponseEntity.ok(response);
     }
 
     @RequiresPermission(Permissions.IDENTITY_PRIVILEGE_PERMISSIONS_READ)
     @GetMapping(RouteConstants.Privilege.PERMISSION)
     public ResponseEntity<PermissionSummary> permission(@PathVariable UUID id) {
-        var response = getPermissionQuery.execute(new GetPermissionQueryParams(id));
+        var response = getPermissionQuery.execute(new GetPermissionQueryParams(id), null);
         return ResponseEntity.ok(response);
     }
 
@@ -52,7 +52,8 @@ public class PermissionController {
     @PutMapping(RouteConstants.Privilege.PERMISSION)
     public ResponseEntity<PermissionSummary> update(
             @PathVariable UUID id, @Valid @RequestBody UpdatePermissionRequest body) {
-        var response = updatePermissionCommand.execute(new UpdatePermissionCommandParams(id, body));
+        var response =
+                updatePermissionCommand.execute(new UpdatePermissionCommandParams(id, body), null);
         return ResponseEntity.ok(response);
     }
 }

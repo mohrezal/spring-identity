@@ -1,5 +1,6 @@
 package com.github.mohrezal.identity.domain.privilege.query;
 
+import com.github.mohrezal.identity.audit.service.AuditRequestContext;
 import com.github.mohrezal.identity.domain.privilege.dto.PermissionSummary;
 import com.github.mohrezal.identity.domain.privilege.exception.type.PermissionNotFoundException;
 import com.github.mohrezal.identity.domain.privilege.mapper.PermissionMapper;
@@ -19,7 +20,8 @@ public class GetPermissionQuery implements Query<GetPermissionQueryParams, Permi
 
     @Override
     @Transactional(readOnly = true)
-    public PermissionSummary execute(GetPermissionQueryParams params) {
+    public PermissionSummary execute(
+            GetPermissionQueryParams params, AuditRequestContext auditRequestContext) {
         return permissionRepository
                 .findById(params.permissionId())
                 .map(permissionMapper::toSummary)

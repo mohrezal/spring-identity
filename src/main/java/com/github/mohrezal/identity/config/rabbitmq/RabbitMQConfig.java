@@ -96,6 +96,23 @@ public class RabbitMQConfig {
     }
 
     @Bean
+    public DirectExchange auditExchange() {
+        return new DirectExchange(RabbitMQConstants.Audit.EXCHANGE, true, false);
+    }
+
+    @Bean
+    public Queue auditQueue() {
+        return new Queue(RabbitMQConstants.Audit.Queue.AUDIT, true, false, false);
+    }
+
+    @Bean
+    public Binding auditBinding(Queue auditQueue, DirectExchange auditExchange) {
+        return BindingBuilder.bind(auditQueue)
+                .to(auditExchange)
+                .with(RabbitMQConstants.Audit.RoutingKey.AUDIT);
+    }
+
+    @Bean
     public DirectExchange deadLetterExchange() {
         return new DirectExchange(RabbitMQConstants.DeadLetter.EXCHANGE);
     }
