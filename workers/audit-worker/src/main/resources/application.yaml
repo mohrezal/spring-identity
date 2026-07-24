@@ -48,5 +48,3 @@ spring:
     listener:
       simple:
         acknowledge-mode: auto
-        retry:
-          enabled: false
