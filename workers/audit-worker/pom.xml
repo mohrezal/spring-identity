@@ -74,6 +74,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>3.6.0</version>
                 <configuration>
                     <configLocation>../../checkstyle.xml</configLocation>
                     <consoleOutput>true</consoleOutput>
@@ -87,6 +88,10 @@
                         <version>13.5.0</version>
                     </dependency>
                 </dependencies>
+            </plugin>
+            <plugin>
+                <groupId>com.diffplug.spotless</groupId>
+                <artifactId>spotless-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>
