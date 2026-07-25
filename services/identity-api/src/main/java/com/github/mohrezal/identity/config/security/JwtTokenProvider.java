@@ -15,9 +15,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import javax.crypto.SecretKey;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
+@Slf4j
 @Component
 public class JwtTokenProvider {
 
@@ -41,38 +43,44 @@ public class JwtTokenProvider {
 
     public String createAccessToken(UUID userId, List<String> permissions) {
         var now = Instant.now();
-        return Jwts.builder()
-                .subject(userId.toString())
-                .claim(JwtClaim.PERMISSIONS, permissions)
-                .issuedAt(Date.from(now))
-                .expiration(
-                        Date.from(
-                                now.plus(
-                                        applicationProperties
-                                                .security()
-                                                .cookie()
-                                                .accessToken()
-                                                .ttl())))
-                .signWith(signingKey)
-                .compact();
+        var token =
+                Jwts.builder()
+                        .subject(userId.toString())
+                        .claim(JwtClaim.PERMISSIONS, permissions)
+                        .issuedAt(Date.from(now))
+                        .expiration(
+                                Date.from(
+                                        now.plus(
+                                                applicationProperties
+                                                        .security()
+                                                        .cookie()
+                                                        .accessToken()
+                                                        .ttl())))
+                        .signWith(signingKey)
+                        .compact();
+        log.debug("Created access token for userId={}", userId);
+        return token;
     }
 
     public String createRefreshToken(UUID userId) {
         var now = Instant.now();
-        return Jwts.builder()
-                .id(UUID.randomUUID().toString())
-                .subject(userId.toString())
-                .issuedAt(Date.from(now))
-                .expiration(
-                        Date.from(
-                                now.plus(
-                                        applicationProperties
-                                                .security()
-                                                .cookie()
-                                                .refreshToken()
-                                                .ttl())))
-                .signWith(signingKey)
-                .compact();
+        var token =
+                Jwts.builder()
+                        .id(UUID.randomUUID().toString())
+                        .subject(userId.toString())
+                        .issuedAt(Date.from(now))
+                        .expiration(
+                                Date.from(
+                                        now.plus(
+                                                applicationProperties
+                                                        .security()
+                                                        .cookie()
+                                                        .refreshToken()
+                                                        .ttl())))
+                        .signWith(signingKey)
+                        .compact();
+        log.debug("Created refresh token for userId={}", userId);
+        return token;
     }
 
     public Optional<UUID> extractUserId(String token) {
@@ -82,6 +90,7 @@ public class JwtTokenProvider {
                     .filter(StringUtils::hasText)
                     .map(UUID::fromString);
         } catch (JwtException | IllegalArgumentException exception) {
+            log.warn("Failed to parse token: {}", exception.getMessage());
             return Optional.empty();
         }
     }

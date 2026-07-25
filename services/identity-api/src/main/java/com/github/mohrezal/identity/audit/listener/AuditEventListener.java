@@ -21,13 +21,25 @@ public class AuditEventListener {
     // to hook into, so transactional semantics don't apply.
     @EventListener
     public void handle(AuditEvent event) {
-        rabbitMQPublisher.publish(
-                RabbitMQConstants.Audit.EXCHANGE, RabbitMQConstants.Audit.RoutingKey.AUDIT, event);
+        try {
+            rabbitMQPublisher.publish(
+                    RabbitMQConstants.Audit.EXCHANGE,
+                    RabbitMQConstants.Audit.RoutingKey.AUDIT,
+                    event);
 
-        log.info(
-                "Published audit event eventId={}, eventType={}, traceId={}",
-                event.eventId(),
-                event.eventType(),
-                event.traceId());
+            log.info(
+                    "Published audit event eventId={}, eventType={}, traceId={}",
+                    event.eventId(),
+                    event.eventType(),
+                    event.traceId());
+        } catch (Exception e) {
+            log.warn(
+                    "Failed to publish audit event eventId={}, eventType={}, traceId={}",
+                    event.eventId(),
+                    event.eventType(),
+                    event.traceId(),
+                    e);
+            throw e;
+        }
     }
 }

@@ -20,6 +20,7 @@ import com.github.mohrezal.identity.shared.service.MessageService;
 import com.github.mohrezal.identity.shared.service.RedirectValidationService;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -27,6 +28,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.util.UriComponentsBuilder;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class RegisterCommand implements Command<RegisterCommandParams, RegisterResponse> {
@@ -54,6 +56,11 @@ public class RegisterCommand implements Command<RegisterCommandParams, RegisterR
             RegisterCommandParams params, AuditRequestContext auditRequestContext) {
         var request = params.request();
 
+        log.info(
+                "Registering user emailHash={} traceId={}",
+                hashService.hashHex(request.email()).substring(0, 8),
+                auditRequestContext.traceId());
+
         if (userRepository.findByEmail(request.email()).isPresent()) {
             throw new UserEmailAlreadyExistsException(
                     new RegistrationAuditExceptionContext(auditRequestContext, request.email()));
@@ -76,6 +83,8 @@ public class RegisterCommand implements Command<RegisterCommandParams, RegisterR
                 new UserEmailVerificationMessage(user.getEmail(), activationUrl);
 
         eventPublisher.publishEvent(emailVerificationEvent);
+
+        log.info("User registered userId={}", savedUser.getId());
 
         var message =
                 messageService.resolve(
