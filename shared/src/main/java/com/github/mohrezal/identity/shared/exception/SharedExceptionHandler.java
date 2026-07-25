@@ -16,8 +16,6 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -47,20 +45,6 @@ public class SharedExceptionHandler extends AbstractExceptionHandler {
     public ResponseEntity<ErrorResponse> handleSharedException(
             BaseException exception, WebRequest request) {
         return buildErrorResponse(exception, request);
-    }
-
-    @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<ErrorResponse> handleBadCredentialsException(
-            BadCredentialsException exception, WebRequest request) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(buildBody(ExceptionCode.AUTH_INVALID_CREDENTIALS, null, request));
-    }
-
-    @ExceptionHandler(AuthorizationDeniedException.class)
-    public ResponseEntity<ErrorResponse> handleAuthorizationDeniedException(
-            AuthorizationDeniedException exception, WebRequest request) {
-        return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .body(buildBody(ExceptionCode.FORBIDDEN, null, request));
     }
 
     @ExceptionHandler(NoResourceFoundException.class)

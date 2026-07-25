@@ -34,6 +34,11 @@
                 <artifactId>spring-identity-shared</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcprov-jdk18on</artifactId>
+                <version>1.84</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 

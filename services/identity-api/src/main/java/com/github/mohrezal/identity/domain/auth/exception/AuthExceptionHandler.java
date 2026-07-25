@@ -18,6 +18,7 @@ import com.github.mohrezal.identity.domain.auth.exception.type.OAuthConnectionNo
 import com.github.mohrezal.identity.domain.auth.exception.type.OAuthEmailConflictException;
 import com.github.mohrezal.identity.domain.auth.exception.type.OAuthEmailMismatchException;
 import com.github.mohrezal.identity.domain.auth.exception.type.OAuthProviderAlreadyLinkedException;
+import com.github.mohrezal.identity.shared.enums.ExceptionCode;
 import com.github.mohrezal.identity.shared.exception.AbstractExceptionHandler;
 import com.github.mohrezal.identity.shared.exception.ErrorResponse;
 import com.github.mohrezal.identity.shared.exception.type.BaseException;
@@ -25,7 +26,10 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.MessageSource;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
@@ -107,5 +111,19 @@ public class AuthExceptionHandler extends AbstractExceptionHandler {
     public ResponseEntity<ErrorResponse> handleAuthException(
             BaseException exception, WebRequest request) {
         return buildErrorResponse(exception, request);
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<ErrorResponse> handleBadCredentialsException(
+            BadCredentialsException exception, WebRequest request) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(buildBody(ExceptionCode.AUTH_INVALID_CREDENTIALS, null, request));
+    }
+
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    public ResponseEntity<ErrorResponse> handleAuthorizationDeniedException(
+            AuthorizationDeniedException exception, WebRequest request) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(buildBody(ExceptionCode.FORBIDDEN, null, request));
     }
 }

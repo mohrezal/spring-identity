@@ -31,8 +31,9 @@ public final class AuditContractValidator {
 
     public static void main(String[] args) throws IOException {
         var validator = new AuditContractValidator();
-        var exitCode = validator.run();
-        System.exit(exitCode);
+        if (validator.run() != 0) {
+            throw new RuntimeException("Contract validation failed");
+        }
     }
 
     private int run() throws IOException {

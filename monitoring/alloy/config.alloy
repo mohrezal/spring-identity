@@ -1,13 +1,28 @@
 discovery.docker "containers" {
     host = "unix:///var/run/docker.sock"
+    refresh_interval = "30s"
 }
 
 discovery.relabel "identity" {
     targets = discovery.docker.containers.targets
     rule {
         source_labels = ["__meta_docker_container_name"]
-        regex         = "identity_app|audit_worker_app"
+        regex         = ".*(identity_app|audit_worker_app).*"
         action        = "keep"
+    }
+    rule {
+        source_labels = ["__meta_docker_container_name"]
+        regex         = ".*identity_app.*"
+        replacement   = "identity-api"
+        target_label  = "service_name"
+        action        = "replace"
+    }
+    rule {
+        source_labels = ["__meta_docker_container_name"]
+        regex         = ".*audit_worker_app.*"
+        replacement   = "audit-worker"
+        target_label  = "service_name"
+        action        = "replace"
     }
 }
 

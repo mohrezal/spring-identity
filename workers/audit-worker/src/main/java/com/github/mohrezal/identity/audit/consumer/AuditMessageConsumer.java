@@ -42,7 +42,10 @@ public class AuditMessageConsumer {
                 .addKeyValue("eventType", event.eventType().name())
                 .addKeyValue("outcome", event.outcome().name())
                 .addKeyValue(
-                        "actor", event.actor() != null ? event.actor().userId().toString() : null)
+                        "actor",
+                        event.actor() != null && event.actor().userId() != null
+                                ? event.actor().userId().toString()
+                                : null)
                 .addKeyValue("traceId", event.traceId())
                 .log();
 

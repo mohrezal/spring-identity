@@ -25,6 +25,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -42,6 +43,9 @@ public class SecurityConfig {
         "/v3/api-docs/**",
         "/swagger-ui/**",
         "/swagger-ui.html",
+        "/actuator/health",
+        "/actuator/prometheus",
+        "/actuator/metrics",
         RouteConstants.build(RouteConstants.Auth.BASE, RouteConstants.Auth.CSRF),
         RouteConstants.build(RouteConstants.Auth.BASE, RouteConstants.Auth.VERIFY_EMAIL),
         RouteConstants.Auth.OAuth.BASE + "/*/authorize",
@@ -67,7 +71,11 @@ public class SecurityConfig {
             throws Exception {
 
         http.cors(cors -> cors.configurationSource(corsConfigurationSource))
-                .csrf(csrf -> csrf.spa().csrfTokenRepository(csrfTokenRepository))
+                .csrf(
+                        csrf ->
+                                csrf.csrfTokenRepository(csrfTokenRepository)
+                                        .csrfTokenRequestHandler(
+                                                new CsrfTokenRequestAttributeHandler()))
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
                 .logout(AbstractHttpConfigurer::disable)

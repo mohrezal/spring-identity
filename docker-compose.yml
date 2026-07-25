@@ -1,8 +1,8 @@
 services:
   identity:
     build:
-      context: .
-      dockerfile: services/identity-api/Dockerfile
+      context: services/identity-api
+      dockerfile: Dockerfile
     container_name: identity_app
     env_file:
       - .env
@@ -27,12 +27,14 @@ services:
     restart: unless-stopped
   audit-worker:
     build:
-      context: .
-      dockerfile: workers/audit-worker/Dockerfile
+      context: workers/audit-worker
+      dockerfile: Dockerfile
     container_name: audit_worker_app
     env_file:
       - .env
     environment:
+      APP_REDIS_HOST: redis
+      APP_REDIS_PORT: "6379"
       APP_RABBITMQ_HOST: rabbitmq
       APP_RABBITMQ_PORT: "5672"
     ports:
@@ -40,6 +42,8 @@ services:
     networks:
       - identity-network
     depends_on:
+      redis:
+        condition: service_healthy
       rabbitmq:
         condition: service_healthy
     restart: unless-stopped
@@ -143,6 +147,20 @@ services:
       loki:
         condition: service_started
     restart: unless-stopped
+  grafana:
+    image: grafana/grafana:11.6.2
+    container_name: identity_grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - grafana-data:/var/lib/grafana
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
+    networks:
+      - identity-network
+    restart: unless-stopped
 
 networks:
   identity-network:
@@ -153,3 +171,4 @@ volumes:
   redis-data:
   prometheus-data:
   loki-data:
+  grafana-data:

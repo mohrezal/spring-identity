@@ -9,19 +9,14 @@ management:
   tracing:
     export:
       otlp:
-        enabled: true
-  opentelemetry:
-    tracing:
-      export:
-        otlp:
-          endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT}
+        enabled: false
+  metrics:
+    tags:
+      application: ${spring.application.name}
   endpoints:
     web:
       exposure:
         include: health,metrics,prometheus
-  metrics:
-    tags:
-      application: ${spring.application.name}
 
 spring:
   config:
@@ -36,3 +31,8 @@ spring:
     listener:
       simple:
         acknowledge-mode: auto
+  data:
+    redis:
+      host: ${APP_REDIS_HOST}
+      port: ${APP_REDIS_PORT}
+      password: ${APP_REDIS_PASSWORD}
