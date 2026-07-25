@@ -33,8 +33,6 @@ services:
     env_file:
       - .env
     environment:
-      APP_DATABASE_HOST: db
-      APP_DATABASE_PORT: "5432"
       APP_RABBITMQ_HOST: rabbitmq
       APP_RABBITMQ_PORT: "5672"
     ports:
@@ -42,8 +40,6 @@ services:
     networks:
       - identity-network
     depends_on:
-      db:
-        condition: service_healthy
       rabbitmq:
         condition: service_healthy
     restart: unless-stopped
@@ -108,6 +104,46 @@ services:
     networks:
       - identity-network
     restart: unless-stopped
+  prometheus:
+    image: prom/prometheus:v3.3.1
+    container_name: identity_prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    networks:
+      - identity-network
+    restart: unless-stopped
+  loki:
+    image: grafana/loki:3.4.2
+    container_name: identity_loki
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./monitoring/loki/config.yaml:/etc/loki/config.yaml
+      - loki-data:/loki
+    command: -config.file=/etc/loki/config.yaml
+    networks:
+      - identity-network
+    restart: unless-stopped
+  alloy:
+    image: grafana/alloy:v1.7.2
+    container_name: identity_alloy
+    ports:
+      - "12345:12345"
+    volumes:
+      - ./monitoring/alloy/config.alloy:/etc/alloy/config.alloy
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      ALLOY_CONFIG_PATH: /etc/alloy/config.alloy
+    networks:
+      - identity-network
+    depends_on:
+      loki:
+        condition: service_started
+    restart: unless-stopped
+
 networks:
   identity-network:
     driver: bridge
@@ -115,3 +151,5 @@ networks:
 volumes:
   database-data:
   redis-data:
+  prometheus-data:
+  loki-data:

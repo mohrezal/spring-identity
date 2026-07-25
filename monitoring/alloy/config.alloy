@@ -1,0 +1,24 @@
+discovery.docker "containers" {
+    host = "unix:///var/run/docker.sock"
+}
+
+discovery.relabel "identity" {
+    targets = discovery.docker.containers.targets
+    rule {
+        source_labels = ["__meta_docker_container_name"]
+        regex         = "identity_app|audit_worker_app"
+        action        = "keep"
+    }
+}
+
+loki.source.docker "services" {
+    host       = "unix:///var/run/docker.sock"
+    targets    = discovery.relabel.identity.output
+    forward_to = [loki.write.local.receiver]
+}
+
+loki.write "local" {
+    endpoint {
+        url = "http://loki:3100/loki/api/v1/push"
+    }
+}

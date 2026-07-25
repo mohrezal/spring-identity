@@ -1,3 +1,0 @@
-databaseChangeLog:
-  - include:
-      file: classpath:/db/changelog/migrations/1783094400_create_audit_events_table.sql

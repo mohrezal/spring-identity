@@ -1,11 +1,19 @@
 server:
   port: 8080
 
+logging:
+  structured:
+    format: json
+
 management:
   tracing:
     export:
       otlp:
         enabled: false
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics,prometheus,audit-database,audit-redis,audit-rabbitmq
   otlp:
     metrics:
       export:
