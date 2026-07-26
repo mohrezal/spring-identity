@@ -6,10 +6,11 @@ logging:
     format: json
 
 management:
-  tracing:
-    export:
-      otlp:
-        enabled: false
+  opentelemetry:
+    tracing:
+      export:
+        otlp:
+          endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT}/v1/traces
   metrics:
     tags:
       application: ${spring.application.name}

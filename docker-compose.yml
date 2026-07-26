@@ -116,6 +116,7 @@ services:
     volumes:
       - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
       - prometheus-data:/prometheus
+    command: --config.file=/etc/prometheus/prometheus.yml --web.enable-remote-write-receiver
     networks:
       - identity-network
     restart: unless-stopped
@@ -136,9 +137,12 @@ services:
     container_name: identity_alloy
     ports:
       - "12345:12345"
+      - "4318:4318"
+      - "4317:4317"
     volumes:
       - ./monitoring/alloy/config.alloy:/etc/alloy/config.alloy
       - /var/run/docker.sock:/var/run/docker.sock:ro
+    command: run --stability.level=experimental /etc/alloy/config.alloy
     environment:
       ALLOY_CONFIG_PATH: /etc/alloy/config.alloy
     networks:
@@ -146,6 +150,20 @@ services:
     depends_on:
       loki:
         condition: service_started
+      tempo:
+        condition: service_started
+    restart: unless-stopped
+  tempo:
+    image: grafana/tempo:latest
+    container_name: identity_tempo
+    ports:
+      - "3200:3200"
+    volumes:
+      - ./monitoring/tempo/config.yaml:/etc/tempo/config.yaml
+      - tempo-data:/var/tempo
+    command: -config.file=/etc/tempo/config.yaml
+    networks:
+      - identity-network
     restart: unless-stopped
   grafana:
     image: grafana/grafana:11.6.2
@@ -171,4 +189,5 @@ volumes:
   redis-data:
   prometheus-data:
   loki-data:
+  tempo-data:
   grafana-data:
