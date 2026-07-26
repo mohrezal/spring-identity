@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "eventId": "550e8400-e29b-41d4-a716-446655440000",
+  "eventType": "LOGIN_SUCCEEDED",
+  "outcome": "SUCCESS",
+  "occurredAt": "2026-07-21T10:15:30.123Z",
+  "traceId": "4bf92f3577b34da6a3ce929d0e0e4736",
+  "actor": {
+    "userId": "user-123"
+  },
+  "subject": {
+    "userId": "user-123",
+    "email": "user@example.com"
+  },
+  "session": {
+    "sessionId": "session-456"
+  },
+  "request": {
+    "requestId": "7a2f74bc93f14c2e89cd4f937bd1a260",
+    "clientRequestId": "mobile-request-4821",
+    "ipAddress": "203.0.113.42",
+    "userAgent": "Mozilla/5.0",
+    "forwardedHost": null,
+    "forwardedProto": null
+  },
+  "reason": null
+}

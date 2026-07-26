@@ -1,4 +1,52 @@
 services:
+  identity:
+    build:
+      context: services/identity-api
+      dockerfile: Dockerfile
+    container_name: identity_app
+    env_file:
+      - .env
+    environment:
+      APP_DATABASE_HOST: db
+      APP_DATABASE_PORT: "5432"
+      APP_REDIS_HOST: redis
+      APP_REDIS_PORT: "6379"
+      APP_RABBITMQ_HOST: rabbitmq
+      APP_RABBITMQ_PORT: "5672"
+    ports:
+      - "8080:8080"
+    networks:
+      - identity-network
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    restart: unless-stopped
+  audit-worker:
+    build:
+      context: workers/audit-worker
+      dockerfile: Dockerfile
+    container_name: audit_worker_app
+    env_file:
+      - .env
+    environment:
+      APP_REDIS_HOST: redis
+      APP_REDIS_PORT: "6379"
+      APP_RABBITMQ_HOST: rabbitmq
+      APP_RABBITMQ_PORT: "5672"
+    ports:
+      - "8081:8081"
+    networks:
+      - identity-network
+    depends_on:
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    restart: unless-stopped
   db:
     image: postgres:18-alpine
     container_name: identity_db
@@ -8,8 +56,17 @@ services:
       POSTGRES_DB: ${APP_DATABASE_NAME}
       POSTGRES_USER: ${APP_DATABASE_USER}
       POSTGRES_PASSWORD: ${APP_DATABASE_PASSWORD}
+    healthcheck:
+      test: [
+        "CMD-SHELL",
+        "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\"",
+      ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
     volumes:
       - database-data:/var/lib/postgresql
+    restart: unless-stopped
     networks:
       - identity-network
   redis:
@@ -26,8 +83,10 @@ services:
     networks:
       - identity-network
     healthcheck:
-      test: >
-        CMD-SHELL redis-cli -a "$$APP_REDIS_PASSWORD" ping | grep -q PONG
+      test: [
+        "CMD-SHELL",
+        "redis-cli -a \"$${APP_REDIS_PASSWORD}\" ping | grep -q PONG",
+      ]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -41,9 +100,86 @@ services:
     environment:
       RABBITMQ_DEFAULT_USER: ${APP_RABBITMQ_USER}
       RABBITMQ_DEFAULT_PASS: ${APP_RABBITMQ_PASSWORD}
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
     networks:
       - identity-network
     restart: unless-stopped
+  prometheus:
+    image: prom/prometheus:v3.3.1
+    container_name: identity_prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    command: --config.file=/etc/prometheus/prometheus.yml --web.enable-remote-write-receiver
+    networks:
+      - identity-network
+    restart: unless-stopped
+  loki:
+    image: grafana/loki:3.4.2
+    container_name: identity_loki
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./monitoring/loki/config.yaml:/etc/loki/config.yaml
+      - loki-data:/loki
+    command: -config.file=/etc/loki/config.yaml
+    networks:
+      - identity-network
+    restart: unless-stopped
+  alloy:
+    image: grafana/alloy:v1.7.2
+    container_name: identity_alloy
+    ports:
+      - "12345:12345"
+      - "4318:4318"
+      - "4317:4317"
+    volumes:
+      - ./monitoring/alloy/config.alloy:/etc/alloy/config.alloy
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    command: run --stability.level=experimental /etc/alloy/config.alloy
+    environment:
+      ALLOY_CONFIG_PATH: /etc/alloy/config.alloy
+    networks:
+      - identity-network
+    depends_on:
+      loki:
+        condition: service_started
+      tempo:
+        condition: service_started
+    restart: unless-stopped
+  tempo:
+    image: grafana/tempo:latest
+    container_name: identity_tempo
+    ports:
+      - "3200:3200"
+    volumes:
+      - ./monitoring/tempo/config.yaml:/etc/tempo/config.yaml
+      - tempo-data:/var/tempo
+    command: -config.file=/etc/tempo/config.yaml
+    networks:
+      - identity-network
+    restart: unless-stopped
+  grafana:
+    image: grafana/grafana:11.6.2
+    container_name: identity_grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - grafana-data:/var/lib/grafana
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
+    networks:
+      - identity-network
+    restart: unless-stopped
+
 networks:
   identity-network:
     driver: bridge
@@ -51,3 +187,7 @@ networks:
 volumes:
   database-data:
   redis-data:
+  prometheus-data:
+  loki-data:
+  tempo-data:
+  grafana-data:

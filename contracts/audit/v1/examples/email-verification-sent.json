@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "eventId": "550e8400-e29b-41d4-a716-446655440005",
+  "eventType": "EMAIL_VERIFICATION_SENT",
+  "outcome": "SUCCESS",
+  "occurredAt": "2026-07-21T14:00:00.000Z",
+  "traceId": "a1b2c3d4e5f67890a1b2c3d4e5f67890",
+  "actor": {
+    "userId": null
+  },
+  "subject": {
+    "userId": null,
+    "email": "user@example.com"
+  },
+  "session": {
+    "sessionId": null
+  },
+  "request": {
+    "requestId": "a1b2c3d4e5f67890a1b2c3d4e5f67890",
+    "clientRequestId": null,
+    "ipAddress": "203.0.113.42",
+    "userAgent": "Mozilla/5.0",
+    "forwardedHost": null,
+    "forwardedProto": null
+  },
+  "reason": null
+}

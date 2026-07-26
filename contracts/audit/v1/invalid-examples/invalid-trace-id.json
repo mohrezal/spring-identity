@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 1,
+  "eventId": "550e8400-e29b-41d4-a716-446655440001",
+  "eventType": "LOGIN_SUCCEEDED",
+  "outcome": "SUCCESS",
+  "occurredAt": "2026-07-21T10:15:30.123Z",
+  "traceId": "4BF92F3577B34DA6A3CE929D0E0E4736"
+}

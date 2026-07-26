@@ -1,0 +1,162 @@
+server:
+  port: 8080
+
+logging:
+  structured:
+    format: json
+
+management:
+  opentelemetry:
+    tracing:
+      export:
+        otlp:
+          endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT}/v1/traces
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics,prometheus,audit-database,audit-redis,audit-rabbitmq
+  otlp:
+    metrics:
+      export:
+        enabled: false
+
+spring:
+  config:
+    import: optional:file:.env[.properties]
+  application:
+    name: identity
+  datasource:
+    url: jdbc:postgresql://${APP_DATABASE_HOST}:${APP_DATABASE_PORT}/${APP_DATABASE_NAME}
+    username: ${APP_DATABASE_USER}
+    password: ${APP_DATABASE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      minimum-idle: 5
+      maximum-pool-size: 20
+      connection-timeout: 30000
+      max-lifetime: 1800000
+      idle-timeout: 600000
+      leak-detection-threshold: 60000
+  jpa:
+    open-in-view: false
+    show-sql: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  liquibase:
+    enabled: true
+    change-log: classpath:/db/changelog/db.changelog-master.yml
+  data:
+    redis:
+      host: ${APP_REDIS_HOST}
+      port: ${APP_REDIS_PORT}
+      password: ${APP_REDIS_PASSWORD}
+      lettuce:
+        pool:
+          max-active: 16
+          max-idle: 8
+          min-idle: 2
+  rabbitmq:
+    host: ${APP_RABBITMQ_HOST}
+    port: ${APP_RABBITMQ_PORT}
+    username: ${APP_RABBITMQ_USER}
+    password: ${APP_RABBITMQ_PASSWORD}
+    listener:
+      simple:
+        acknowledge-mode: auto
+        retry:
+          enabled: false
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+    operations-sorter: method
+    tags-sorter: alpha
+    filter: true
+    csrf:
+      enabled: true
+      cookie-name: XSRF-TOKEN
+      header-name: X-XSRF-TOKEN
+
+app:
+  owner:
+    email: ${APP_OWNER_EMAIL}
+  privilege:
+    role:
+      owner:
+        key: owner
+        name: Owner
+      user:
+        key: user
+        name: User
+  security:
+    secret: ${APP_SECURITY_SECRET}
+    verification-token-ttl: ${APP_SECURITY_VERIFICATION_TOKEN_TTL}
+    password-reset-token-ttl: ${APP_SECURITY_PASSWORD_RESET_TOKEN_TTL}
+    allowed-origins: ${APP_SECURITY_ALLOWED_ORIGIN}
+    cookie:
+      csrf:
+        path: /
+        secure: false
+        same-site: Lax
+      access-token:
+        name: user_info
+        path: /
+        http-only: true
+        secure: false
+        same-site: Lax
+        ttl: ${APP_SECURITY_ACCESS_TOKEN_TTL}
+      refresh-token:
+        name: user_refresh
+        path: /
+        http-only: true
+        secure: false
+        same-site: Lax
+        ttl: ${APP_SECURITY_REFRESH_TOKEN_TTL}
+      oauth-state:
+        name: oauth_state
+        path: /api/auth/o
+        http-only: true
+        secure: false
+        same-site: Lax
+        ttl: 10m
+    oauth:
+      google:
+        client-id: ${APP_SECURITY_OAUTH_GOOGLE_CLIENT_ID}
+        client-secret: ${APP_SECURITY_OAUTH_GOOGLE_CLIENT_SECRET}
+        redirect-uri: ${APP_SECURITY_OAUTH_GOOGLE_REDIRECT_URI}
+        scopes:
+          - email
+          - profile
+  rate-limit:
+    policies:
+      - key: auth-login
+        method: POST
+        path: /api/auth/login
+        window: 5m
+        ip-limit: 50
+      - key: auth-forgot-password
+        method: POST
+        path: /api/auth/forgot-password
+        window: 15m
+        ip-limit: 20
+      - key: auth-resend-email-verification
+        method: POST
+        path: /api/auth/resend-email-verification
+        window: 15m
+        ip-limit: 20
+      - key: oauth-authorize
+        method: GET
+        path: /api/auth/o/*/authorize
+        window: 5m
+        ip-limit: 30
+      - key: oauth-link
+        method: GET
+        path: /api/auth/o/*/link
+        window: 5m
+        user-limit: 10

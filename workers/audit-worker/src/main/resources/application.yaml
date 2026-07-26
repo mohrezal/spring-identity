@@ -1,0 +1,39 @@
+server:
+  port: 8081
+
+logging:
+  structured:
+    format: json
+
+management:
+  opentelemetry:
+    tracing:
+      export:
+        otlp:
+          endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT}/v1/traces
+  metrics:
+    tags:
+      application: ${spring.application.name}
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics,prometheus
+
+spring:
+  config:
+    import: optional:file:.env[.properties]
+  application:
+    name: audit-worker
+  rabbitmq:
+    host: ${APP_RABBITMQ_HOST}
+    port: ${APP_RABBITMQ_PORT}
+    username: ${APP_RABBITMQ_USER}
+    password: ${APP_RABBITMQ_PASSWORD}
+    listener:
+      simple:
+        acknowledge-mode: auto
+  data:
+    redis:
+      host: ${APP_REDIS_HOST}
+      port: ${APP_REDIS_PORT}
+      password: ${APP_REDIS_PASSWORD}

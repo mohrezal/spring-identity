@@ -1,9 +1,10 @@
 #!/bin/sh
 
 STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM)
+TARGET="-pl services/identity-api,workers/audit-worker -am"
 
 echo "Auto-formatting code..."
-mvn spotless:apply
+mvn spotless:apply $TARGET
 
 if [ $? -ne 0 ]; then
     echo ""
@@ -16,7 +17,7 @@ if [ -n "$STAGED_FILES" ]; then
 fi
 
 echo "Running pre-commit checks..."
-mvn spotless:check checkstyle:check
+mvn spotless:check checkstyle:check $TARGET
 
 if [ $? -ne 0 ]; then
     echo ""

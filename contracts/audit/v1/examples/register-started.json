@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "eventId": "550e8400-e29b-41d4-a716-446655440002",
+  "eventType": "REGISTER_STARTED",
+  "outcome": "SUCCESS",
+  "occurredAt": "2026-07-21T12:00:00.000Z",
+  "traceId": "3c8a12b5d9f647e0a4b7c6d5e4f3a2b1",
+  "actor": {
+    "userId": null
+  },
+  "subject": {
+    "userId": null,
+    "email": "newuser@example.com"
+  },
+  "session": {
+    "sessionId": null
+  },
+  "request": {
+    "requestId": "3c8a12b5d9f647e0a4b7c6d5e4f3a2b1",
+    "clientRequestId": null,
+    "ipAddress": "203.0.113.42",
+    "userAgent": "Mozilla/5.0",
+    "forwardedHost": null,
+    "forwardedProto": null
+  },
+  "reason": null
+}

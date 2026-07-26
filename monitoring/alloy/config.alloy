@@ -1,0 +1,73 @@
+discovery.docker "containers" {
+    host = "unix:///var/run/docker.sock"
+    refresh_interval = "30s"
+}
+
+discovery.relabel "identity" {
+    targets = discovery.docker.containers.targets
+    rule {
+        source_labels = ["__meta_docker_container_name"]
+        regex         = ".*(identity_app|audit_worker_app).*"
+        action        = "keep"
+    }
+    rule {
+        source_labels = ["__meta_docker_container_name"]
+        regex         = ".*identity_app.*"
+        replacement   = "identity-api"
+        target_label  = "service_name"
+        action        = "replace"
+    }
+    rule {
+        source_labels = ["__meta_docker_container_name"]
+        regex         = ".*audit_worker_app.*"
+        replacement   = "audit-worker"
+        target_label  = "service_name"
+        action        = "replace"
+    }
+}
+
+loki.source.docker "services" {
+    host       = "unix:///var/run/docker.sock"
+    targets    = discovery.relabel.identity.output
+    forward_to = [loki.write.local.receiver]
+}
+
+loki.write "local" {
+    endpoint {
+        url = "http://loki:3100/loki/api/v1/push"
+    }
+}
+
+otelcol.receiver.otlp "default" {
+    grpc {
+        endpoint = "0.0.0.0:4317"
+    }
+    http {
+        endpoint = "0.0.0.0:4318"
+    }
+
+    output {
+        traces  = [otelcol.processor.batch.default.input]
+        metrics = [otelcol.processor.batch.default.input]
+    }
+}
+
+otelcol.processor.batch "default" {
+    output {
+        traces  = [otelcol.exporter.otlp.tempo.input]
+        metrics = [otelcol.exporter.otlp.tempo.input]
+    }
+}
+
+otelcol.exporter.otlp "tempo" {
+    client {
+        endpoint = "tempo:4317"
+        tls {
+            insecure = true
+        }
+    }
+}
+
+otelcol.exporter.debug "default" {
+    verbosity = "detailed"
+}
