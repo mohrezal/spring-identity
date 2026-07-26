@@ -15,6 +15,13 @@ spring:
   rabbitmq:
     port: 5672
 
+management:
+  opentelemetry:
+    tracing:
+      export:
+        otlp:
+          endpoint: http://localhost:4318/v1/traces
+
 springdoc:
   api-docs:
     enabled: false
