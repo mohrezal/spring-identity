@@ -48,6 +48,7 @@ public class SecurityConfig {
         "/actuator/metrics",
         RouteConstants.build(RouteConstants.Auth.BASE, RouteConstants.Auth.CSRF),
         RouteConstants.build(RouteConstants.Auth.BASE, RouteConstants.Auth.VERIFY_EMAIL),
+        RouteConstants.build(RouteConstants.User.BASE, RouteConstants.User.EMAIL_AVAILABILITY),
         RouteConstants.Auth.OAuth.BASE + "/*/authorize",
         RouteConstants.Auth.OAuth.BASE + "/*/callback"
     };

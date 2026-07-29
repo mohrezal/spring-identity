@@ -11,6 +11,7 @@ public final class RouteConstants {
         public static final String BASE = API_BASE + "users";
         public static final String REGISTER = "register";
         public static final String ME = "me";
+        public static final String EMAIL_AVAILABILITY = "email-availability";
     }
 
     public static final class Auth {

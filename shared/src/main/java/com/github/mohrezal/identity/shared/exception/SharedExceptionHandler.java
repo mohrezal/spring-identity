@@ -18,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
@@ -71,6 +72,16 @@ public class SharedExceptionHandler extends AbstractExceptionHandler {
                 .forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
 
         return ResponseEntity.status(exception.getStatusCode())
+                .body(buildBody(ExceptionCode.VALIDATION_FAILED, errors, request));
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<ErrorResponse> handleMissingServletRequestParameterException(
+            MissingServletRequestParameterException exception, WebRequest request) {
+        var errors = new HashMap<String, String>();
+        errors.put(exception.getParameterName(), "must not be blank");
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(buildBody(ExceptionCode.VALIDATION_FAILED, errors, request));
     }
 
