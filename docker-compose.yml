@@ -158,7 +158,7 @@ services:
         condition: service_started
     restart: unless-stopped
   tempo:
-    image: grafana/tempo:2.10.5
+    image: grafana/tempo:3.0.2
     container_name: identity_tempo
     ports:
       - "127.0.0.1:3200:3200"
