@@ -1,6 +1,7 @@
 package com.github.mohrezal.identity.domain.auth.command;
 
 import com.github.mohrezal.identity.audit.service.AuditRequestContext;
+import com.github.mohrezal.identity.config.ApplicationProperties;
 import com.github.mohrezal.identity.domain.auth.command.param.ForgotPasswordCommandParams;
 import com.github.mohrezal.identity.domain.auth.listener.message.PasswordResetEmailMessage;
 import com.github.mohrezal.identity.domain.user.repository.UserRepository;
@@ -26,6 +27,7 @@ public class ForgotPasswordCommand implements Command<ForgotPasswordCommandParam
     private final UserRepository userRepository;
     private final RedisService redisService;
     private final ApplicationEventPublisher eventPublisher;
+    private final ApplicationProperties applicationProperties;
 
     @Override
     public void validate(ForgotPasswordCommandParams params) {
@@ -47,7 +49,11 @@ public class ForgotPasswordCommand implements Command<ForgotPasswordCommandParam
         }
 
         var token = UUID.randomUUID().toString();
-        redisService.set(RedisKey.PASSWORD_RESET_TOKEN, user.get().getEmail(), token);
+        redisService.set(
+                RedisKey.PASSWORD_RESET_TOKEN,
+                user.get().getEmail(),
+                applicationProperties.security().passwordResetTokenTtl(),
+                token);
 
         var resetUrl =
                 UriComponentsBuilder.fromUriString(params.redirectUrl())

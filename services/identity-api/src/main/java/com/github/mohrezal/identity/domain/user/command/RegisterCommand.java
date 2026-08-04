@@ -1,6 +1,7 @@
 package com.github.mohrezal.identity.domain.user.command;
 
 import com.github.mohrezal.identity.audit.service.AuditRequestContext;
+import com.github.mohrezal.identity.config.ApplicationProperties;
 import com.github.mohrezal.identity.domain.privilege.service.UserRoleAssignmentService;
 import com.github.mohrezal.identity.domain.user.command.param.RegisterCommandParams;
 import com.github.mohrezal.identity.domain.user.dto.RegisterResponse;
@@ -44,6 +45,7 @@ public class RegisterCommand implements Command<RegisterCommandParams, RegisterR
     private final RedisService redisService;
     private final ApplicationEventPublisher eventPublisher;
     private final UserRoleAssignmentService userRoleAssignmentService;
+    private final ApplicationProperties applicationProperties;
 
     @Override
     public void validate(RegisterCommandParams params) {
@@ -77,7 +79,11 @@ public class RegisterCommand implements Command<RegisterCommandParams, RegisterR
         var credential = userMapper.toCredential(savedUser, hashedPassword);
         userCredentialRepository.save(credential);
         var token = UUID.randomUUID().toString();
-        redisService.set(RedisKey.EMAIL_VERIFICATION_TOKEN, user.getEmail(), token);
+        redisService.set(
+                RedisKey.EMAIL_VERIFICATION_TOKEN,
+                user.getEmail(),
+                applicationProperties.security().verificationTokenTtl(),
+                token);
         var activationUrl =
                 UriComponentsBuilder.fromUriString(params.redirectUrl())
                         .queryParam("token", token)

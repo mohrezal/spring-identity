@@ -25,6 +25,35 @@ class RedisAtomicOperationsIT extends IntegrationTestSupport {
     private RedisService redisService;
 
     @Test
+    void set_appliesProvidedTtl() {
+        var verificationToken = UUID.randomUUID().toString();
+        var resetToken = UUID.randomUUID().toString();
+        var verificationTtl = Duration.ofMinutes(30);
+        var resetTtl = Duration.ofMinutes(15);
+
+        redisService.set(
+                RedisKey.EMAIL_VERIFICATION_TOKEN,
+                "user@client.test",
+                verificationTtl,
+                verificationToken);
+        redisService.set(RedisKey.PASSWORD_RESET_TOKEN, "user@client.test", resetTtl, resetToken);
+
+        var verificationRemaining =
+                redisService
+                        .getTimeToLive(RedisKey.EMAIL_VERIFICATION_TOKEN, verificationToken)
+                        .orElseThrow();
+        var resetRemaining =
+                redisService.getTimeToLive(RedisKey.PASSWORD_RESET_TOKEN, resetToken).orElseThrow();
+
+        assertThat(verificationRemaining)
+                .isGreaterThan(Duration.ofMinutes(29))
+                .isLessThanOrEqualTo(verificationTtl);
+        assertThat(resetRemaining)
+                .isGreaterThan(Duration.ofMinutes(14))
+                .isLessThanOrEqualTo(resetTtl);
+    }
+
+    @Test
     void consume_allowsExactlyOneConcurrentConsumer() throws Exception {
         var state = UUID.randomUUID().toString();
         var value = "oauth-state-payload";

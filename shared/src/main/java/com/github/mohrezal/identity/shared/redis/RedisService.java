@@ -4,6 +4,7 @@ import com.github.mohrezal.identity.shared.enums.RedisKey;
 import io.lettuce.core.RedisException;
 import java.time.Duration;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
@@ -34,10 +35,28 @@ public class RedisService {
     private final ObjectMapper redisObjectMapper;
 
     public void set(RedisKey redisKey, Object value, String... keyValues) {
+        set(redisKey, value, redisKey.getTtl(), keyValues);
+    }
+
+    public void set(RedisKey redisKey, Object value, Duration ttl, String... keyValues) {
         var resolvedKey = redisKey.resolve(keyValues);
 
         try {
-            redisTemplate.opsForValue().set(resolvedKey, value, redisKey.getTtl());
+            redisTemplate.opsForValue().set(resolvedKey, value, ttl);
+        } catch (RedisException | DataAccessException exception) {
+            throw new RuntimeException(exception);
+        }
+    }
+
+    public Optional<Duration> getTimeToLive(RedisKey redisKey, String... keyValues) {
+        var resolvedKey = redisKey.resolve(keyValues);
+
+        try {
+            var seconds = redisTemplate.getExpire(resolvedKey, TimeUnit.SECONDS);
+            if (seconds == null || seconds < 0) {
+                return Optional.empty();
+            }
+            return Optional.of(Duration.ofSeconds(seconds));
         } catch (RedisException | DataAccessException exception) {
             throw new RuntimeException(exception);
         }

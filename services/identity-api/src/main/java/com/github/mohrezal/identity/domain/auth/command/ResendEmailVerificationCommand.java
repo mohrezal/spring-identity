@@ -1,6 +1,7 @@
 package com.github.mohrezal.identity.domain.auth.command;
 
 import com.github.mohrezal.identity.audit.service.AuditRequestContext;
+import com.github.mohrezal.identity.config.ApplicationProperties;
 import com.github.mohrezal.identity.domain.auth.command.param.ResendEmailVerificationCommandParams;
 import com.github.mohrezal.identity.domain.user.listener.message.UserEmailVerificationMessage;
 import com.github.mohrezal.identity.domain.user.repository.UserRepository;
@@ -24,6 +25,7 @@ public class ResendEmailVerificationCommand
     private final RedisService redisService;
     private final UserRepository userRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final ApplicationProperties applicationProperties;
 
     @Override
     public void validate(ResendEmailVerificationCommandParams params) {
@@ -44,7 +46,11 @@ public class ResendEmailVerificationCommand
         var user = optionalUser.get();
         var token = UUID.randomUUID().toString();
         var email = user.getEmail();
-        redisService.set(RedisKey.EMAIL_VERIFICATION_TOKEN, email, token);
+        redisService.set(
+                RedisKey.EMAIL_VERIFICATION_TOKEN,
+                email,
+                applicationProperties.security().verificationTokenTtl(),
+                token);
         var activationUrl =
                 UriComponentsBuilder.fromUriString(params.redirectUrl())
                         .queryParam("token", token)
