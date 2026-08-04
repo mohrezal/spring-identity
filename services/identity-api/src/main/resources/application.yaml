@@ -160,8 +160,3 @@ app:
         path: /api/auth/o/*/link
         window: 5m
         user-limit: 10
-      - key: user-email-availability
-        method: GET
-        path: /api/users/email-availability
-        window: 5m
-        ip-limit: 30
