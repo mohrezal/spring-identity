@@ -125,7 +125,7 @@ services:
       - identity-network
     restart: unless-stopped
   loki:
-    image: grafana/loki:3.4.2
+    image: grafana/loki:3.7.4
     container_name: identity_loki
     ports:
       - "127.0.0.1:3100:3100"
