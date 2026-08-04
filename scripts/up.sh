@@ -3,13 +3,19 @@ set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
-FLAGS="-DskipTests -Dcheckstyle.skip=true -Dspotless.check.skip=true -Dmaven.antrun.skip=true -B"
+FLAGS=(
+  -DskipTests
+  -Dcheckstyle.skip=true
+  -Dspotless.check.skip=true
+  -Dmaven.antrun.skip=true
+  -B
+)
 
 echo "==> Building identity-api..."
-./mvnw clean package -pl services/identity-api -am $FLAGS
+./mvnw clean package -pl services/identity-api -am "${FLAGS[@]}"
 
 echo "==> Building audit-worker..."
-./mvnw clean package -pl workers/audit-worker -am $FLAGS
+./mvnw clean package -pl workers/audit-worker -am "${FLAGS[@]}"
 
 echo "==> Starting services..."
 docker compose up -d --build

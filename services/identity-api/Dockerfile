@@ -10,9 +10,10 @@ COPY --chown=identity:app target/*.jar app.jar
 
 USER identity:app
 
-EXPOSE 8080
+EXPOSE 8080 8082
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=3 \
-    CMD curl -sf http://localhost:8080/actuator/health || exit 1
+    CMD curl -sf "http://localhost:${APP_MANAGEMENT_PORT:-8082}/actuator/health" || \
+        curl -sf http://localhost:8080/actuator/health || exit 1
 
 ENTRYPOINT ["java", "-jar", "app.jar"]

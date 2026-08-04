@@ -33,6 +33,7 @@ build/
 .vscode/
 
 .env
+/backups/
 .DS_Store
 
 .venv/

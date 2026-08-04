@@ -14,7 +14,7 @@ services:
       APP_RABBITMQ_HOST: rabbitmq
       APP_RABBITMQ_PORT: "5672"
     ports:
-      - "8080:8080"
+      - "127.0.0.1:8080:8080"
     networks:
       - identity-network
     depends_on:
@@ -38,7 +38,7 @@ services:
       APP_RABBITMQ_HOST: rabbitmq
       APP_RABBITMQ_PORT: "5672"
     ports:
-      - "8081:8081"
+      - "127.0.0.1:8081:8081"
     networks:
       - identity-network
     depends_on:
@@ -51,7 +51,7 @@ services:
     image: postgres:18-alpine
     container_name: identity_db
     ports:
-      - "${APP_DATABASE_PORT}:5432"
+      - "127.0.0.1:${APP_DATABASE_PORT}:5432"
     environment:
       POSTGRES_DB: ${APP_DATABASE_NAME}
       POSTGRES_USER: ${APP_DATABASE_USER}
@@ -73,7 +73,7 @@ services:
     image: redis:7-alpine
     container_name: identity-redis
     ports:
-      - "${APP_REDIS_PORT}:6379"
+      - "127.0.0.1:${APP_REDIS_PORT}:6379"
     environment:
       - APP_REDIS_PASSWORD=${APP_REDIS_PASSWORD:?APP_REDIS_PASSWORD is required}
     command: >
@@ -95,8 +95,8 @@ services:
     image: rabbitmq:4.2.3-management
     container_name: identity_rabbitmq
     ports:
-      - "${APP_RABBITMQ_PORT}:5672"
-      - "${APP_RABBITMQ_CLIENT_PORT}:15672"
+      - "127.0.0.1:${APP_RABBITMQ_PORT}:5672"
+      - "127.0.0.1:${APP_RABBITMQ_CLIENT_PORT}:15672"
     environment:
       RABBITMQ_DEFAULT_USER: ${APP_RABBITMQ_USER}
       RABBITMQ_DEFAULT_PASS: ${APP_RABBITMQ_PASSWORD}
@@ -112,11 +112,15 @@ services:
     image: prom/prometheus:v3.3.1
     container_name: identity_prometheus
     ports:
-      - "9090:9090"
+      - "127.0.0.1:9090:9090"
     volumes:
-      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./monitoring/prometheus/alerts.yml:/etc/prometheus/rules/alerts.yml:ro
       - prometheus-data:/prometheus
-    command: --config.file=/etc/prometheus/prometheus.yml --web.enable-remote-write-receiver
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --web.enable-remote-write-receiver
+      - --storage.tsdb.retention.time=30d
     networks:
       - identity-network
     restart: unless-stopped
@@ -124,9 +128,9 @@ services:
     image: grafana/loki:3.4.2
     container_name: identity_loki
     ports:
-      - "3100:3100"
+      - "127.0.0.1:3100:3100"
     volumes:
-      - ./monitoring/loki/config.yaml:/etc/loki/config.yaml
+      - ./monitoring/loki/config.yaml:/etc/loki/config.yaml:ro
       - loki-data:/loki
     command: -config.file=/etc/loki/config.yaml
     networks:
@@ -136,11 +140,11 @@ services:
     image: grafana/alloy:v1.7.2
     container_name: identity_alloy
     ports:
-      - "12345:12345"
-      - "4318:4318"
-      - "4317:4317"
+      - "127.0.0.1:12345:12345"
+      - "127.0.0.1:4318:4318"
+      - "127.0.0.1:4317:4317"
     volumes:
-      - ./monitoring/alloy/config.alloy:/etc/alloy/config.alloy
+      - ./monitoring/alloy/config.alloy:/etc/alloy/config.alloy:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
     command: run --stability.level=experimental /etc/alloy/config.alloy
     environment:
@@ -154,12 +158,12 @@ services:
         condition: service_started
     restart: unless-stopped
   tempo:
-    image: grafana/tempo:latest
+    image: grafana/tempo:2.10.5
     container_name: identity_tempo
     ports:
-      - "3200:3200"
+      - "127.0.0.1:3200:3200"
     volumes:
-      - ./monitoring/tempo/config.yaml:/etc/tempo/config.yaml
+      - ./monitoring/tempo/config.yaml:/etc/tempo/config.yaml:ro
       - tempo-data:/var/tempo
     command: -config.file=/etc/tempo/config.yaml
     networks:
@@ -169,13 +173,15 @@ services:
     image: grafana/grafana:11.6.2
     container_name: identity_grafana
     ports:
-      - "3000:3000"
+      - "127.0.0.1:3000:3000"
     volumes:
-      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources
-      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources:ro
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
       - grafana-data:/var/lib/grafana
     environment:
-      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?GRAFANA_ADMIN_PASSWORD is required}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_AUTH_ANONYMOUS_ENABLED: "false"
     networks:
       - identity-network
     restart: unless-stopped

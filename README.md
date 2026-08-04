@@ -179,6 +179,8 @@ APP_SECURITY_ALLOWED_ORIGIN=http://localhost:3000
 APP_SECURITY_OAUTH_GOOGLE_CLIENT_ID=your-google-client-id
 APP_SECURITY_OAUTH_GOOGLE_CLIENT_SECRET=your-google-client-secret
 APP_SECURITY_OAUTH_GOOGLE_REDIRECT_URI=http://localhost:8080/api/auth/o/google/callback
+
+GRAFANA_ADMIN_PASSWORD=replace-with-a-strong-password
 ```
 
 You can generate a signing secret with:
@@ -260,3 +262,12 @@ Create a Liquibase migration:
 ```bash
 ./scripts/new-migration.sh add_example_table
 ```
+
+The migration helper creates the SQL file in the Identity API module. Add the
+generated file to `db.changelog-master.yml` before committing it.
+
+## Operations
+
+See [Operations Guide](docs/operations.md) for the production profile, deployment
+checks, migration preflight, backups and restore drills, secret rotation, recovery
+objectives, and alert response.
