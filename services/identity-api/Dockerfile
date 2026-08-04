@@ -1,4 +1,4 @@
-FROM eclipse-temurin:21-jre-noble
+FROM eclipse-temurin:24-jre-noble
 
 RUN apt-get update -qq && apt-get install -y -qq --no-install-recommends curl && rm -rf /var/lib/apt/lists/*
 
