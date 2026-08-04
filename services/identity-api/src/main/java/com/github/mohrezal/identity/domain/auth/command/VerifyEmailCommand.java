@@ -11,6 +11,7 @@ import com.github.mohrezal.identity.shared.enums.RedisKey;
 import com.github.mohrezal.identity.shared.exception.type.InvalidRedirectUrlException;
 import com.github.mohrezal.identity.shared.interfaces.Command;
 import com.github.mohrezal.identity.shared.redis.RedisService;
+import com.github.mohrezal.identity.shared.service.EmailAddressNormalizer;
 import com.github.mohrezal.identity.shared.service.RedirectValidationService;
 import java.time.OffsetDateTime;
 import lombok.RequiredArgsConstructor;
@@ -45,6 +46,7 @@ public class VerifyEmailCommand implements Command<VerifyEmailCommandParams, Str
                                 RedisKey.EMAIL_VERIFICATION_TOKEN,
                                 String.class,
                                 params.token().toString())
+                        .map(EmailAddressNormalizer::normalize)
                         .orElseThrow(AuthEmailVerificationTokenNotFoundException::new);
         var user = userRepository.findByEmail(email).orElseThrow(UserNotFoundException::new);
         if (user.getEmailVerifiedAt() != null) {

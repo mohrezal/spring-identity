@@ -3,6 +3,7 @@ package com.github.mohrezal.identity.domain.auth.model;
 import com.github.mohrezal.identity.domain.auth.enums.OAuthProviderType;
 import com.github.mohrezal.identity.domain.user.model.User;
 import com.github.mohrezal.identity.shared.model.BaseModel;
+import com.github.mohrezal.identity.shared.service.EmailAddressNormalizer;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -10,6 +11,8 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -34,4 +37,10 @@ public class UserOauthConnection extends BaseModel {
 
     @Column(name = "email", length = 255)
     private String email;
+
+    @PrePersist
+    @PreUpdate
+    void canonicalizeEmail() {
+        this.email = EmailAddressNormalizer.normalize(this.email);
+    }
 }

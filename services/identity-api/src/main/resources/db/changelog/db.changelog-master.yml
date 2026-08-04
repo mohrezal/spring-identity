@@ -11,3 +11,7 @@ databaseChangeLog:
       file: migrations/1782056717_add_privilege_schema.sql
       relativeToChangelogFile: true
       context: schema
+  - include:
+      file: migrations/1785850037_canonicalize_user_emails.sql
+      relativeToChangelogFile: true
+      context: schema

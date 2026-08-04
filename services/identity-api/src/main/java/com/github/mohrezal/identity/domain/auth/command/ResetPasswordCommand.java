@@ -13,6 +13,7 @@ import com.github.mohrezal.identity.shared.enums.RedisKey;
 import com.github.mohrezal.identity.shared.exception.type.InvalidRedirectUrlException;
 import com.github.mohrezal.identity.shared.interfaces.Command;
 import com.github.mohrezal.identity.shared.redis.RedisService;
+import com.github.mohrezal.identity.shared.service.EmailAddressNormalizer;
 import com.github.mohrezal.identity.shared.service.RedirectValidationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -49,6 +50,7 @@ public class ResetPasswordCommand implements Command<ResetPasswordCommandParams,
         var email =
                 redisService
                         .consume(RedisKey.PASSWORD_RESET_TOKEN, String.class, token)
+                        .map(EmailAddressNormalizer::normalize)
                         .orElseThrow(AuthPasswordResetTokenNotFoundException::new);
 
         var user = userRepository.findByEmail(email).orElseThrow(UserNotFoundException::new);

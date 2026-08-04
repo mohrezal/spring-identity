@@ -1,6 +1,7 @@
 package com.github.mohrezal.identity.domain.user.dto;
 
 import com.github.mohrezal.identity.shared.constant.RegexPatterns;
+import com.github.mohrezal.identity.shared.service.EmailAddressNormalizer;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -13,4 +14,9 @@ public record RegisterRequest(
                 String lastName,
         @NotBlank @Email @Size(max = 100) String email,
         @NotBlank @Size(min = 8, max = 64) @Pattern(regexp = RegexPatterns.PASSWORD_PATTERN)
-                String password) {}
+                String password) {
+
+    public RegisterRequest {
+        email = EmailAddressNormalizer.normalize(email);
+    }
+}

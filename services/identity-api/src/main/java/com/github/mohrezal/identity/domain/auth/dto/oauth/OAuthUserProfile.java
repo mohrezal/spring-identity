@@ -1,6 +1,7 @@
 package com.github.mohrezal.identity.domain.auth.dto.oauth;
 
 import com.github.mohrezal.identity.domain.auth.enums.OAuthProviderType;
+import com.github.mohrezal.identity.shared.service.EmailAddressNormalizer;
 
 public record OAuthUserProfile(
         String providerUserId,
@@ -8,4 +9,9 @@ public record OAuthUserProfile(
         boolean emailVerified,
         String firstName,
         String lastName,
-        OAuthProviderType provider) {}
+        OAuthProviderType provider) {
+
+    public OAuthUserProfile {
+        email = EmailAddressNormalizer.normalize(email);
+    }
+}

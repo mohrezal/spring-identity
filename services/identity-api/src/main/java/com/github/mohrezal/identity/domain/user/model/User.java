@@ -1,11 +1,14 @@
 package com.github.mohrezal.identity.domain.user.model;
 
 import com.github.mohrezal.identity.shared.model.BaseModel;
+import com.github.mohrezal.identity.shared.service.EmailAddressNormalizer;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import java.time.OffsetDateTime;
 import java.util.Collection;
@@ -67,6 +70,12 @@ public class User extends BaseModel implements UserDetails {
 
     public boolean isEmailVerified() {
         return this.emailVerifiedAt != null;
+    }
+
+    @PrePersist
+    @PreUpdate
+    void canonicalizeEmail() {
+        this.email = EmailAddressNormalizer.normalize(this.email);
     }
 
     @Override

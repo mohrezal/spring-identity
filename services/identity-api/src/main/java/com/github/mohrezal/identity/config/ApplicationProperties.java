@@ -1,5 +1,6 @@
 package com.github.mohrezal.identity.config;
 
+import com.github.mohrezal.identity.shared.service.EmailAddressNormalizer;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -129,7 +130,12 @@ public record ApplicationProperties(
     }
 
     @Validated
-    public record Owner(@NotBlank String email) {}
+    public record Owner(@NotBlank String email) {
+
+        public Owner {
+            email = EmailAddressNormalizer.normalize(email);
+        }
+    }
 
     @Validated
     public record Privilege(@NotNull @Valid Role role) {

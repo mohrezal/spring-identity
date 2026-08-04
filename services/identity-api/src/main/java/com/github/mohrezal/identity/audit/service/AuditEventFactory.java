@@ -8,11 +8,11 @@ import com.github.mohrezal.identity.audit.contract.AuditSubject;
 import com.github.mohrezal.identity.audit.enums.AuditEventType;
 import com.github.mohrezal.identity.audit.enums.AuditOutcome;
 import com.github.mohrezal.identity.shared.enums.ExceptionCode;
+import com.github.mohrezal.identity.shared.service.EmailAddressNormalizer;
 import com.github.mohrezal.identity.shared.service.HttpRequestContextService;
 import jakarta.servlet.http.HttpServletRequest;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Locale;
 import java.util.Objects;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -220,9 +220,8 @@ public class AuditEventFactory {
     }
 
     private String normalizeEmail(String email) {
-        return Objects.requireNonNull(email, "email must not be null")
-                .trim()
-                .toLowerCase(Locale.ROOT);
+        return Objects.requireNonNull(
+                EmailAddressNormalizer.normalize(email), "email must not be null");
     }
 
     private Instant currentTimestamp() {
