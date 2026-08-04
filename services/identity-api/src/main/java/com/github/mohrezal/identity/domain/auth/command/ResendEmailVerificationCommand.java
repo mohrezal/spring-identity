@@ -41,14 +41,16 @@ public class ResendEmailVerificationCommand
         var optionalUser = userRepository.findByEmail(params.request().email());
         if (optionalUser.isEmpty() || optionalUser.get().getEmailVerifiedAt() != null) return true;
 
+        var user = optionalUser.get();
         var token = UUID.randomUUID().toString();
-        var email = params.request().email();
+        var email = user.getEmail();
         redisService.set(RedisKey.EMAIL_VERIFICATION_TOKEN, email, token);
         var activationUrl =
                 UriComponentsBuilder.fromUriString(params.redirectUrl())
                         .queryParam("token", token)
                         .toUriString();
-        var emailVerificationEvent = new UserEmailVerificationMessage(email, activationUrl);
+        var emailVerificationEvent =
+                new UserEmailVerificationMessage(user.getId(), email, activationUrl);
 
         eventPublisher.publishEvent(emailVerificationEvent);
         return true;

@@ -23,9 +23,6 @@ public class UserEventListener {
                 RabbitMQConstants.Notification.RoutingKey.TRANSACTIONAL_EMAIL,
                 message);
 
-        log.info(
-                "Publishing email verification message for email={}, activationUrl={}",
-                message.to(),
-                message.activationUrl());
+        log.info("Published email verification message. userId={}", message.userId());
     }
 }

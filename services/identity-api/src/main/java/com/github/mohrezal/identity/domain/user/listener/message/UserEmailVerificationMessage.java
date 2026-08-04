@@ -1,3 +1,5 @@
 package com.github.mohrezal.identity.domain.user.listener.message;
 
-public record UserEmailVerificationMessage(String to, String activationUrl) {}
+import java.util.UUID;
+
+public record UserEmailVerificationMessage(UUID userId, String to, String activationUrl) {}

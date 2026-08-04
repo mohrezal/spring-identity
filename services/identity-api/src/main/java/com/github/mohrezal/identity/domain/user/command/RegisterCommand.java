@@ -83,7 +83,8 @@ public class RegisterCommand implements Command<RegisterCommandParams, RegisterR
                         .queryParam("token", token)
                         .toUriString();
         var emailVerificationEvent =
-                new UserEmailVerificationMessage(user.getEmail(), activationUrl);
+                new UserEmailVerificationMessage(
+                        savedUser.getId(), savedUser.getEmail(), activationUrl);
 
         eventPublisher.publishEvent(emailVerificationEvent);
 

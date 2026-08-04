@@ -89,8 +89,10 @@ class NotificationTransactionIT extends IntegrationTestSupport {
                                 message.getMessageProperties()
                                         .getHeader(RabbitMQConstants.Header.MESSAGE_ID))
                 .isEqualTo(message.getMessageProperties().getMessageId());
+        assertThat(payload.userId()).isNotNull();
         assertThat(payload.to()).isEqualTo(email);
         assertThat(payload.activationUrl()).startsWith(EMAIL_VERIFICATION + "?token=");
+        assertThat(userRepository.findById(payload.userId())).isPresent();
     }
 
     @Test
