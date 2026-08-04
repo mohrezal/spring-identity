@@ -100,9 +100,10 @@ public class AuthController {
             HttpServletRequest request) {
         var auditRequestContext = auditEventFactory.createAuditRequestContext(request);
         var params = new VerifyEmailCommandParams(token, redirectUrl);
-        var email = verifyEmailCommand.execute(params, auditRequestContext);
+        var result = verifyEmailCommand.execute(params, auditRequestContext);
         applicationEventPublisher.publishEvent(
-                auditEventFactory.emailVerified(auditRequestContext, null, email));
+                auditEventFactory.emailVerified(
+                        auditRequestContext, result.userId(), result.email()));
         return ResponseEntity.status(HttpStatus.FOUND).location(URI.create(redirectUrl)).build();
     }
 
