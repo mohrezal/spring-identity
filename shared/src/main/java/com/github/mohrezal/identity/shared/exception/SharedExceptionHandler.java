@@ -30,6 +30,9 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 @Slf4j
 public class SharedExceptionHandler extends AbstractExceptionHandler {
 
+    private static final String REQUIRED_PARAMETER_MESSAGE_KEY =
+            "shared.validation.required-parameter";
+
     public SharedExceptionHandler(MessageSource messageSource) {
         super(messageSource);
     }
@@ -79,7 +82,7 @@ public class SharedExceptionHandler extends AbstractExceptionHandler {
     public ResponseEntity<ErrorResponse> handleMissingServletRequestParameterException(
             MissingServletRequestParameterException exception, WebRequest request) {
         var errors = new HashMap<String, String>();
-        errors.put(exception.getParameterName(), "must not be blank");
+        errors.put(exception.getParameterName(), resolveMessage(REQUIRED_PARAMETER_MESSAGE_KEY));
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(buildBody(ExceptionCode.VALIDATION_FAILED, errors, request));
