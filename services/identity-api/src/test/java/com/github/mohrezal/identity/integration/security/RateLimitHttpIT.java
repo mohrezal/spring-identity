@@ -35,6 +35,8 @@ import tools.jackson.databind.ObjectMapper;
 @Transactional
 class RateLimitHttpIT extends IntegrationTestSupport {
 
+    private static final String FORWARDED_FOR_HEADER = "X-Forwarded-For";
+
     private static final String LOGIN_PATH =
             RouteConstants.build(RouteConstants.Auth.BASE, RouteConstants.Auth.LOGIN);
     private static final String OAUTH_LINK_PATH =
@@ -59,19 +61,23 @@ class RateLimitHttpIT extends IntegrationTestSupport {
     private JwtTokenProvider jwtTokenProvider;
 
     @Test
-    void loginRateLimit_rejectsRequestsAfterConfiguredIpLimit() throws Exception {
+    void loginRateLimit_ignoresForwardedForAndRejectsAfterRemoteAddressLimit() throws Exception {
         var policy = rateLimitConfig.fromPath(HttpMethod.POST, LOGIN_PATH).orElseThrow();
         assertThat(policy.ipLimit()).isNotNull();
         var clientAddress = UUID.randomUUID().toString();
         var request = new LoginRequest(EMAIL, PASSWORD);
 
         for (var attempt = 0; attempt < policy.ipLimit(); attempt++) {
+            var spoofedForwardedAddress = "198.51.100." + attempt;
             mockMvc.perform(
                             post(LOGIN_PATH)
                                     .with(csrf())
                                     .with(
                                             servletRequest -> {
                                                 servletRequest.setRemoteAddr(clientAddress);
+                                                servletRequest.addHeader(
+                                                        FORWARDED_FOR_HEADER,
+                                                        spoofedForwardedAddress);
                                                 return servletRequest;
                                             })
                                     .contentType(MediaType.APPLICATION_JSON)
@@ -85,6 +91,8 @@ class RateLimitHttpIT extends IntegrationTestSupport {
                                 .with(
                                         servletRequest -> {
                                             servletRequest.setRemoteAddr(clientAddress);
+                                            servletRequest.addHeader(
+                                                    FORWARDED_FOR_HEADER, "203.0.113.10");
                                             return servletRequest;
                                         })
                                 .contentType(MediaType.APPLICATION_JSON)

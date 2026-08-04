@@ -16,14 +16,6 @@ public class HttpRequestContextService {
     private static final String FORWARDED_HOST_HEADER = "X-Forwarded-Host";
     private static final String FORWARDED_PROTO_HEADER = "X-Forwarded-Proto";
 
-    private static final String[] HEADERS = {
-        "X-Forwarded-For",
-        "Proxy-Client-IP",
-        "WL-Proxy-Client-IP",
-        "HTTP_X_FORWARDED_FOR",
-        "HTTP_CLIENT_IP"
-    };
-
     private final Tracer tracer;
 
     public Optional<String> getTraceId() {
@@ -59,13 +51,6 @@ public class HttpRequestContextService {
     }
 
     public String getClientIp(HttpServletRequest request) {
-        for (String header : HEADERS) {
-            String ip = request.getHeader(header);
-            if (ip != null && !ip.isEmpty() && !"unknown".equalsIgnoreCase(ip)) {
-                return firstForwardedValue(ip);
-            }
-        }
-
         return request.getRemoteAddr();
     }
 
