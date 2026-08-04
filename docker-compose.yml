@@ -170,7 +170,7 @@ services:
       - identity-network
     restart: unless-stopped
   grafana:
-    image: grafana/grafana:11.6.2
+    image: grafana/grafana:13.1.1
     container_name: identity_grafana
     ports:
       - "127.0.0.1:3000:3000"
