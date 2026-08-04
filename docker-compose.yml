@@ -7,14 +7,17 @@ services:
     env_file:
       - .env
     environment:
+      SPRING_PROFILES_ACTIVE: prod
       APP_DATABASE_HOST: db
       APP_DATABASE_PORT: "5432"
       APP_REDIS_HOST: redis
       APP_REDIS_PORT: "6379"
       APP_RABBITMQ_HOST: rabbitmq
       APP_RABBITMQ_PORT: "5672"
+      APP_MANAGEMENT_PORT: "8082"
     ports:
       - "127.0.0.1:8080:8080"
+      - "127.0.0.1:8082:8082"
     networks:
       - identity-network
     depends_on:
@@ -33,12 +36,15 @@ services:
     env_file:
       - .env
     environment:
+      SPRING_PROFILES_ACTIVE: prod
       APP_REDIS_HOST: redis
       APP_REDIS_PORT: "6379"
       APP_RABBITMQ_HOST: rabbitmq
       APP_RABBITMQ_PORT: "5672"
+      APP_MANAGEMENT_PORT: "8083"
     ports:
       - "127.0.0.1:8081:8081"
+      - "127.0.0.1:8083:8083"
     networks:
       - identity-network
     depends_on:

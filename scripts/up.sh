@@ -21,8 +21,9 @@ echo "==> Starting services..."
 docker compose up -d --build
 
 echo ""
-echo "  identity-api  → http://localhost:8080"
-echo "  audit-worker  → http://localhost:8081"
+echo "  Stack runs with SPRING_PROFILES_ACTIVE=prod"
+echo "  identity-api  → http://localhost:8080  (management: http://localhost:8082)"
+echo "  audit-worker  → http://localhost:8081  (management: http://localhost:8083)"
 echo "  prometheus    → http://localhost:9090"
 echo "  loki          → http://localhost:3100"
 echo "  grafana       → http://localhost:3000"
