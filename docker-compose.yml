@@ -137,7 +137,7 @@ services:
       - identity-network
     restart: unless-stopped
   alloy:
-    image: grafana/alloy:v1.7.2
+    image: grafana/alloy:v1.18.0
     container_name: identity_alloy
     ports:
       - "127.0.0.1:12345:12345"
