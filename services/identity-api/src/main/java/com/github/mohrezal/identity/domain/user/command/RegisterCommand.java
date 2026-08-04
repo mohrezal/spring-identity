@@ -8,6 +8,7 @@ import com.github.mohrezal.identity.domain.user.exception.context.RegistrationAu
 import com.github.mohrezal.identity.domain.user.exception.type.UserEmailAlreadyExistsException;
 import com.github.mohrezal.identity.domain.user.listener.message.UserEmailVerificationMessage;
 import com.github.mohrezal.identity.domain.user.mapper.UserMapper;
+import com.github.mohrezal.identity.domain.user.model.User;
 import com.github.mohrezal.identity.domain.user.repository.UserCredentialRepository;
 import com.github.mohrezal.identity.domain.user.repository.UserRepository;
 import com.github.mohrezal.identity.shared.enums.ExceptionCode;
@@ -23,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -61,15 +63,16 @@ public class RegisterCommand implements Command<RegisterCommandParams, RegisterR
                 hashService.hashHex(request.email()).substring(0, 8),
                 auditRequestContext.traceId());
 
+        var registrationContext =
+                new RegistrationAuditExceptionContext(auditRequestContext, request.email());
         if (userRepository.findByEmail(request.email()).isPresent()) {
-            throw new UserEmailAlreadyExistsException(
-                    new RegistrationAuditExceptionContext(auditRequestContext, request.email()));
+            throw new UserEmailAlreadyExistsException(registrationContext);
         }
 
         validate(params);
         var hashedPassword = passwordEncoder.encode(request.password());
         var user = userMapper.toUser(request);
-        var savedUser = userRepository.save(user);
+        var savedUser = saveUser(user, registrationContext);
         userRoleAssignmentService.assignConfiguredUserRole(savedUser);
         var credential = userMapper.toCredential(savedUser, hashedPassword);
         userCredentialRepository.save(credential);
@@ -90,5 +93,13 @@ public class RegisterCommand implements Command<RegisterCommandParams, RegisterR
                 messageService.resolve(
                         ExceptionCode.AUTH_REGISTERED, LocaleContextHolder.getLocale());
         return new RegisterResponse(savedUser.getId(), message);
+    }
+
+    private User saveUser(User user, RegistrationAuditExceptionContext registrationContext) {
+        try {
+            return userRepository.saveAndFlush(user);
+        } catch (DataIntegrityViolationException exception) {
+            throw new UserEmailAlreadyExistsException(registrationContext, exception);
+        }
     }
 }

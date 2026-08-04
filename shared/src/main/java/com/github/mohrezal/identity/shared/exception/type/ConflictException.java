@@ -17,4 +17,8 @@ public class ConflictException extends BaseException {
     public ConflictException(ExceptionCode appMessage, ExceptionContext context) {
         super(appMessage, HttpStatus.CONFLICT, context);
     }
+
+    public ConflictException(ExceptionCode appMessage, ExceptionContext context, Throwable cause) {
+        super(appMessage, HttpStatus.CONFLICT, context, cause);
+    }
 }

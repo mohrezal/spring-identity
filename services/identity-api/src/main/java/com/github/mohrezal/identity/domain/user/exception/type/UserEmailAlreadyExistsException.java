@@ -13,4 +13,8 @@ public class UserEmailAlreadyExistsException extends ConflictException {
     public UserEmailAlreadyExistsException(ExceptionContext context) {
         super(ExceptionCode.USER_EMAIL_ALREADY_EXISTS, context);
     }
+
+    public UserEmailAlreadyExistsException(ExceptionContext context, Throwable cause) {
+        super(ExceptionCode.USER_EMAIL_ALREADY_EXISTS, context, cause);
+    }
 }
