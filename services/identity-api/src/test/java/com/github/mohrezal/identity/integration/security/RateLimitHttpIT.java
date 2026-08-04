@@ -114,7 +114,9 @@ class RateLimitHttpIT extends IntegrationTestSupport {
                                 .build());
         var accessToken =
                 jwtTokenProvider.createAccessToken(
-                        user.getId(), List.of(Permissions.IDENTITY_AUTH_OAUTH_CONNECTIONS_LINK));
+                        user.getId(),
+                        List.of(Permissions.IDENTITY_AUTH_OAUTH_CONNECTIONS_LINK),
+                        0L);
 
         for (var attempt = 0; attempt < policy.userLimit(); attempt++) {
             mockMvc.perform(

@@ -29,6 +29,24 @@ public interface UserRoleRepository extends JpaRepository<UserRole, UUID> {
 
     @Query(
             """
+            SELECT DISTINCT userRole.user.id
+            FROM UserRole userRole
+            WHERE userRole.role.id = :roleId
+            """)
+    List<UUID> findUserIdsByRoleId(@Param("roleId") UUID roleId);
+
+    @Query(
+            """
+            SELECT DISTINCT userRole.user.id
+            FROM UserRole userRole
+            JOIN userRole.role.permissions rolePermission
+            JOIN rolePermission.permission permission
+            WHERE permission.id = :permissionId
+            """)
+    List<UUID> findUserIdsByPermissionId(@Param("permissionId") UUID permissionId);
+
+    @Query(
+            """
             SELECT DISTINCT permission.key
             FROM UserRole userRole
             JOIN userRole.role role

@@ -66,7 +66,8 @@ class TokenIssuanceServiceTest {
             var refreshTokenCaptor = ArgumentCaptor.forClass(RefreshToken.class);
 
             when(userPermissionService.getPermissionKeys(userId)).thenReturn(permissions);
-            when(jwtTokenProvider.createAccessToken(userId, permissions)).thenReturn(ACCESS_TOKEN);
+            when(jwtTokenProvider.createAccessToken(userId, permissions, 0L))
+                    .thenReturn(ACCESS_TOKEN);
             when(jwtTokenProvider.createRefreshToken(userId)).thenReturn(REFRESH_TOKEN);
             when(hashService.hashHex(REFRESH_TOKEN)).thenReturn(HASHED_REFRESH_TOKEN);
             when(jwtTokenProvider.extractExpiration(REFRESH_TOKEN))
@@ -98,7 +99,8 @@ class TokenIssuanceServiceTest {
             var permissions = List.of(Permissions.IDENTITY_AUTH_SESSIONS_READ);
 
             when(userPermissionService.getPermissionKeys(userId)).thenReturn(permissions);
-            when(jwtTokenProvider.createAccessToken(userId, permissions)).thenReturn(ACCESS_TOKEN);
+            when(jwtTokenProvider.createAccessToken(userId, permissions, 0L))
+                    .thenReturn(ACCESS_TOKEN);
             when(jwtTokenProvider.createRefreshToken(userId)).thenReturn(REFRESH_TOKEN);
             when(hashService.hashHex(REFRESH_TOKEN)).thenReturn(HASHED_REFRESH_TOKEN);
             when(jwtTokenProvider.extractExpiration(REFRESH_TOKEN)).thenReturn(Optional.empty());
@@ -126,7 +128,8 @@ class TokenIssuanceServiceTest {
                             .build();
 
             when(userPermissionService.getPermissionKeys(userId)).thenReturn(permissions);
-            when(jwtTokenProvider.createAccessToken(userId, permissions)).thenReturn(ACCESS_TOKEN);
+            when(jwtTokenProvider.createAccessToken(userId, permissions, 0L))
+                    .thenReturn(ACCESS_TOKEN);
             when(jwtTokenProvider.createRefreshToken(userId)).thenReturn(REFRESH_TOKEN);
             when(hashService.hashHex(REFRESH_TOKEN)).thenReturn(HASHED_REFRESH_TOKEN);
             when(jwtTokenProvider.extractExpiration(REFRESH_TOKEN))
@@ -140,7 +143,7 @@ class TokenIssuanceServiceTest {
             assertThat(response.refreshToken()).isEqualTo(REFRESH_TOKEN);
             var ordered = inOrder(refreshTokenRepository, jwtTokenProvider);
             ordered.verify(refreshTokenRepository).save(oldSession);
-            ordered.verify(jwtTokenProvider).createAccessToken(userId, permissions);
+            ordered.verify(jwtTokenProvider).createAccessToken(userId, permissions, 0L);
             ordered.verify(refreshTokenRepository).save(any(RefreshToken.class));
         }
     }

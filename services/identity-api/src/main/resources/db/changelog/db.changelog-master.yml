@@ -15,3 +15,7 @@ databaseChangeLog:
       file: migrations/1785850037_canonicalize_user_emails.sql
       relativeToChangelogFile: true
       context: schema
+  - include:
+      file: migrations/1785858982_add_user_privilege_version.sql
+      relativeToChangelogFile: true
+      context: schema

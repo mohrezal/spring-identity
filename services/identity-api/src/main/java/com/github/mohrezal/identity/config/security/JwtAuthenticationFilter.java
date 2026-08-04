@@ -71,6 +71,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 return;
             }
 
+            var tokenPrivilegeVersion = jwtTokenProvider.extractPrivilegeVersion(accessToken.get());
+            if (tokenPrivilegeVersion != validUser.getPrivilegeVersion()) {
+                log.warn(
+                        "Access token privilege version mismatch userId={}, tokenVersion={},"
+                                + " currentVersion={}",
+                        userId.get(),
+                        tokenPrivilegeVersion,
+                        validUser.getPrivilegeVersion());
+                filterChain.doFilter(request, response);
+                return;
+            }
+
             var authorities =
                     jwtTokenProvider.extractPermissionKeys(accessToken.get()).stream()
                             .map(SimpleGrantedAuthority::new)

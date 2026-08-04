@@ -89,7 +89,7 @@ class SessionManagementIT extends IntegrationTestSupport {
                                 .build());
         var accessToken =
                 jwtTokenProvider.createAccessToken(
-                        user.getId(), List.of(Permissions.IDENTITY_AUTH_SESSIONS_READ));
+                        user.getId(), List.of(Permissions.IDENTITY_AUTH_SESSIONS_READ), 0L);
 
         var result =
                 mockMvc.perform(
@@ -142,7 +142,7 @@ class SessionManagementIT extends IntegrationTestSupport {
                                 .build());
         var accessToken =
                 jwtTokenProvider.createAccessToken(
-                        user.getId(), List.of(Permissions.IDENTITY_AUTH_SESSIONS_REVOKE));
+                        user.getId(), List.of(Permissions.IDENTITY_AUTH_SESSIONS_REVOKE), 0L);
         var currentSessionPath =
                 RouteConstants.build(SESSIONS_PATH, currentSession.getId().toString());
 
@@ -194,7 +194,7 @@ class SessionManagementIT extends IntegrationTestSupport {
                                 .build());
         var accessToken =
                 jwtTokenProvider.createAccessToken(
-                        user.getId(), List.of(Permissions.IDENTITY_AUTH_SESSIONS_REVOKE));
+                        user.getId(), List.of(Permissions.IDENTITY_AUTH_SESSIONS_REVOKE), 0L);
         var otherSessionPath = RouteConstants.build(SESSIONS_PATH, otherSession.getId().toString());
 
         mockMvc.perform(

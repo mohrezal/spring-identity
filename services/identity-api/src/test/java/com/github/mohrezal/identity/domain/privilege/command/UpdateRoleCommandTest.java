@@ -20,6 +20,9 @@ import com.github.mohrezal.identity.domain.privilege.model.Role;
 import com.github.mohrezal.identity.domain.privilege.model.RolePermission;
 import com.github.mohrezal.identity.domain.privilege.repository.PermissionRepository;
 import com.github.mohrezal.identity.domain.privilege.repository.RoleRepository;
+import com.github.mohrezal.identity.domain.privilege.repository.UserRoleRepository;
+import com.github.mohrezal.identity.domain.privilege.service.UserPrivilegeVersionService;
+import com.github.mohrezal.identity.domain.user.repository.UserRepository;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -51,7 +54,16 @@ class UpdateRoleCommandTest {
     private PermissionRepository permissionRepository;
 
     @Mock
+    private UserRoleRepository userRoleRepository;
+
+    @Mock
+    private UserRepository userRepository;
+
+    @Mock
     private RoleMapper roleMapper;
+
+    @Mock
+    private UserPrivilegeVersionService userPrivilegeVersionService;
 
     @InjectMocks
     private UpdateRoleCommand command;
@@ -93,6 +105,7 @@ class UpdateRoleCommandTest {
         when(permissionRepository.findAllById(request.permissionIds()))
                 .thenReturn(List.of(retainedPermission, newPermission));
         when(roleRepository.saveAndFlush(role)).thenReturn(role);
+        when(userRoleRepository.findUserIdsByRoleId(roleId)).thenReturn(List.of());
         when(roleMapper.toSummary(role)).thenReturn(summary);
 
         var result = command.execute(params, null);
@@ -114,6 +127,8 @@ class UpdateRoleCommandTest {
                 .singleElement()
                 .isSameAs(retainedAssignment);
         verify(roleRepository).saveAndFlush(role);
+        verify(userRoleRepository).findUserIdsByRoleId(roleId);
+        verifyNoInteractions(userRepository, userPrivilegeVersionService);
         verify(roleMapper).toSummary(role);
     }
 
@@ -132,6 +147,11 @@ class UpdateRoleCommandTest {
         assertThat(role.getName()).isEqualTo("Owner");
         assertThat(role.getEnabled()).isTrue();
         verify(roleRepository, never()).saveAndFlush(any());
-        verifyNoInteractions(permissionRepository, roleMapper);
+        verifyNoInteractions(
+                permissionRepository,
+                userRoleRepository,
+                userRepository,
+                roleMapper,
+                userPrivilegeVersionService);
     }
 }

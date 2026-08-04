@@ -8,7 +8,12 @@ import com.github.mohrezal.identity.domain.privilege.exception.type.PermissionNo
 import com.github.mohrezal.identity.domain.privilege.exception.type.ProtectedPermissionCannotBeDisabledException;
 import com.github.mohrezal.identity.domain.privilege.mapper.PermissionMapper;
 import com.github.mohrezal.identity.domain.privilege.repository.PermissionRepository;
+import com.github.mohrezal.identity.domain.privilege.repository.UserRoleRepository;
+import com.github.mohrezal.identity.domain.privilege.service.UserPrivilegeVersionService;
+import com.github.mohrezal.identity.domain.user.exception.type.UserNotFoundException;
+import com.github.mohrezal.identity.domain.user.repository.UserRepository;
 import com.github.mohrezal.identity.shared.interfaces.Command;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -22,6 +27,9 @@ public class UpdatePermissionCommand
 
     private final PermissionRepository permissionRepository;
     private final PermissionMapper permissionMapper;
+    private final UserRoleRepository userRoleRepository;
+    private final UserRepository userRepository;
+    private final UserPrivilegeVersionService userPrivilegeVersionService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -38,10 +46,20 @@ public class UpdatePermissionCommand
             throw new ProtectedPermissionCannotBeDisabledException();
         }
 
+        var enabledChanged = !Objects.equals(permission.getEnabled(), request.enabled());
         permission.setName(request.name());
         permission.setEnabled(request.enabled());
 
         var savedPermission = permissionRepository.save(permission);
+        if (enabledChanged) {
+            userRoleRepository.findUserIdsByPermissionId(savedPermission.getId()).stream()
+                    .map(
+                            userId ->
+                                    userRepository
+                                            .findById(userId)
+                                            .orElseThrow(UserNotFoundException::new))
+                    .forEach(userPrivilegeVersionService::increment);
+        }
         log.info(
                 "Permission updated. permissionId={}, key={}",
                 savedPermission.getId(),

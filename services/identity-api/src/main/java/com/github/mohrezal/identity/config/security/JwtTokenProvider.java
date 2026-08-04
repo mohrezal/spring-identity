@@ -41,12 +41,13 @@ public class JwtTokenProvider {
                         .build();
     }
 
-    public String createAccessToken(UUID userId, List<String> permissions) {
+    public String createAccessToken(UUID userId, List<String> permissions, long privilegeVersion) {
         var now = Instant.now();
         var token =
                 Jwts.builder()
                         .subject(userId.toString())
                         .claim(JwtClaim.PERMISSIONS, permissions)
+                        .claim(JwtClaim.PRIVILEGE_VERSION, privilegeVersion)
                         .issuedAt(Date.from(now))
                         .expiration(
                                 Date.from(
@@ -58,7 +59,10 @@ public class JwtTokenProvider {
                                                         .ttl())))
                         .signWith(signingKey)
                         .compact();
-        log.debug("Created access token for userId={}", userId);
+        log.debug(
+                "Created access token for userId={}, privilegeVersion={}",
+                userId,
+                privilegeVersion);
         return token;
     }
 
@@ -110,6 +114,22 @@ public class JwtTokenProvider {
                     .toList();
         } catch (JwtException | IllegalArgumentException exception) {
             return List.of();
+        }
+    }
+
+    public long extractPrivilegeVersion(String token) {
+        try {
+            var claims = jwtParser.parseSignedClaims(token).getPayload();
+            var privilegeVersion = claims.get(JwtClaim.PRIVILEGE_VERSION);
+            if (privilegeVersion == null) {
+                return 0L;
+            }
+            if (privilegeVersion instanceof Number number) {
+                return number.longValue();
+            }
+            return Long.parseLong(privilegeVersion.toString());
+        } catch (JwtException | IllegalArgumentException exception) {
+            return 0L;
         }
     }
 

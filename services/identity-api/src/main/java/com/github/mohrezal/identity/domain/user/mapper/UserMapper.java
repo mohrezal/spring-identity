@@ -19,6 +19,7 @@ public interface UserMapper {
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "emailVerifiedAt", ignore = true)
     @Mapping(target = "enabled", ignore = true)
+    @Mapping(target = "privilegeVersion", ignore = true)
     @Mapping(target = "credential", ignore = true)
     User toUser(RegisterRequest request);
 

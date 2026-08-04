@@ -83,7 +83,9 @@ class PrivilegeInvariantIT extends IntegrationTestSupport {
                                 .build());
         var accessToken =
                 jwtTokenProvider.createAccessToken(
-                        user.getId(), List.of(Permissions.IDENTITY_PRIVILEGE_PERMISSIONS_UPDATE));
+                        user.getId(),
+                        List.of(Permissions.IDENTITY_PRIVILEGE_PERMISSIONS_UPDATE),
+                        0L);
         var protectedPermissionPath =
                 RouteConstants.build(PERMISSIONS_PATH, protectedPermission.getId().toString());
 
@@ -127,7 +129,7 @@ class PrivilegeInvariantIT extends IntegrationTestSupport {
                                                         .build()));
         var accessToken =
                 jwtTokenProvider.createAccessToken(
-                        user.getId(), List.of(Permissions.IDENTITY_PRIVILEGE_ROLES_DELETE));
+                        user.getId(), List.of(Permissions.IDENTITY_PRIVILEGE_ROLES_DELETE), 0L);
         var userRolePath = RouteConstants.build(ROLES_PATH, userRole.getId().toString());
 
         mockMvc.perform(
@@ -160,7 +162,7 @@ class PrivilegeInvariantIT extends IntegrationTestSupport {
         userRoleRepository.saveAndFlush(UserRole.builder().user(user).role(supportRole).build());
         var accessToken =
                 jwtTokenProvider.createAccessToken(
-                        user.getId(), List.of(Permissions.IDENTITY_PRIVILEGE_ROLES_DELETE));
+                        user.getId(), List.of(Permissions.IDENTITY_PRIVILEGE_ROLES_DELETE), 0L);
         var supportRolePath = RouteConstants.build(ROLES_PATH, supportRole.getId().toString());
 
         mockMvc.perform(
@@ -197,7 +199,9 @@ class PrivilegeInvariantIT extends IntegrationTestSupport {
         userRoleRepository.saveAndFlush(UserRole.builder().user(owner).role(ownerRole).build());
         var accessToken =
                 jwtTokenProvider.createAccessToken(
-                        owner.getId(), List.of(Permissions.IDENTITY_PRIVILEGE_USERS_ASSIGN_ROLES));
+                        owner.getId(),
+                        List.of(Permissions.IDENTITY_PRIVILEGE_USERS_ASSIGN_ROLES),
+                        0L);
         var ownerAssignmentsPath =
                 RouteConstants.build(
                         ROLES_PATH,

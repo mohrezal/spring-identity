@@ -11,6 +11,7 @@ import com.github.mohrezal.identity.domain.privilege.model.Role;
 import com.github.mohrezal.identity.domain.privilege.model.UserRole;
 import com.github.mohrezal.identity.domain.privilege.repository.RoleRepository;
 import com.github.mohrezal.identity.domain.privilege.repository.UserRoleRepository;
+import com.github.mohrezal.identity.domain.privilege.service.UserPrivilegeVersionService;
 import com.github.mohrezal.identity.domain.user.exception.type.UserNotFoundException;
 import com.github.mohrezal.identity.domain.user.repository.UserRepository;
 import com.github.mohrezal.identity.shared.interfaces.Command;
@@ -32,6 +33,7 @@ public class UpdateUserRolesCommand
     private final RoleRepository roleRepository;
     private final UserRoleRepository userRoleRepository;
     private final RoleMapper roleMapper;
+    private final UserPrivilegeVersionService userPrivilegeVersionService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -81,6 +83,10 @@ public class UpdateUserRolesCommand
 
         userRoleRepository.deleteAll(assignmentsToDelete);
         userRoleRepository.saveAll(assignmentsToCreate);
+
+        if (!assignmentsToDelete.isEmpty() || !assignmentsToCreate.isEmpty()) {
+            userPrivilegeVersionService.increment(user);
+        }
 
         log.info("User roles updated. userId={}, roleCount={}", user.getId(), roles.size());
         return roles.stream().map(roleMapper::toSummary).toList();

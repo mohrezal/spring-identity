@@ -24,7 +24,9 @@ public class TokenIssuanceService {
 
     public AuthResponse issue(User user, String ipAddress, String deviceInfo) {
         var permissions = userPermissionService.getPermissionKeys(user.getId());
-        var accessToken = jwtTokenProvider.createAccessToken(user.getId(), permissions);
+        var accessToken =
+                jwtTokenProvider.createAccessToken(
+                        user.getId(), permissions, user.getPrivilegeVersion());
         var refreshToken = jwtTokenProvider.createRefreshToken(user.getId());
 
         var entity =

@@ -47,7 +47,7 @@ class SecurityHttpContractIT extends IntegrationTestSupport {
     void authenticatedEndpoint_rejectsAccessTokenForUnknownUser() throws Exception {
         var accessToken =
                 jwtTokenProvider.createAccessToken(
-                        UUID.randomUUID(), List.of(Permissions.IDENTITY_AUTH_SESSIONS_READ));
+                        UUID.randomUUID(), List.of(Permissions.IDENTITY_AUTH_SESSIONS_READ), 0L);
 
         mockMvc.perform(get(ME_PATH).cookie(new Cookie(CookieConstant.ACCESS_TOKEN, accessToken)))
                 .andExpect(status().isUnauthorized());
@@ -60,7 +60,7 @@ class SecurityHttpContractIT extends IntegrationTestSupport {
                         User.builder().email(EMAIL).firstName("Test").lastName("User").build());
         var accessToken =
                 jwtTokenProvider.createAccessToken(
-                        user.getId(), List.of(Permissions.IDENTITY_AUTH_SESSIONS_REVOKE));
+                        user.getId(), List.of(Permissions.IDENTITY_AUTH_SESSIONS_REVOKE), 0L);
 
         mockMvc.perform(
                         get(SESSIONS_PATH)
@@ -75,7 +75,7 @@ class SecurityHttpContractIT extends IntegrationTestSupport {
                         User.builder().email(EMAIL).firstName("Test").lastName("User").build());
         var accessToken =
                 jwtTokenProvider.createAccessToken(
-                        user.getId(), List.of(Permissions.IDENTITY_AUTH_SESSIONS_READ));
+                        user.getId(), List.of(Permissions.IDENTITY_AUTH_SESSIONS_READ), 0L);
 
         mockMvc.perform(
                         get(SESSIONS_PATH)

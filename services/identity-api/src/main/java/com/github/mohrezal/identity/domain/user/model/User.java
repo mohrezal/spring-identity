@@ -45,6 +45,10 @@ public class User extends BaseModel implements UserDetails {
     @Builder.Default
     private Boolean enabled = true;
 
+    @Column(name = "privilege_version", nullable = false)
+    @Builder.Default
+    private Long privilegeVersion = 0L;
+
     @OneToOne(
             mappedBy = "user",
             fetch = FetchType.EAGER,
@@ -81,5 +85,9 @@ public class User extends BaseModel implements UserDetails {
     @Override
     public boolean isEnabled() {
         return this.enabled;
+    }
+
+    public void incrementPrivilegeVersion() {
+        this.privilegeVersion = this.privilegeVersion + 1L;
     }
 }
