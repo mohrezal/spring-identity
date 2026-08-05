@@ -13,8 +13,6 @@ import org.springframework.stereotype.Component;
 public class HttpRequestContextService {
 
     private static final String CLIENT_REQUEST_ID_HEADER = "X-Request-ID";
-    private static final String FORWARDED_FOR_HEADER = "X-Forwarded-For";
-    private static final String REAL_IP_HEADER = "X-Real-IP";
     private static final String FORWARDED_HOST_HEADER = "X-Forwarded-Host";
     private static final String FORWARDED_PROTO_HEADER = "X-Forwarded-Proto";
 
@@ -52,17 +50,14 @@ public class HttpRequestContextService {
                 .filter(value -> value.equals("http") || value.equals("https"));
     }
 
+    /**
+     * Returns the direct peer address only.
+     *
+     * <p>Forwarded headers ({@code X-Forwarded-For}, {@code X-Real-IP}, etc.) are intentionally
+     * ignored until a trusted proxy hop list is configured (see DEC-001). Trusting client-supplied
+     * forwarding headers would allow rate-limit and audit IP spoofing.
+     */
     public String getClientIp(HttpServletRequest request) {
-        var forwardedFor = getHeader(request, FORWARDED_FOR_HEADER).map(this::firstForwardedValue);
-        if (forwardedFor.isPresent() && !forwardedFor.get().isBlank()) {
-            return forwardedFor.get();
-        }
-
-        var realIp = getHeader(request, REAL_IP_HEADER);
-        if (realIp.isPresent() && !realIp.get().isBlank()) {
-            return realIp.get();
-        }
-
         return request.getRemoteAddr();
     }
 
