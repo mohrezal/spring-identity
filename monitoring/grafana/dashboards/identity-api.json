@@ -765,7 +765,7 @@
             "uid": "loki"
           },
           "editorMode": "code",
-          "expr": "{service_name=\"identity-api\"} | json | level =~ \"(?i)error|warn\"",
+          "expr": "{service_name=\"identity-api\"} |~ \"(?i)\\\\b(ERROR|WARN|WARNING)\\\\b\"",
           "queryType": "range",
           "refId": "A"
         }

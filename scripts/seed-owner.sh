@@ -1,8 +1,23 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 set -euo pipefail
 
-./mvnw spring-boot:run \
+cd "$(dirname "$0")/.."
+
+if [[ -f .env ]]; then
+  set -a
+  source .env
+  set +a
+fi
+
+./mvnw -pl services/identity-api -am install \
+    -q \
+    -Dmaven.test.skip=true \
+    -Dcheckstyle.skip \
+    -Dspotless.check.skip=true \
+    -Dmaven.antrun.skip=true
+
+./mvnw -pl services/identity-api spring-boot:run \
     -q \
     -Dmaven.test.skip=true \
     -Dcheckstyle.skip \

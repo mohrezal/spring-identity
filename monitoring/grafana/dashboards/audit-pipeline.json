@@ -763,7 +763,7 @@
             "uid": "loki"
           },
           "editorMode": "code",
-          "expr": "{service_name=\"audit-worker\"} | json | level =~ \"(?i)error|warn\"",
+          "expr": "{service_name=\"audit-worker\"} |~ \"(?i)\\\\b(ERROR|WARN|WARNING)\\\\b\"",
           "queryType": "range",
           "refId": "A"
         }
