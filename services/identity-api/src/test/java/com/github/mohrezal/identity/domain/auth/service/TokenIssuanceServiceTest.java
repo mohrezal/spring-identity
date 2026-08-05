@@ -10,9 +10,11 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import com.github.mohrezal.identity.config.security.JwtTokenProvider;
+import com.github.mohrezal.identity.domain.auth.exception.type.AuthAccountDisabledException;
 import com.github.mohrezal.identity.domain.auth.model.RefreshToken;
 import com.github.mohrezal.identity.domain.auth.repository.RefreshTokenRepository;
 import com.github.mohrezal.identity.domain.privilege.constant.Permissions;
@@ -109,6 +111,17 @@ class TokenIssuanceServiceTest {
                     .isInstanceOf(UnauthorizedException.class);
             verify(refreshTokenRepository, never()).save(any());
         }
+
+        @Test
+        void whenUserIsDisabled_rejectsWithoutPersistingSession() {
+            var userId = UUID.randomUUID();
+            var user = User.builder().id(userId).email("user@client.test").enabled(false).build();
+
+            assertThatThrownBy(() -> service.issue(user, IP_ADDRESS, USER_AGENT))
+                    .isInstanceOf(AuthAccountDisabledException.class);
+            verify(refreshTokenRepository, never()).save(any());
+            verifyNoInteractions(userPermissionService, jwtTokenProvider, hashService);
+        }
     }
 
     @Nested
@@ -145,6 +158,24 @@ class TokenIssuanceServiceTest {
             ordered.verify(refreshTokenRepository).save(oldSession);
             ordered.verify(jwtTokenProvider).createAccessToken(userId, permissions, 0L);
             ordered.verify(refreshTokenRepository).save(any(RefreshToken.class));
+        }
+
+        @Test
+        void whenUserIsDisabled_rejectsWithoutRevokingRefreshToken() {
+            var userId = UUID.randomUUID();
+            var user = User.builder().id(userId).email("user@client.test").enabled(false).build();
+            var oldSession =
+                    RefreshToken.builder()
+                            .id(UUID.randomUUID())
+                            .user(user)
+                            .hashedToken("old-hash")
+                            .expiresAt(OffsetDateTime.now().plusDays(1))
+                            .build();
+
+            assertThatThrownBy(() -> service.rotate(oldSession, OTHER_IP_ADDRESS, OTHER_USER_AGENT))
+                    .isInstanceOf(AuthAccountDisabledException.class);
+            assertThat(oldSession.isRevoked()).isFalse();
+            verify(refreshTokenRepository, never()).save(any());
         }
     }
 

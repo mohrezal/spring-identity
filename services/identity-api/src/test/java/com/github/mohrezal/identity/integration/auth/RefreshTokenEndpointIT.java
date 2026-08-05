@@ -204,4 +204,40 @@ class RefreshTokenEndpointIT extends IntegrationTestSupport {
             userRepository.deleteById(user.getId());
         }
     }
+
+    @Test
+    void refresh_rejectsDisabledAccountWithoutRevokingSession() throws Exception {
+        var user =
+                userRepository.saveAndFlush(
+                        User.builder()
+                                .email(EMAIL)
+                                .firstName("Test")
+                                .lastName("User")
+                                .enabled(false)
+                                .build());
+        var rawRefreshToken = jwtTokenProvider.createRefreshToken(user.getId());
+        refreshTokenRepository.saveAndFlush(
+                RefreshToken.builder()
+                        .user(user)
+                        .hashedToken(hashService.hashHex(rawRefreshToken))
+                        .deviceInfo(USER_AGENT)
+                        .expiresAt(
+                                jwtTokenProvider.extractExpiration(rawRefreshToken).orElseThrow())
+                        .build());
+
+        mockMvc.perform(
+                        post(REFRESH_PATH)
+                                .with(csrf())
+                                .cookie(new Cookie(CookieConstant.REFRESH_TOKEN, rawRefreshToken))
+                                .header(HttpHeaders.USER_AGENT, USER_AGENT))
+                .andExpect(status().isForbidden());
+
+        assertThat(
+                        refreshTokenRepository
+                                .findByHashedToken(hashService.hashHex(rawRefreshToken))
+                                .orElseThrow()
+                                .isRevoked())
+                .isFalse();
+        assertThat(refreshTokenRepository.findAll()).hasSize(1);
+    }
 }

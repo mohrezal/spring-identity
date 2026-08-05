@@ -6,6 +6,7 @@ import static com.github.mohrezal.identity.support.data.TestConstants.RequestMet
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.github.mohrezal.identity.config.RouteConstants;
@@ -109,5 +110,36 @@ class LoginEndpointIT extends IntegrationTestSupport {
                 .isEqualTo(hashService.hashHex(refreshCookie.getValue()));
         assertThat(session.getDeviceInfo()).isEqualTo(USER_AGENT);
         assertThat(session.isActive()).isTrue();
+    }
+
+    @Test
+    void login_rejectsDisabledAccountWithoutCreatingSession() throws Exception {
+        var user =
+                userRepository.saveAndFlush(
+                        User.builder()
+                                .email(EMAIL)
+                                .firstName("Test")
+                                .lastName("User")
+                                .emailVerifiedAt(OffsetDateTime.now())
+                                .enabled(false)
+                                .build());
+        userCredentialRepository.saveAndFlush(
+                UserCredential.builder()
+                        .user(user)
+                        .hashedPassword(passwordEncoder.encode(PASSWORD))
+                        .build());
+
+        mockMvc.perform(
+                        post(LOGIN_PATH)
+                                .with(csrf())
+                                .header(HttpHeaders.USER_AGENT, USER_AGENT)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(
+                                        objectMapper.writeValueAsBytes(
+                                                new LoginRequest(EMAIL, PASSWORD))))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.code").value("AUTH_ACCOUNT_DISABLED"));
+
+        assertThat(refreshTokenRepository.findAll()).isEmpty();
     }
 }

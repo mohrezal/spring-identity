@@ -4,6 +4,7 @@ import com.github.mohrezal.identity.audit.service.AuditEventFactory;
 import com.github.mohrezal.identity.audit.service.AuditRequestContext;
 import com.github.mohrezal.identity.domain.auth.exception.context.EmailVerificationAuditExceptionContext;
 import com.github.mohrezal.identity.domain.auth.exception.context.LoginAuditExceptionContext;
+import com.github.mohrezal.identity.domain.auth.exception.type.AuthAccountDisabledException;
 import com.github.mohrezal.identity.domain.auth.exception.type.AuthCannotRevokeCurrentSessionException;
 import com.github.mohrezal.identity.domain.auth.exception.type.AuthCurrentPasswordMismatchException;
 import com.github.mohrezal.identity.domain.auth.exception.type.AuthEmailAlreadyVerifiedException;
@@ -68,6 +69,21 @@ public class AuthExceptionHandler extends AbstractExceptionHandler {
     @ExceptionHandler(AuthEmailNotVerifiedException.class)
     public ResponseEntity<ErrorResponse> handleEmailNotVerified(
             AuthEmailNotVerifiedException exception, WebRequest request) {
+        if (exception.getContext()
+                instanceof
+                LoginAuditExceptionContext(
+                        AuditRequestContext auditRequestContext,
+                        String attemptedEmail)) {
+            applicationEventPublisher.publishEvent(
+                    auditEventFactory.loginFailed(
+                            auditRequestContext, attemptedEmail, exception.getExceptionCode()));
+        }
+        return buildErrorResponse(exception, request);
+    }
+
+    @ExceptionHandler(AuthAccountDisabledException.class)
+    public ResponseEntity<ErrorResponse> handleAccountDisabled(
+            AuthAccountDisabledException exception, WebRequest request) {
         if (exception.getContext()
                 instanceof
                 LoginAuditExceptionContext(

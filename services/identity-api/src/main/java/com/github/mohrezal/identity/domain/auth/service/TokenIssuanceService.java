@@ -2,6 +2,7 @@ package com.github.mohrezal.identity.domain.auth.service;
 
 import com.github.mohrezal.identity.config.security.JwtTokenProvider;
 import com.github.mohrezal.identity.domain.auth.dto.AuthResponse;
+import com.github.mohrezal.identity.domain.auth.exception.type.AuthAccountDisabledException;
 import com.github.mohrezal.identity.domain.auth.model.RefreshToken;
 import com.github.mohrezal.identity.domain.auth.repository.RefreshTokenRepository;
 import com.github.mohrezal.identity.domain.privilege.service.UserPermissionService;
@@ -23,6 +24,8 @@ public class TokenIssuanceService {
     private final UserPermissionService userPermissionService;
 
     public AuthResponse issue(User user, String ipAddress, String deviceInfo) {
+        requireEnabled(user);
+
         var permissions = userPermissionService.getPermissionKeys(user.getId());
         var accessToken =
                 jwtTokenProvider.createAccessToken(
@@ -52,6 +55,8 @@ public class TokenIssuanceService {
     }
 
     public AuthResponse rotate(RefreshToken refreshToken, String ipAddress, String deviceInfo) {
+        requireEnabled(refreshToken.getUser());
+
         refreshToken.revoke();
         refreshTokenRepository.save(refreshToken);
 
@@ -61,5 +66,12 @@ public class TokenIssuanceService {
                 refreshToken.getId());
 
         return issue(refreshToken.getUser(), ipAddress, deviceInfo);
+    }
+
+    private void requireEnabled(User user) {
+        if (!user.isEnabled()) {
+            log.warn("Token issuance blocked for disabled account. userId={}", user.getId());
+            throw new AuthAccountDisabledException();
+        }
     }
 }

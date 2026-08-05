@@ -18,6 +18,7 @@ public enum ExceptionCode {
     AUTH_SESSION_NOT_FOUND("auth.error.session-not-found"),
     AUTH_CANNOT_REVOKE_CURRENT_SESSION("auth.error.cannot-revoke-current-session"),
     AUTH_EMAIL_NOT_VERIFIED("auth.error.email-not-verified"),
+    AUTH_ACCOUNT_DISABLED("auth.error.account-disabled"),
     AUTH_EMAIL_VERIFICATION_NOT_FOUND("auth.error.email-verification-token-not-found"),
     AUTH_PASSWORD_RESET_TOKEN_NOT_FOUND("auth.error.password-reset-token-not-found"),
     AUTH_EMAIL_ALREADY_VERIFIED("auth.error.email-already-verified"),

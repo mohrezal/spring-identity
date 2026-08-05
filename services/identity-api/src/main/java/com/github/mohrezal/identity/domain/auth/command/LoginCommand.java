@@ -4,6 +4,7 @@ import com.github.mohrezal.identity.audit.service.AuditRequestContext;
 import com.github.mohrezal.identity.domain.auth.command.param.LoginCommandParams;
 import com.github.mohrezal.identity.domain.auth.dto.LoginResponse;
 import com.github.mohrezal.identity.domain.auth.exception.context.LoginAuditExceptionContext;
+import com.github.mohrezal.identity.domain.auth.exception.type.AuthAccountDisabledException;
 import com.github.mohrezal.identity.domain.auth.exception.type.AuthEmailNotVerifiedException;
 import com.github.mohrezal.identity.domain.auth.exception.type.AuthInvalidCredentialsException;
 import com.github.mohrezal.identity.domain.auth.service.TokenIssuanceService;
@@ -53,6 +54,11 @@ public class LoginCommand implements Command<LoginCommandParams, LoginResponse> 
         if (!user.isEmailVerified()) {
             log.warn("Email/password login blocked for unverified email. userId={}", user.getId());
             throw new AuthEmailNotVerifiedException(exceptionContext);
+        }
+
+        if (!user.isEnabled()) {
+            log.warn("Email/password login blocked for disabled account. userId={}", user.getId());
+            throw new AuthAccountDisabledException(exceptionContext);
         }
 
         var authResponse =
